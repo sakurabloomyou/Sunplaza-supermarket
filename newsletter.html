@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サンプラザ ひだまり通信 創刊号 2026年6月</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --coral:   #FF6B6B;
+  --yellow:  #FFD93D;
+  --green:   #6BCB77;
+  --orange:  #FF8E53;
+  --light-coral: #FFE8E8;
+  --light-yellow: #FFFBE6;
+  --light-green: #E8F8EA;
+  --light-orange: #FFF0E6;
+  --brown:   #7B5B3A;
+  --dark:    #333333;
+  --mid:     #666666;
+  --pale:    #FAF6F0;
+  --white:   #FFFFFF;
+  --shadow:  rgba(0,0,0,0.18);
+}
+
+body {
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  background: #E8E0D5;
+  color: var(--dark);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+/* ===== PRINT BUTTON ===== */
+.print-bar {
+  text-align: center;
+  margin-bottom: 28px;
+  position: sticky;
+  top: 12px;
+  z-index: 100;
+}
+
+.print-btn {
+  background: linear-gradient(135deg, var(--coral), var(--orange));
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 700;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255,107,107,0.45);
+  letter-spacing: 0.05em;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.print-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(255,107,107,0.5); }
+
+/* ===== PAGES CONTAINER ===== */
+.pages-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+/* ===== SINGLE PAGE ===== */
+.page {
+  width: 210mm;
+  height: 297mm;
+  background: var(--white);
+  box-shadow: 0 6px 32px var(--shadow);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ===== SPREAD (pages 2-3 side by side) ===== */
+.spread {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  box-shadow: 0 6px 32px var(--shadow);
+  width: 420mm;
+}
+.spread .page {
+  box-shadow: none;
+  border-radius: 0;
+}
+.spread .page:first-child { border-right: 2px dashed #ddd; }
+
+/* ===== PAGE LABEL ===== */
+.page-label {
+  font-size: 11px;
+  color: #999;
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+/* ===== UTILITY ===== */
+.serif { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif; }
+.small { font-size: 11px; }
+.tiny  { font-size: 10px; }
+
+/* ============================================================
+   PAGE 1 — COVER
+   ============================================================ */
+.cover {
+  background: linear-gradient(160deg, #FFF8F0 0%, #FFF3E0 60%, #FFE8D6 100%);
+}
+
+/* Sunflower bg pattern */
+.cover::before {
+  content: '🌻🌸🌼🌻🌸🌼🌻🌸🌼🌻🌸🌼🌻🌸🌼🌻🌸🌼🌻🌸🌼🌻🌸🌼';
+  position: absolute;
+  top: -4px;
+  left: 0; right: 0;
+  font-size: 22px;
+  letter-spacing: 4px;
+  opacity: 0.13;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cover-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* Top stripe */
+.cover-top-stripe {
+  background: var(--coral);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cover-top-stripe .issue-badge {
+  background: var(--yellow);
+  color: var(--brown);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+.cover-top-stripe .store-name {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+/* Hero area */
+.cover-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 26px 22px 0;
+  position: relative;
+}
+
+/* Decorative band behind title */
+.title-band {
+  background: linear-gradient(90deg, var(--yellow) 0%, #FFB347 100%);
+  width: 100%;
+  border-radius: 16px;
+  padding: 18px 20px 14px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(255,179,71,0.4);
+}
+.title-band .deco-top {
+  font-size: 18px;
+  letter-spacing: 6px;
+  margin-bottom: 4px;
+}
+.title-jp {
+  font-size: 34px;
+  font-weight: 900;
+  color: var(--brown);
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.7);
+}
+.title-sub {
+  font-size: 11.5px;
+  color: #5A4020;
+  margin-top: 6px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* Date badge */
+.cover-date {
+  margin-top: 14px;
+  background: var(--coral);
+  color: white;
+  padding: 6px 28px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  box-shadow: 0 3px 10px rgba(255,107,107,0.4);
+}
+
+/* Main illustration area */
+.cover-illus {
+  margin-top: 18px;
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.cover-illus-main {
+  width: 130px; height: 130px;
+  background: linear-gradient(135deg, #FFF0C8, #FFD98A);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  box-shadow: 0 4px 20px rgba(255,200,80,0.5);
+  position: relative;
+}
+.cover-illus-main::after {
+  content: '✦ ✦ ✦';
+  position: absolute;
+  bottom: -20px;
+  font-size: 12px;
+  color: var(--orange);
+}
+.cover-illus-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+.illus-bubble {
+  background: white;
+  border: 2px solid var(--orange);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--brown);
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(255,142,83,0.2);
+}
+
+/* Teaser boxes */
+.cover-teasers {
+  margin-top: 28px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.teaser-item {
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-left: 5px solid var(--coral);
+}
+.teaser-item:nth-child(2) { border-left-color: var(--green); }
+.teaser-item:nth-child(3) { border-left-color: var(--orange); }
+.teaser-pg {
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  background: var(--coral);
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.teaser-item:nth-child(2) .teaser-pg { background: var(--green); }
+.teaser-item:nth-child(3) .teaser-pg { background: var(--orange); }
+.teaser-text { font-size: 12px; font-weight: 500; color: var(--dark); line-height: 1.4; }
+
+/* Cover footer */
+.cover-footer {
+  background: var(--brown);
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  padding: 9px 16px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cover-footer .hearts { font-size: 14px; letter-spacing: 3px; }
+
+/* ============================================================
+   PAGE 2 — LEFT INSIDE
+   ============================================================ */
+.page-left {
+  background: var(--pale);
+}
+
+.page-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Running head */
+.running-head {
+  background: var(--coral);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.running-head.green { background: var(--green); }
+.page-num {
+  background: white;
+  color: var(--coral);
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.running-head.green .page-num { color: var(--green); }
+
+/* Page scroll content */
+.page-content {
+  flex: 1;
+  padding: 12px 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+/* ===== SECTION HEADER ===== */
+.sec-header {
+  border-radius: 8px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.sec-header.coral  { background: var(--coral); }
+.sec-header.yellow { background: var(--yellow); }
+.sec-header.green  { background: var(--green); }
+.sec-header.orange { background: var(--orange); }
+.sec-header.blue   { background: #74B9FF; }
+.sec-header.purple { background: #A29BFE; }
+
+.sec-icon { font-size: 18px; line-height: 1; }
+.sec-title {
+  color: white;
+  font-size: 13.5px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.sec-header.yellow .sec-title { color: var(--brown); }
+.sec-subtitle {
+  font-size: 9.5px;
+  color: rgba(255,255,255,0.9);
+  margin-top: 1px;
+}
+.sec-header.yellow .sec-subtitle { color: rgba(90,64,32,0.8); }
+
+/* ===== WORKPLACE PRIDE ===== */
+.pride-section { display: flex; flex-direction: column; gap: 7px; }
+
+.pride-photo-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.photo-box {
+  flex: 1;
+  border: 2.5px dashed var(--coral);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  background: var(--light-coral);
+  min-height: 60px;
+  font-size: 22px;
+  position: relative;
+}
+.photo-box .photo-label {
+  font-size: 9px;
+  color: var(--coral);
+  font-weight: 600;
+  margin-top: 4px;
+  text-align: center;
+}
+.photo-box.green-box { border-color: var(--green); background: var(--light-green); }
+.photo-box.green-box .photo-label { color: #3A9B47; }
+.photo-box.orange-box { border-color: var(--orange); background: var(--light-orange); }
+.photo-box.orange-box .photo-label { color: #CC5500; }
+
+.pride-body {
+  font-size: 11px;
+  color: var(--dark);
+  line-height: 1.75;
+}
+.pride-body strong { color: var(--coral); }
+.pride-highlight {
+  background: var(--light-yellow);
+  border-left: 3px solid var(--yellow);
+  padding: 6px 10px;
+  border-radius: 0 6px 6px 0;
+  font-size: 11px;
+  color: var(--brown);
+  margin: 4px 0;
+  line-height: 1.7;
+}
+
+/* ===== HITORIGOTO ===== */
+.hitorigoto-section {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid #FFD0D0;
+  box-shadow: 0 2px 8px rgba(255,107,107,0.08);
+}
+.hitorigoto-author {
+  font-size: 10px;
+  color: var(--mid);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.author-badge {
+  background: var(--coral);
+  color: white;
+  padding: 1px 8px;
+  border-radius: 20px;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.hitorigoto-body {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--dark);
+}
+.hitorigoto-tail {
+  font-size: 10px;
+  color: var(--mid);
+  text-align: right;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ============================================================
+   PAGE 3 — RIGHT INSIDE
+   ============================================================ */
+
+/* ===== RECIPE SECTION ===== */
+.recipe-section {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.recipe-main-photo {
+  width: 100%;
+  height: 70px;
+  border: 2.5px dashed var(--orange);
+  border-radius: 8px;
+  background: var(--light-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.recipe-main-photo .photo-caption {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 9px;
+  color: #CC5500;
+  background: white;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.recipe-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.recipe-tag {
+  font-size: 10px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.recipe-tag.time  { background: #FFF3CD; color: #7B5B00; }
+.recipe-tag.serve { background: #D1F5D3; color: #2D6A35; }
+.recipe-tag.diff  { background: #FFE4D6; color: #7B3000; }
+
+.recipe-ingredients {
+  background: var(--light-yellow);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 8px;
+}
+.recipe-ingredients h4 {
+  font-size: 11px;
+  color: var(--brown);
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.recipe-ingredients ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 12px;
+}
+.recipe-ingredients li {
+  font-size: 10.5px;
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.recipe-ingredients li::before {
+  content: '✦';
+  color: var(--orange);
+  font-size: 8px;
+  flex-shrink: 0;
+}
+
+.recipe-steps ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.recipe-steps li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.step-num {
+  background: var(--orange);
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.recipe-tip {
+  margin-top: 7px;
+  background: var(--light-coral);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 10px;
+  color: #AA3333;
+  border-left: 3px solid var(--coral);
+}
+
+/* ===== KYODO RECIPE ===== */
+.kyodo-section {
+  background: linear-gradient(135deg, #EAF8FF 0%, #E0F3F0 100%);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid #A8DFDF;
+}
+.kyodo-author-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.kyodo-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #B2EBF2, #80DEEA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,150,200,0.2);
+}
+.kyodo-author-info h4 { font-size: 12px; font-weight: 700; color: #1A5F7A; }
+.kyodo-author-info p  { font-size: 10px; color: var(--mid); margin-top: 2px; }
+
+.kyodo-intro {
+  font-size: 11px;
+  color: var(--dark);
+  line-height: 1.75;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #A8DFDF;
+}
+.kyodo-intro em { color: #1A5F7A; font-style: normal; font-weight: 700; }
+
+.kyodo-recipe-box {
+  background: white;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.kyodo-recipe-box h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1A5F7A;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kyodo-recipe-box .ing-list {
+  font-size: 10.5px;
+  color: var(--dark);
+  line-height: 1.9;
+  margin-bottom: 6px;
+}
+.kyodo-steps li {
+  font-size: 10.5px;
+  line-height: 1.65;
+  display: flex;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+.kyodo-steps li .step-num { background: #2196F3; font-size: 9px; width: 16px; height: 16px; }
+.kyodo-memo {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #555;
+  background: #F0F9FF;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border-left: 3px solid #74B9FF;
+}
+
+/* ============================================================
+   PAGE 4 — BACK COVER
+   ============================================================ */
+.page-back {
+  background: linear-gradient(180deg, #FFFDF8 0%, #FFF8F0 100%);
+}
+
+.back-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== LIFE HACKS ===== */
+.hacks-section {
+  padding: 10px 14px 6px;
+}
+.hacks-grid {
+  display: flex;
+  gap: 7px;
+  margin-top: 6px;
+}
+.hack-card {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  padding: 9px 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-top: 3px solid var(--green);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hack-card:nth-child(2) { border-top-color: var(--yellow); }
+.hack-card:nth-child(3) { border-top-color: var(--orange); }
+.hack-icon { font-size: 24px; }
+.hack-title { font-size: 11px; font-weight: 700; color: var(--dark); line-height: 1.3; }
+.hack-body { font-size: 10px; color: var(--mid); line-height: 1.6; }
+
+/* ===== BIRTHDAY ===== */
+.birthday-section {
+  padding: 8px 14px;
+}
+.birthday-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  margin-top: 6px;
+}
+.birthday-card {
+  background: white;
+  border-radius: 8px;
+  padding: 7px 6px;
+  text-align: center;
+  border: 1.5px solid var(--yellow);
+  box-shadow: 0 1px 6px rgba(255,217,61,0.2);
+}
+.birthday-card .bday-icon { font-size: 18px; }
+.birthday-card .bday-name { font-size: 11px; font-weight: 700; color: var(--brown); margin-top: 2px; }
+.birthday-card .bday-store { font-size: 9.5px; color: var(--mid); }
+
+/* ===== SUBMISSION CORNER ===== */
+.submission-section {
+  padding: 6px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.submission-body {
+  flex: 1;
+}
+.submission-body p {
+  font-size: 11px;
+  color: var(--dark);
+  line-height: 1.75;
+}
+.submission-body .submit-types {
+  margin-top: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.submit-tag {
+  background: var(--coral);
+  color: white;
+  font-size: 9.5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.submit-tag:nth-child(2) { background: var(--green); }
+.submit-tag:nth-child(3) { background: var(--orange); }
+.submit-tag:nth-child(4) { background: var(--yellow); color: var(--brown); }
+
+.qr-box {
+  width: 80px;
+  border: 2px dashed var(--coral);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-coral);
+  padding: 6px;
+  flex-shrink: 0;
+}
+.qr-box .qr-icon { font-size: 30px; }
+.qr-box .qr-label { font-size: 8.5px; color: var(--coral); font-weight: 700; margin-top: 3px; text-align: center; line-height: 1.3; }
+
+/* ===== EDITOR NOTE ===== */
+.editor-section {
+  padding: 6px 14px;
+  margin-top: auto;
+}
+.editor-box {
+  background: var(--brown);
+  color: rgba(255,255,255,0.92);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.editor-icon { font-size: 28px; flex-shrink: 0; margin-top: -2px; }
+.editor-text h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-bottom: 5px;
+  letter-spacing: 0.05em;
+}
+.editor-text p { font-size: 10.5px; line-height: 1.75; }
+.editor-text .editor-sig {
+  margin-top: 6px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  text-align: right;
+}
+
+/* Back footer */
+.back-footer {
+  background: var(--coral);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 16px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+.back-footer .flowers { font-size: 14px; letter-spacing: 2px; }
+
+/* ============================================================
+   CANVA SPEC SECTION (outside print)
+   ============================================================ */
+.canva-spec {
+  margin-top: 40px;
+  width: 210mm;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  padding: 28px 32px;
+  border-top: 6px solid var(--coral);
+}
+.canva-spec h2 {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--coral);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.canva-spec .spec-sub {
+  font-size: 12px;
+  color: var(--mid);
+  margin-bottom: 20px;
+}
+.spec-group { margin-bottom: 18px; }
+.spec-group h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brown);
+  border-bottom: 2px solid var(--yellow);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+.spec-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.spec-key {
+  color: var(--mid);
+  width: 120px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+.spec-val { color: var(--dark); }
+.color-swatches {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+.swatch-block {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.spec-grid .spec-row { margin: 0; }
+.no-print-tag {
+  display: inline-block;
+  background: #EEE;
+  color: #888;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  @page { size: A4; margin: 0; }
+
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .print-bar, .canva-spec { display: none !important; }
+
+  .pages-wrap {
+    gap: 0;
+  }
+
+  /* Each single page fills exactly one A4 sheet */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    page-break-after: always;
+    box-shadow: none;
+    break-after: page;
+  }
+
+  /* Spread prints as one wide sheet — or force separate if desired */
+  .spread {
+    width: 420mm;
+    page-break-after: always;
+    break-after: page;
+    box-shadow: none;
+  }
+
+  .page-label { display: none; }
+}
+
+/* Decorative flowers scattered via pseudo */
+.flowers-deco {
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--coral);
+  opacity: 0.5;
+  text-align: center;
+  margin: 2px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- PRINT BUTTON -->
+<div class="print-bar">
+  <button class="print-btn" onclick="window.print()">🖨️ 印刷する</button>
+</div>
+
+<div class="pages-wrap">
+
+  <!-- ===================================================
+       PAGE 1 — COVER
+       =================================================== -->
+  <div>
+    <div class="page-label">◀ 表紙（Page 1）▶</div>
+    <div class="page cover">
+      <div class="cover-inner">
+
+        <!-- Top stripe -->
+        <div class="cover-top-stripe">
+          <span class="store-name">✿ スーパーサンプラザ ✿</span>
+          <span class="issue-badge">創刊号　Vol.1</span>
+        </div>
+
+        <!-- Hero -->
+        <div class="cover-hero">
+
+          <!-- Title band -->
+          <div class="title-band">
+            <div class="deco-top">❁ ☀ ❁ ☀ ❁ ☀ ❁</div>
+            <div class="title-jp">サンプラザ<br>ひだまり通信</div>
+            <div class="title-sub serif">— 働くみんなの、笑顔をつなぐ社内報 —</div>
+          </div>
+
+          <!-- Date badge -->
+          <div class="cover-date">☀ 2026年6月号 ☀</div>
+
+          <!-- Illustration -->
+          <div class="cover-illus">
+            <div class="cover-illus-main">
+              🌻
+            </div>
+            <div class="cover-illus-side">
+              <div class="illus-bubble">🛒 毎日ありがとう！</div>
+              <div class="illus-bubble">✨ 全国 約1,000名のスタッフへ</div>
+              <div class="illus-bubble">🌸 あなたの笑顔が大切です</div>
+            </div>
+          </div>
+
+          <!-- Teasers -->
+          <div class="cover-teasers">
+            <div class="teaser-item">
+              <span class="teaser-pg">P.2</span>
+              <span class="teaser-text">🏔️ 北千住店の全員で高尾山登山！<br><span class="tiny" style="color:#888">70歳のパートさんが全員を追い抜いた!?</span></span>
+            </div>
+            <div class="teaser-item">
+              <span class="teaser-pg">P.3</span>
+              <span class="teaser-text">🍳 唐揚げで親子丼！簡単アレンジレシピ<br><span class="tiny" style="color:#888">青森の郷土料理「いちご煮」も掲載</span></span>
+            </div>
+            <div class="teaser-item">
+              <span class="teaser-pg">P.4</span>
+              <span class="teaser-text">💡 主婦に嬉しい！得する生活の知恵 3選<br><span class="tiny" style="color:#888">お誕生日スタッフ＆プレゼント企画も</span></span>
+            </div>
+          </div>
+
+        </div><!-- /cover-hero -->
+
+        <!-- Cover footer -->
+        <div class="cover-footer">
+          <span>発行：スーパーサンプラザ 広報チーム</span>
+          <span class="hearts">🌻 🌸 🌼</span>
+          <span>2026年6月1日 発行</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       PAGES 2-3 — INSIDE SPREAD
+       =================================================== -->
+  <div>
+    <div class="page-label">◀ 中面 左（Page 2）&nbsp;&nbsp;&nbsp;中面 右（Page 3）▶</div>
+    <div class="spread">
+
+      <!-- PAGE 2 — LEFT -->
+      <div class="page page-left">
+        <div class="page-inner">
+
+          <div class="running-head">
+            <span>✿ サンプラザ ひだまり通信 ✿ 2026年6月号</span>
+            <div class="page-num">2</div>
+          </div>
+
+          <div class="page-content">
+
+            <!-- SECTION: 〇〇店の職場自慢！ -->
+            <div>
+              <div class="sec-header coral">
+                <span class="sec-icon">🏆</span>
+                <div>
+                  <div class="sec-title">〇〇店の職場自慢！</div>
+                  <div class="sec-subtitle">北千住店・今月号特集</div>
+                </div>
+              </div>
+
+              <div class="pride-section">
+                <div style="font-size:13.5px; font-weight:900; color:var(--coral); line-height:1.3; margin-bottom:5px;">
+                  全員で高尾山へ登山！<br>
+                  <span style="font-size:11px; font-weight:500; color:#555;">チームワークが生んだ、最高の思い出</span>
+                </div>
+
+                <div class="pride-photo-row">
+                  <div class="photo-box">
+                    🏔️
+                    <span class="photo-label">山頂での集合写真</span>
+                  </div>
+                  <div class="photo-box green-box">
+                    🌿
+                    <span class="photo-label">登山道の様子</span>
+                  </div>
+                  <div class="photo-box orange-box">
+                    🍱
+                    <span class="photo-label">山頂でのお弁当タイム</span>
+                  </div>
+                </div>
+
+                <div class="pride-body">
+                  今年4月、<strong>北千住店</strong>では初の「チームビルディング登山」として、スタッフ<strong>25名全員</strong>で高尾山に挑戦しました！<br>
+                  参加者はパートさんも含めて幅広く、「え、山なの！？」という声も最初はちらほら…（笑）。でも実際に行ってみると、これが大盛り上がり！<br>
+                </div>
+
+                <div class="pride-highlight">
+                  ✦ なんと、今回の最速スタッフは<strong style="color:var(--coral);">なんと70歳のパートさん・荒井節子さん</strong>でした！若手スタッフ数名を軽く追い抜き、山頂で余裕の笑顔。「毎日の品出しで足腰は鍛えてるのよ〜♪」とひとこと。一同、脱帽です！
+                </div>
+
+                <div class="pride-body">
+                  山頂では、それぞれが持ち寄ったお弁当と、店長手作りのおにぎりでランチタイム。普段はレジと鮮魚コーナーで離れているスタッフが、隣に座ってゆっくり話せたのが嬉しかった！という声がたくさん届きました。<br>
+                  <span style="color:var(--mid); font-size:10.5px;">「こんなに山が好きな人が多いとは知らなかった！」（青果担当・山本さん）</span>
+                </div>
+
+                <div style="background:white; border-radius:8px; border:1.5px solid var(--coral); padding:7px 10px; font-size:10.5px; color:var(--dark); line-height:1.7;">
+                  <span style="font-weight:700; color:var(--coral);">店長・松田 誠さんのコメント ✦</span><br>
+                  「みんなの笑顔が見られて、改めて、このチームで働けていることが誇りだと思いました。来年は丹沢に挑戦しようかな？（笑）」
+                </div>
+
+                <div class="flowers-deco">✿ ❀ ✦ ❀ ✿</div>
+
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="height:1px; background:linear-gradient(90deg, transparent, var(--coral), transparent); opacity:0.3;"></div>
+
+            <!-- SECTION: わたしの独り言 -->
+            <div>
+              <div class="sec-header coral" style="background: linear-gradient(90deg, #FF8E53, #FF6B6B);">
+                <span class="sec-icon">💬</span>
+                <div>
+                  <div class="sec-title">わたしの独り言</div>
+                  <div class="sec-subtitle">スタッフが出会った、ほっこりエピソード</div>
+                </div>
+              </div>
+
+              <div class="hitorigoto-section">
+                <div class="hitorigoto-author">
+                  <span class="author-badge">三ノ輪店</span>
+                  <span style="font-weight:600;">田中 美咲さん（レジ担当・勤続6年）</span>
+                </div>
+                <div class="hitorigoto-body">
+                  　うちの店には、毎日同じ時間に来られる常連のおじいちゃんがいます。いつも必ず「豆腐一丁」と「牛乳小さいやつ」だけを買って、ニコニコしながら帰られます。<br>
+                  　そのおじいちゃんが先日、いつもと違ってちょっとソワソワした様子で。「あの…これ、ちょっといい包みにしてもらえますか？」とおっしゃるんです。<br>
+                  　伺ってみると、奥さんの誕生日プレゼントを買いに来たとのこと。手には、うちのお惣菜コーナーで一番高い<span style="color:var(--coral); font-weight:700;">「黒毛和牛しぐれ煮」（1,480円）</span>が。<br>
+                  　「60年連れ添った妻に、初めてちゃんとプレゼントします」と照れながらおっしゃって…私、思わず目がウルウルしてしまいました。<br>
+                  　可愛らしいリボンをかけてお渡ししたら、「ありがとう。妻も喜ぶと思う」って、とても嬉しそうに帰っていかれました。
+                </div>
+                <div class="hitorigoto-tail">
+                  レジを打ちながら、こんなに心が温まる仕事って幸せだなぁ、と思った一日でした。☀
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /page-left -->
+
+      <!-- PAGE 3 — RIGHT -->
+      <div class="page" style="background: var(--pale);">
+        <div class="page-inner">
+
+          <div class="running-head green">
+            <div class="page-num" style="color:var(--green);">3</div>
+            <span>✿ サンプラザ ひだまり通信 ✿ 2026年6月号</span>
+          </div>
+
+          <div class="page-content">
+
+            <!-- SECTION: アレンジレシピ -->
+            <div>
+              <div class="sec-header orange">
+                <span class="sec-icon">🍲</span>
+                <div>
+                  <div class="sec-title">アレンジレシピ</div>
+                  <div class="sec-subtitle">サンプラザのお惣菜でかんたん！</div>
+                </div>
+              </div>
+
+              <div class="recipe-section">
+                <div style="font-size:12.5px; font-weight:900; color:var(--orange); margin-bottom:6px; line-height:1.3;">
+                  🍗 サンプラザ「鶏の唐揚げ」を使って<br>
+                  <span style="font-size:15px; color:var(--dark);">ふわとろ<ruby>親子丼<rt style="font-size:9px;">おやこどん</rt></ruby>！</span>
+                </div>
+
+                <div class="recipe-main-photo">
+                  🥣
+                  <span class="photo-caption">完成イメージ写真</span>
+                </div>
+
+                <div class="recipe-meta">
+                  <span class="recipe-tag time">⏰ 約15分</span>
+                  <span class="recipe-tag serve">👨‍👩‍👧 2人分</span>
+                  <span class="recipe-tag diff">⭐ 簡単</span>
+                </div>
+
+                <div class="recipe-ingredients">
+                  <h4>🛒 材料（2人分）</h4>
+                  <ul>
+                    <li>サンプラザ唐揚げ　4〜5個</li>
+                    <li>卵　3個</li>
+                    <li>玉ねぎ　1/2個</li>
+                    <li>だし汁　150ml</li>
+                    <li>醤油　大さじ2</li>
+                    <li>みりん　大さじ2</li>
+                    <li>砂糖　小さじ1</li>
+                    <li>ごはん　2膳分</li>
+                  </ul>
+                </div>
+
+                <div class="recipe-steps">
+                  <ol>
+                    <li>
+                      <span class="step-num">1</span>
+                      <span>唐揚げは食べやすい大きさに切る（半分〜1/3程度）。玉ねぎは薄切りにする。</span>
+                    </li>
+                    <li>
+                      <span class="step-num">2</span>
+                      <span>小鍋にだし汁・醤油・みりん・砂糖を入れ中火で温め、玉ねぎを加えてしんなりするまで2分煮る。</span>
+                    </li>
+                    <li>
+                      <span class="step-num">3</span>
+                      <span>唐揚げを加えて1分ほど煮てから、溶き卵を円を描くように回し入れる。</span>
+                    </li>
+                    <li>
+                      <span class="step-num">4</span>
+                      <span>半熟になったら蓋をして火を止め、余熱で好みの固さに仕上げる。ごはんにのせて完成！</span>
+                    </li>
+                  </ol>
+                </div>
+
+                <div class="recipe-tip">
+                  💡 <strong>コツ</strong>：唐揚げは電子レンジで軽く温めてから使うと、中まで味がなじみやすいです。三つ葉や刻み海苔をのせるとぐっと本格的に♪
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="height:1px; background:linear-gradient(90deg, transparent, var(--green), transparent); opacity:0.3;"></div>
+
+            <!-- SECTION: 郷土料理 -->
+            <div>
+              <div class="sec-header green">
+                <span class="sec-icon">🗾</span>
+                <div>
+                  <div class="sec-title">郷土料理レシピ</div>
+                  <div class="sec-subtitle">全国のスタッフが教えてくれる、ふるさとの味</div>
+                </div>
+              </div>
+
+              <div class="kyodo-section">
+                <div class="kyodo-author-box">
+                  <div class="kyodo-avatar">👩</div>
+                  <div class="kyodo-author-info">
+                    <h4>弘前店　佐藤 由紀さん（惣菜担当）</h4>
+                    <p>青森県弘前市出身 ✦ 勤続3年</p>
+                  </div>
+                </div>
+
+                <div class="kyodo-intro">
+                  　青森の海の幸を贅沢に使った<em>「いちご煮」</em>を紹介します。名前を聞くと「果物？」と思われがちですが、実はウニとアワビのお吸い物なんです！<br>
+                  　潮干狩りのように朝露に光るウニの姿が野いちごに似ているからついた名前、と地元では言われています。お祝いや法事の席に欠かせない、青森の<em>ふるさとの味</em>です。
+                </div>
+
+                <div class="kyodo-recipe-box">
+                  <h4>🦔 いちご煮（青森県郷土料理）<span style="font-size:10px; font-weight:400; color:#888; margin-left:6px;">2人分</span></h4>
+
+                  <div class="ing-list">
+                    <strong>材料：</strong>ウニ（生） 50g ／ アワビ（薄切り） 60g ／ だし昆布 10cm ／ 水 400ml ／ 薄口醤油 小さじ2 ／ 塩 少々 ／ 三つ葉 少々
+                  </div>
+
+                  <ol class="kyodo-steps" style="list-style:none;">
+                    <li>
+                      <span class="step-num" style="background:#2196F3; font-size:9px; width:16px; height:16px;">1</span>
+                      <span>昆布を水に30分ほど浸し、弱火にかける。沸騰直前に昆布を取り出す。</span>
+                    </li>
+                    <li>
+                      <span class="step-num" style="background:#2196F3; font-size:9px; width:16px; height:16px;">2</span>
+                      <span>アワビを薄切りにして加え、2〜3分煮る。薄口醤油と塩で味をととのえる。</span>
+                    </li>
+                    <li>
+                      <span class="step-num" style="background:#2196F3; font-size:9px; width:16px; height:16px;">3</span>
+                      <span>火を止め、ウニをそっと加える（煮すぎないのがポイント！）。三つ葉を添えて完成。</span>
+                    </li>
+                  </ol>
+
+                  <div class="kyodo-memo">
+                    ✦ 佐藤さんより：「缶詰の『いちご煮』でも美味しく作れます。スーパーサンプラザの缶詰コーナーで探してみてくださいね♪」
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /page-right -->
+
+    </div><!-- /spread -->
+  </div>
+
+  <!-- ===================================================
+       PAGE 4 — BACK COVER
+       =================================================== -->
+  <div>
+    <div class="page-label">◀ 裏表紙（Page 4）▶</div>
+    <div class="page page-back">
+      <div class="back-content">
+
+        <div class="running-head" style="background:var(--orange);">
+          <span>✿ サンプラザ ひだまり通信 ✿ 2026年6月号</span>
+          <div class="page-num" style="color:var(--orange);">4</div>
+        </div>
+
+        <!-- LIFE HACKS -->
+        <div class="hacks-section">
+          <div class="sec-header yellow">
+            <span class="sec-icon">💡</span>
+            <div>
+              <div class="sec-title">ちょこっと得する 生活の知恵</div>
+              <div class="sec-subtitle">主婦目線で集めた、ちょっとためになる豆知識</div>
+            </div>
+          </div>
+
+          <div class="hacks-grid">
+            <div class="hack-card">
+              <div class="hack-icon">🥒</div>
+              <div class="hack-title">きゅうりの<br>えぐみ取り</div>
+              <div class="hack-body">切り落としたヘタの断面同士をこすり合わせるだけ！白い泡が出てきたら、えぐみのもとが取れたサイン。サラダがぐっと美味しくなります。</div>
+            </div>
+            <div class="hack-card">
+              <div class="hack-icon">🍌</div>
+              <div class="hack-title">バナナを<br>冷凍アイスに</div>
+              <div class="hack-body">熟したバナナをそのまま冷凍するだけで、甘くてなめらかなアイスクリームに！子どもにも大人にも嬉しい、罪悪感ゼロのおやつです。</div>
+            </div>
+            <div class="hack-card">
+              <div class="hack-icon">🌱</div>
+              <div class="hack-title">お米のとぎ汁で<br>植物を育てる</div>
+              <div class="hack-body">捨てているとぎ汁には栄養がたっぷり。観葉植物や庭の花に与えると元気に育ちます。環境にも優しいエコなひと工夫です♪</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIRTHDAY -->
+        <div class="birthday-section">
+          <div class="sec-header" style="background:linear-gradient(90deg,#FF6B6B,#FF8E53);">
+            <span class="sec-icon">🎂</span>
+            <div>
+              <div class="sec-title">今月のお誕生日スタッフ 🎉</div>
+              <div class="sec-subtitle">6月生まれのみなさん、おめでとうございます！</div>
+            </div>
+          </div>
+
+          <div class="birthday-grid">
+            <div class="birthday-card">
+              <div class="bday-icon">🎈</div>
+              <div class="bday-name">鈴木 恵子さん</div>
+              <div class="bday-store">北千住店</div>
+            </div>
+            <div class="birthday-card">
+              <div class="bday-icon">🎁</div>
+              <div class="bday-name">中村 由美さん</div>
+              <div class="bday-store">三ノ輪店</div>
+            </div>
+            <div class="birthday-card">
+              <div class="bday-icon">🌸</div>
+              <div class="bday-name">高橋 さやかさん</div>
+              <div class="bday-store">弘前店</div>
+            </div>
+            <div class="birthday-card">
+              <div class="bday-icon">⭐</div>
+              <div class="bday-name">小林 真奈さん</div>
+              <div class="bday-store">上野店</div>
+            </div>
+            <div class="birthday-card">
+              <div class="bday-icon">🌼</div>
+              <div class="bday-name">渡辺 裕子さん</div>
+              <div class="bday-store">秋葉原店</div>
+            </div>
+            <div class="birthday-card">
+              <div class="bday-icon">🎀</div>
+              <div class="bday-name">加藤 みほさん</div>
+              <div class="bday-store">池袋店</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMISSION CORNER -->
+        <div class="submission-section">
+          <div class="submission-body">
+            <div class="sec-header coral" style="margin-bottom:7px; padding:5px 12px;">
+              <span class="sec-icon">✉️</span>
+              <div>
+                <div class="sec-title" style="font-size:12px;">スタッフ読者プレゼント & 投稿募集！</div>
+                <div class="sec-subtitle">あなたのエピソードがひだまり通信に載るかも♪</div>
+              </div>
+            </div>
+            <p>
+              毎号、ご投稿いただいた方の中から<strong style="color:var(--coral);">抽選で3名様</strong>に、サンプラザお買物券（500円分）をプレゼント！<br>
+              職場の自慢話、ほっこりエピソード、ふるさとのレシピ、生活の知恵など、なんでも大歓迎です😊
+            </p>
+            <div class="submit-types">
+              <span class="submit-tag">職場自慢</span>
+              <span class="submit-tag">ほっこり話</span>
+              <span class="submit-tag">レシピ</span>
+              <span class="submit-tag">生活の知恵</span>
+            </div>
+            <div style="margin-top:7px; font-size:10px; color:var(--mid);">
+              📮 投稿先：各店舗の「ひだまり通信 投稿BOX」<br>または右のQRコードからオンライン投稿もできます！
+            </div>
+          </div>
+
+          <!-- QR Placeholder -->
+          <div class="qr-box">
+            <div class="qr-icon">📱</div>
+            <div style="font-size:22px; margin:4px 0; letter-spacing:2px; color:#ccc;">▪▪▪<br>▪▪▪<br>▪▪▪</div>
+            <div class="qr-label">投稿用<br>QRコード</div>
+          </div>
+        </div>
+
+        <!-- EDITOR NOTE -->
+        <div class="editor-section">
+          <div class="editor-box">
+            <div class="editor-icon">✏️</div>
+            <div class="editor-text">
+              <h4>✦ 編集後記 ✦</h4>
+              <p>
+                「ひだまり通信」創刊号を、ついにお届けできました！<br>
+                各店舗のスタッフの方々から温かいエピソードを寄せていただき、編集チーム一同、作りながら何度も笑ったり、じんとしたりの連続でした。<br>
+                この社内報が、日々頑張るみなさんの「ちょっとした楽しみ」になれたら最高です。次号は8月号の予定。ぜひ投稿で参加してください！みなさんからのお便りを心よりお待ちしています。☀
+              </p>
+              <div class="editor-sig">
+                ひだまり通信 編集チーム一同　✿ ❀ ❁
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BACK FOOTER -->
+        <div class="back-footer">
+          <span class="flowers">✿ ❀ ❁</span>
+          <span>スーパーサンプラザ 社内報「ひだまり通信」創刊号 ／ 2026年6月1日発行 ／ 発行部数：1,000部</span>
+          <span class="flowers">❁ ❀ ✿</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /pages-wrap -->
+
+
+<!-- ===================================================
+     CANVA DESIGN SPEC (no-print)
+     =================================================== -->
+<div class="canva-spec no-print">
+  <h2>📐 Canvaデザイン仕様書 <span class="no-print-tag">印刷対象外</span></h2>
+  <p class="spec-sub">「サンプラザ ひだまり通信」創刊号 — デザイン再現・制作用リファレンス</p>
+
+  <div class="spec-group">
+    <h3>📄 基本仕様</h3>
+    <div class="spec-row"><span class="spec-key">媒体形式</span><span class="spec-val">二つ折りA4パンフレット（表1・表2・表3・表4）/ デジタルPDF共用</span></div>
+    <div class="spec-row"><span class="spec-key">ページサイズ</span><span class="spec-val">A4 210mm × 297mm（各ページ）、展開時 420mm × 297mm</span></div>
+    <div class="spec-row"><span class="spec-key">発行頻度</span><span class="spec-val">隔月（偶数月1日発行）</span></div>
+    <div class="spec-row"><span class="spec-key">発行部数</span><span class="spec-val">約1,000部（全店舗スタッフ向け）</span></div>
+    <div class="spec-row"><span class="spec-key">フォント（本文）</span><span class="spec-val">Noto Sans JP（Google Fonts） ウェイト: 300 / 400 / 500 / 700 / 900</span></div>
+    <div class="spec-row"><span class="spec-key">フォント（見出し）</span><span class="spec-val">Noto Sans JP 900（極太）— 一部 Hiragino Mincho ProN セリフ体でアクセント</span></div>
+  </div>
+
+  <div class="spec-group">
+    <h3>🎨 カラーパレット</h3>
+    <div class="color-swatches">
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FF6B6B;"></div>
+        <span>コーラル<br><strong>#FF6B6B</strong><br><small>メインカラー・セクション見出し</small></span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FFD93D;"></div>
+        <span>サニーイエロー<br><strong>#FFD93D</strong><br><small>サブカラー・帯・バッジ</small></span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#6BCB77;"></div>
+        <span>フレッシュグリーン<br><strong>#6BCB77</strong><br><small>右ページ・郷土料理</small></span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FF8E53;"></div>
+        <span>ウォームオレンジ<br><strong>#FF8E53</strong><br><small>レシピ・アクセント</small></span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#7B5B3A;"></div>
+        <span>ウォームブラウン<br><strong>#7B5B3A</strong><br><small>テキスト・フッター</small></span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FAF6F0;"></div>
+        <span>ウォームホワイト<br><strong>#FAF6F0</strong><br><small>本文ページ背景</small></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-group">
+    <h3>🗂️ ページ構成・コンテンツマップ</h3>
+    <div class="spec-row"><span class="spec-key">表紙（P1）</span><span class="spec-val">タイトルロゴ、創刊バッジ、ヒマワリモチーフ、3本ティーザー、フッター</span></div>
+    <div class="spec-row"><span class="spec-key">中面左（P2）</span><span class="spec-val">〇〇店の職場自慢（北千住店）、わたしの独り言（三ノ輪店）</span></div>
+    <div class="spec-row"><span class="spec-key">中面右（P3）</span><span class="spec-val">アレンジレシピ（唐揚げ親子丼）、郷土料理（いちご煮 / 青森）</span></div>
+    <div class="spec-row"><span class="spec-key">裏表紙（P4）</span><span class="spec-val">生活の知恵3選、誕生日コーナー、投稿募集＋QR、編集後記</span></div>
+  </div>
+
+  <div class="spec-group">
+    <h3>🖼️ 写真・イラスト指示</h3>
+    <div class="spec-row"><span class="spec-key">表紙ビジュアル</span><span class="spec-val">ヒマワリ中心の明るいイラスト or 笑顔のスタッフ集合写真（円形トリミング）</span></div>
+    <div class="spec-row"><span class="spec-key">職場自慢写真</span><span class="spec-val">登山集合写真、登山道写真、お弁当写真 — 横長 3分割（各60×60mm目安）</span></div>
+    <div class="spec-row"><span class="spec-key">レシピ写真</span><span class="spec-val">完成した親子丼の真俯瞰写真 — 横幅全体（about 80mm × 50mm）</span></div>
+    <div class="spec-row"><span class="spec-key">郷土料理著者</span><span class="spec-val">スタッフのポートレート円形（44×44mm） — 白背景またはグラデ</span></div>
+    <div class="spec-row"><span class="spec-key">投稿コーナー</span><span class="spec-val">手書き風のポスト or 便箋イラスト（Canva素材 or フリー素材）</span></div>
+    <div class="spec-row"><span class="spec-key">QRコード</span><span class="spec-val">投稿フォームURL（Google Forms 等）からCanvaで生成して差し込み</span></div>
+  </div>
+
+  <div class="spec-group">
+    <h3>🎯 デザインルール・トーン＆マナー</h3>
+    <div class="spec-row"><span class="spec-key">全体トーン</span><span class="spec-val">女性誌・ライフスタイル誌風。温かみ・親しみやすさ・ポップさを優先。堅苦しくない。</span></div>
+    <div class="spec-row"><span class="spec-key">飾り文字</span><span class="spec-val">✿ ❀ ❁（花）、☀（太陽）、✦（星）を随所に使用。多用しすぎず上品に。</span></div>
+    <div class="spec-row"><span class="spec-key">セクション見出し</span><span class="spec-val">角丸帯（border-radius: 8px）にアイコン+日本語タイトル+英語サブタイトル</span></div>
+    <div class="spec-row"><span class="spec-key">写真プレースホルダー</span><span class="spec-val">点線枠（border: 2.5px dashed）+カラー背景+絵文字アイコン+キャプション</span></div>
+    <div class="spec-row"><span class="spec-key">余白（マージン）</span><span class="spec-val">外周余白 12〜14mm、セクション間 8〜12mm</span></div>
+    <div class="spec-row"><span class="spec-key">本文フォントサイズ</span><span class="spec-val">11〜12px（印刷時 9〜10pt相当）。可読性確保のため最小10px。</span></div>
+  </div>
+
+  <div class="spec-group">
+    <h3>📋 Canva制作手順メモ</h3>
+    <div class="spec-row"><span class="spec-key">①テンプレ選択</span><span class="spec-val">Canva > 「A4文書」または「ニュースレター」カスタムサイズ 210×297mm</span></div>
+    <div class="spec-row"><span class="spec-key">②カラー設定</span><span class="spec-val">ブランドカラーに上記6色を登録して共有</span></div>
+    <div class="spec-row"><span class="spec-key">③フォント設定</span><span class="spec-val">Canva内「Noto Sans JP」を選択 / ウェイト別にスタイルを定義</span></div>
+    <div class="spec-row"><span class="spec-key">④写真置換</span><span class="spec-val">HTMLのdottedプレースホルダー位置に実際の写真を差し込む</span></div>
+    <div class="spec-row"><span class="spec-key">⑤PDF書き出し</span><span class="spec-val">「PDFプリント」形式でダウンロード（トンボ付き、カラープロファイル: CMYK推奨）</span></div>
+  </div>
+
+</div><!-- /canva-spec -->
+
+</body>
+</html>
