@@ -104,6 +104,8 @@ def build_dir_stream(vba_code: str) -> bytes:
     out.write(rec(0x001C, b''))                              # MODULEDOCSTRING ANSI
     out.write(rec(0x0048, b''))                              # MODULEDOCSTRING Unicode
     out.write(rec(0x0031, struct.pack('<I', 0)))             # MODULEOFFSET = 0 (second 0x0031)
+    out.write(rec(0x001E, struct.pack('<I', 0)))             # MODULEHELPCONTEXT = 0
+    out.write(rec(0x002C, struct.pack('<H', 0xFFFF)))        # MODULECOOKIE
     out.write(rec(0x0022, b''))                              # MODULETYPE: document/class
     out.write(rec(0x002B, b''))                              # MODULETERM
 
@@ -113,8 +115,6 @@ def build_dir_stream(vba_code: str) -> bytes:
 # ── STEP 3: Assemble streams ────────────────────────────────────────────────
 
 VBA_CODE = """\
-Option VBASupport 1
-
 Private Sub Worksheet_Change(ByVal Target As Range)
     If Target.Address <> "$H$10" Then Exit Sub
     Dim r As Long
