@@ -1,8 +1,14 @@
 """
-意向確認シート（トークスクリプト型）Excelツール生成スクリプト v2
-・ STEP1 スクリプト内に H7 ドロップダウンを配置
-・ STEP2 ①② / ③ をアウトライングループで折りたたみ表示
-・ A/B ラベル削除
+意向確認シート v4
+・改正保険業法対応（比較推奨規制準拠）
+・情報提供義務の冒頭説明追加
+・補償内容確認欄追加（車両保険・運転者範囲・走行距離）
+・募集人ポイントを顧客起点に修正（代理店都合の表現を削除）
+・チェックリスト：MSI固定推奨→顧客意向照合へ改訂＋3項目追加
+・H20-H24 DV バグ修正（F:H→F:G merge）
+・ドロップダウンをH10一本化（H7は廃止）
+・分岐ガイド行の視認性向上
+・Sheet2の入力セル枠線を全列統一
 """
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
@@ -14,20 +20,25 @@ wb = openpyxl.Workbook()
 ws = wb.active
 ws.title = "意向確認シート"
 
-# ─── カラー ───────────────────────────────────────────────────
-NAVY   = "1C3557"
-RED    = "C0392B"
-BLUE   = "1B5EB5"
-GREEN  = "2E7D5B"
-L_BLUE = "DCE8F9"
-L_GRN  = "E0F0E8"
-L_RED  = "FDECEA"
-BG     = "F2F5F1"
-WHITE  = "FFFFFF"
-YELLOW = "FFFDE7"
-GRAY1  = "EAECE9"
-GRAY2  = "BFC5BB"
-DARK   = "404B3A"
+# ─── カラー定数 ───────────────────────────────────────────────
+NAVY      = "1C3557"
+DARK_NAVY = "16304F"
+RED       = "C0392B"
+DARK_RED  = "9B2335"
+BLUE      = "1B5EB5"
+DARK_BLUE = "2146A0"
+GREEN     = "2E7D5B"
+DARK_GRN  = "1E6644"
+L_BLUE    = "DCE8F9"
+L_GRN     = "E0F0E8"
+L_RED     = "FDECEA"
+BG        = "F2F5F1"
+WHITE     = "FFFFFF"
+YELLOW    = "FFFDE7"
+L_YELLOW  = "FFF8E1"
+GRAY1     = "EAECE9"
+GRAY2     = "BFC5BB"
+DARK      = "404B3A"
 
 # ─── ヘルパー ─────────────────────────────────────────────────
 def F(c): return PatternFill("solid", fgColor=c)
@@ -38,11 +49,8 @@ def Al(h="left", v="center", wrap=True, indent=0):
 def Bd(color=GRAY2, style="thin"):
     s = Side(style=style, color=color)
     return Border(top=s, bottom=s, left=s, right=s)
-def BdOuter(color="7A8575"):
-    s = Side(style="medium", color=color)
-    return Border(top=s, bottom=s, left=s, right=s)
 
-def ms(ws, rng, text, bg, fg="FFFFFF", bold=True, sz=10,
+def ms(ws, rng, text, bg, fg=WHITE, bold=True, sz=10,
         h="left", v="center", wrap=True, indent=0):
     ws.merge_cells(rng)
     c = ws[rng.split(":")[0]]
@@ -63,17 +71,28 @@ def frame(ws, r1, r2, c1, c2, outer="7A8575", inner=GRAY2):
                 right  = so if c == c2 else si,
             )
 
-# ─── 列幅・初期行高・背景 ─────────────────────────────────────
-for col, w in [("A",2.5),("B",3),("C",9),("D",46),
+def input_cell(ws, ref, dv=None, color=GREEN):
+    c = ws[ref]
+    c.fill   = F(YELLOW)
+    c.font   = Fn(NAVY, True, 11)
+    c.alignment = Al("center", "center", False)
+    c.border = Border(
+        top=Side(style="medium", color=color),
+        bottom=Side(style="medium", color=color),
+        left=Side(style="medium", color=color),
+        right=Side(style="medium", color=color),
+    )
+
+# ─── 列幅・シート背景 ─────────────────────────────────────────
+for col, w in [("A",2.5),("B",3),("C",9),("D",44),
                ("E",18),("F",20),("G",20),("H",18)]:
     ws.column_dimensions[col].width = w
 
-for r in range(1, 130):
+for r in range(1, 150):
     ws.row_dimensions[r].height = 16
     for c in range(1, 9):
         ws.cell(r, c).fill = F(BG)
 
-# ─── アウトライン設定（＋ボタンをグループの上に表示） ────────
 ws.sheet_properties = WorksheetProperties()
 ws.sheet_properties.outlinePr = Outline(summaryBelow=False, summaryRight=False)
 
@@ -82,264 +101,269 @@ ws.sheet_properties.outlinePr = Outline(summaryBelow=False, summaryRight=False)
 # ════════════════════════════════════════════════════════════════
 ws.row_dimensions[1].height = 36
 ms(ws, "A1:H1",
-   "  ■ 自動車保険　意向確認シート（トークスクリプト型）",
-   NAVY, "FFFFFF", True, 13)
+   "  ■ 自動車保険　意向確認シート（トークスクリプト型）　改正保険業法対応版",
+   NAVY, WHITE, True, 13)
 
 ws.row_dimensions[2].height = 18
 ms(ws, "A2:H2",
-   "  ※ 太字部分はお客様へ読み上げてください。黄色セルを入力・選択し、"
-   "選択後は対応する下のグループ ＋ を展開してください。",
-   "16304F", "C8D8F0", False, 8)
+   "  ※ 太字部分はお客様へ読み上げます。黄色セルを入力・選択し、"
+   "STEP2は選択後に左端の ＋ ボタンで該当グループを展開してください。",
+   DARK_NAVY, "C8D8F0", False, 8)
 
-# ─── 基本情報 ──────────────────────────────────────────────────
+# 基本情報
 ws.row_dimensions[3].height = 5
 ws.row_dimensions[4].height = 20
 ws.row_dimensions[5].height = 22
 ws.row_dimensions[6].height = 5
 
-for i, (col, lbl) in enumerate([("C","日　付"),("D","担当者名"),("E","お客様名"),("F","支店")]):
+for i, lbl in enumerate(["日　付", "担当者名", "お客様名", "支　店"]):
     ws.cell(4, 3+i).value = lbl
     ws.cell(4, 3+i).fill  = F(NAVY)
-    ws.cell(4, 3+i).font  = Fn("FFFFFF", True, 8)
+    ws.cell(4, 3+i).font  = Fn(WHITE, True, 8)
     ws.cell(4, 3+i).alignment = Al("center")
     ws.cell(5, 3+i).fill  = F(YELLOW)
-    ws.cell(5, 3+i).font  = Fn("000000", False, 10)
+    ws.cell(5, 5+i-2 if i else 5, 3).alignment = Al("center")  # fallback
     ws.cell(5, 3+i).alignment = Al("center")
     ws.cell(5, 3+i).border = Bd(GRAY2)
 
-ws.cell(4, 8).value = "契約方法"
-ws.cell(4, 8).fill  = F(RED)
-ws.cell(4, 8).font  = Fn("FFFFFF", True, 8)
-ws.cell(4, 8).alignment = Al("center")
-
 # ════════════════════════════════════════════════════════════════
-#  STEP 1  ─  行7〜13
+#  STEP 1　行7〜18
 # ════════════════════════════════════════════════════════════════
 ws.row_dimensions[7].height  = 22
-ws.row_dimensions[8].height  = 18
-ws.row_dimensions[9].height  = 80
-ws.row_dimensions[10].height = 26
+ws.row_dimensions[8].height  = 55   # 開始前説明（tall）
+ws.row_dimensions[9].height  = 70   # 契約方法スクリプト（tall）
+ws.row_dimensions[10].height = 26   # ドロップダウン行
 ws.row_dimensions[11].height = 20
 ws.row_dimensions[12].height = 20
 ws.row_dimensions[13].height = 20
 ws.row_dimensions[14].height = 5
 
-# STEP1 ヘッダー B7:F7（H7をドロップダウン専用に空ける）
-ms(ws, "B7:F7",
-   "  STEP 1　　契約方法の確認",
-   BLUE, "FFFFFF", True, 11)
+# STEP1 ヘッダー（H7は空け、H10 にドロップダウンを配置）
+ms(ws, "B7:H7", "  STEP 1　　はじめに・契約方法の確認", BLUE, WHITE, True, 11)
 
-# G7: ドロップダウンのラベル
-ws["G7"].value = "契約方法を選択 ▼"
-ws["G7"].fill  = F(RED)
-ws["G7"].font  = Fn("FFFFFF", True, 8)
-ws["G7"].alignment = Al("center", "center", False)
+# ── 開始前説明（情報提供義務：保険業法第294条の3）─────────────
+ms(ws, "B8:C8", "📣 読み上げ①\n（開始前）", DARK_BLUE, "C5D8F5", True, 8, "center")
+opening = (
+    "「本日は自動車保険のご案内をいたします。当社は複数の保険会社の商品を取り扱っており、"
+    "お客様のご意向・ご状況に合った保険をご提案するために、まずいくつかお伺いします。\n"
+    "ご確認いただいた内容は意向確認の記録として残させていただきます。よろしいですか？」"
+)
+ms(ws, "D8:H8", opening, L_BLUE, NAVY, True, 10, "left", "center", True, 1)
 
-# H7: ドロップダウンセル（value は設定しない ← 重要）
-ws["H7"].fill  = F(YELLOW)
-ws["H7"].font  = Fn(NAVY, True, 11)
-ws["H7"].alignment = Al("center", "center", False)
-
-ms(ws, "B8:C8", "📋 スクリプト", "2146A0", "C5D8F5", True, 8, "center")
-ms(ws, "D8:H8", "", "2146A0", "C5D8F5", False, 8)
-
+# ── 契約方法スクリプト ────────────────────────────────────────
+ms(ws, "B9:C9", "📣 読み上げ②\n（契約方法）", DARK_BLUE, "C5D8F5", True, 8, "center")
 script1 = (
-    "「当社では●社の自動車保険を扱っています。\n"
+    "「当社では●社の自動車保険を扱っています。"
     "そのうち 給与天引き（団体割引）が使えるのは 損保ジャパン・三井住友海上・東京海上 の3社です。\n"
-    "通販型のソニー損保 へのお取り次ぎも可能で、"
-    "クレジットカード払いや口座振替の一般契約もご案内できます。\n\n"
+    "通販型のソニー損保 へのお取り次ぎも可能で、クレジットカード払いや口座振替の一般契約もご案内できます。\n\n"
     "どのご契約方法をご希望ですか？」"
 )
 ms(ws, "D9:H9", script1, "EBF2FC", NAVY, True, 10, "left", "center", True, 1)
-ms(ws, "B9:C9", "📣 読み上げ", L_BLUE, BLUE, True, 8, "center")
 
-# 行10: ドロップダウン専用の目立つ入力行
-ms(ws, "B10:F10", "  ▶ お客様のご希望の契約方法（右の黄色セルで選択してください）",
-   "FFF8E1", "C0392B", True, 9, "left")
-ms(ws, "G10:G10", "契約方法 →", RED, "FFFFFF", True, 8, "center")
-# H10 にもドロップダウンを追加（H7 と同じ内容、より目立つ位置）
+# ── ドロップダウン行（H10 を唯一の入力セル） ──────────────────
+ms(ws, "B10:F10",
+   "  ▶ お客様のご希望の契約方法（右の黄色セルで選択してください）",
+   L_YELLOW, RED, True, 9, "left")
+ws["G10"].value = "契約方法 →"
+ws["G10"].fill  = F(RED)
+ws["G10"].font  = Fn(WHITE, True, 8)
+ws["G10"].alignment = Al("center", "center", False)
 
-# 選択肢の説明（行11〜13）
-choices = [
-    (11, "①", "給与天引き（団体割引）",    "→ 下のグループ「①②」を展開",  GREEN, L_GRN),
-    (12, "②", "一般契約（クレカ・口振）",   "→ 下のグループ「①②」を展開",  BLUE,  L_BLUE),
-    (13, "③", "通販型（ソニー損保）",       "→ 下のグループ「③」を展開",    RED,   L_RED),
-]
-for row, num, label, guide, hc, bc in choices:
-    ws.cell(row, 2).value = num
-    ws.cell(row, 2).fill  = F(hc)
-    ws.cell(row, 2).font  = Fn("FFFFFF", True, 9)
-    ws.cell(row, 2).alignment = Al("center")
+# H10: ドロップダウンセル（value は設定しない）
+input_cell(ws, "H10", color=RED)
 
-    ws.cell(row, 3).value = label
-    ws.cell(row, 3).fill  = F(bc)
-    ws.cell(row, 3).font  = Fn(hc, True, 9)
-    ws.cell(row, 3).alignment = Al("left")
-
-    ws.merge_cells(f"D{row}:G{row}")
-    ws.cell(row, 4).value = guide
-    ws.cell(row, 4).fill  = F(bc)
-    ws.cell(row, 4).font  = Fn(DARK, False, 8)
-    ws.cell(row, 4).alignment = Al("left")
-
-    ws.cell(row, 8).fill = F(bc)
-
-# ── フレーム適用（frame の後で H7/H10 ボーダーを上書き） ──────
-frame(ws, 7, 13, 2, 8)
-
-# H7 ボーダー（frame の後に適用して目立つ赤枠に）
-ws["H7"].border = Border(
-    top=Side(style="medium", color=RED),
-    bottom=Side(style="medium", color=RED),
-    left=Side(style="medium", color=RED),
-    right=Side(style="medium", color=RED),
-)
-# H10 も同様
-ws["H10"].fill   = F(YELLOW)
-ws["H10"].font   = Fn(NAVY, True, 11)
-ws["H10"].alignment = Al("center", "center", False)
-ws["H10"].border = Border(
-    top=Side(style="medium", color=RED),
-    bottom=Side(style="medium", color=RED),
-    left=Side(style="medium", color=RED),
-    right=Side(style="medium", color=RED),
-)
-
-# ── データ検証：H7 と H10 の両方に同じドロップダウンを設定 ───
 dv1 = DataValidation(
     type="list",
     formula1='"①給与天引き（団体割引）,②一般契約（クレカ・口振）,③通販型（ソニー損保）"',
     allow_blank=True, showDropDown=False
 )
-dv1.sqref = "H7 H10"
+dv1.sqref = "H10"
 ws.add_data_validation(dv1)
 
+# ── 選択肢の説明 ──────────────────────────────────────────────
+choices = [
+    (11, "①", "給与天引き（団体割引）",  "→ 下のグループ「①②」を展開", GREEN, L_GRN),
+    (12, "②", "一般契約（クレカ・口振）","→ 下のグループ「①②」を展開", BLUE,  L_BLUE),
+    (13, "③", "通販型（ソニー損保）",    "→ 下のグループ「③」を展開",  RED,   L_RED),
+]
+for row, num, label, guide, hc, bc in choices:
+    ws.cell(row, 2).value = num
+    ws.cell(row, 2).fill  = F(hc)
+    ws.cell(row, 2).font  = Fn(WHITE, True, 9)
+    ws.cell(row, 2).alignment = Al("center")
+    ws.cell(row, 3).value = label
+    ws.cell(row, 3).fill  = F(bc)
+    ws.cell(row, 3).font  = Fn(hc, True, 9)
+    ws.cell(row, 3).alignment = Al("left")
+    ws.merge_cells(f"D{row}:H{row}")
+    ws.cell(row, 4).value = guide
+    ws.cell(row, 4).fill  = F(bc)
+    ws.cell(row, 4).font  = Fn(DARK, False, 8)
+    ws.cell(row, 4).alignment = Al("left")
+
+frame(ws, 7, 13, 2, 8)
+
 # ─── 分岐ガイド行（常時表示） ─────────────────────────────────
-ws.row_dimensions[15].height = 20
+ws.row_dimensions[15].height = 24
 ms(ws, "B15:E15",
-   "  ▼  ①② 給与天引き・一般契約 ─── 下のグループ「＋」で展開",
-   L_GRN, GREEN, True, 8)
+   "  ▼  ①② 給与天引き・一般契約 ─── 下のグループ ＋ で展開",
+   L_GRN, GREEN, True, 9)
 ms(ws, "F15:H15",
-   "  ▼  ③ 通販型 ─── 下のグループ「＋」で展開",
-   L_RED, RED, True, 8)
+   "  ▼  ③ 通販型 ─── 下のグループ ＋ で展開",
+   L_RED, RED, True, 9)
 
 # ════════════════════════════════════════════════════════════════
-#  STEP 2（①②）  ─  行16〜36  ← グループ折りたたみ
+#  STEP 2（①②）行16〜42 ← グループ折りたたみ
 # ════════════════════════════════════════════════════════════════
-# グループ先頭のラベル行（展開後に最初に見える行）
-ws.row_dimensions[16].height  = 22
-ws.row_dimensions[17].height  = 18
-ws.row_dimensions[18].height  = 60
-ws.row_dimensions[19].height  = 20
-ws.row_dimensions[20].height  = 20
-ws.row_dimensions[21].height  = 20
-ws.row_dimensions[22].height  = 20
-ws.row_dimensions[23].height  = 20
-ws.row_dimensions[24].height  = 20
-ws.row_dimensions[25].height  = 18
-ws.row_dimensions[26].height  = 22
-ws.row_dimensions[27].height  = 18
-ws.row_dimensions[28].height  = 60
-ws.row_dimensions[29].height  = 18
-ws.row_dimensions[30].height  = 18
-ws.row_dimensions[31].height  = 18
-ws.row_dimensions[32].height  = 18
-ws.row_dimensions[33].height  = 18
-ws.row_dimensions[34].height  = 5
-ws.row_dimensions[35].height  = 5
+ws.row_dimensions[16].height = 22
+ws.row_dimensions[17].height = 18
+ws.row_dimensions[18].height = 55
+ws.row_dimensions[19].height = 18
+ws.row_dimensions[20].height = 20
+ws.row_dimensions[21].height = 20
+ws.row_dimensions[22].height = 20
+ws.row_dimensions[23].height = 20
+ws.row_dimensions[24].height = 20
+ws.row_dimensions[25].height = 5
+ws.row_dimensions[26].height = 20
+ws.row_dimensions[27].height = 20
+ws.row_dimensions[28].height = 20
+ws.row_dimensions[29].height = 20
+ws.row_dimensions[30].height = 5
+ws.row_dimensions[31].height = 22
+ws.row_dimensions[32].height = 18
+ws.row_dimensions[33].height = 68
+ws.row_dimensions[34].height = 18
+ws.row_dimensions[35].height = 20
+ws.row_dimensions[36].height = 20
+ws.row_dimensions[37].height = 20
+ws.row_dimensions[38].height = 5
 
 ms(ws, "B16:H16",
-   "  STEP 2　　意向確認（重視事項）　　給与天引き・一般契約の方",
-   GREEN, "FFFFFF", True, 11)
+   "  STEP 2　　意向確認（重視事項・補償内容）　　給与天引き・一般契約の方",
+   GREEN, WHITE, True, 11)
 
-ms(ws, "B17:C17", "📋 スクリプト", "1E6644", "B8DEC9", True, 8, "center")
-ms(ws, "D17:H17", "", "1E6644", "B8DEC9", False, 8)
+ms(ws, "B17:C17", "📋 スクリプト", DARK_GRN, "B8DEC9", True, 8, "center")
+ms(ws, "D17:H17", "", DARK_GRN, "B8DEC9", False, 8)
 
 script2a = (
-    "「自動車保険でいちばん大切にしていることを教えていただけますか？\n"
-    "いくつかお伺いしてもよいでしょうか？当てはまるものに○をつけてください。（複数回答可）」"
+    "「自動車保険でいちばん大切にしていることを教えていただけますか？"
+    "いくつかお伺いしてもよいでしょうか？\n"
+    "当てはまるものに○をつけてください。（複数回答可）」"
 )
 ms(ws, "D18:H18", script2a, "EDF7F2", NAVY, True, 10, "left", "center", True, 1)
 ms(ws, "B18:C18", "📣 読み上げ", L_GRN, GREEN, True, 8, "center")
 
-# ヘッダー行
-ms(ws, "B19:C19", "重視項目", "1E6644", "B8DEC9", True, 8, "center")
-ms(ws, "D19:E19", "お客様選択", "1E6644", "B8DEC9", True, 8, "center")
-ms(ws, "F19:H19", "各社の強み（参考）", "1E6644", "B8DEC9", True, 8, "center")
+# ── 重視事項（行19: ヘッダー、20〜24: 5項目） ────────────────
+ms(ws, "B19:C19", "重視事項\n（複数可）", DARK_GRN, "B8DEC9", True, 8, "center")
+ms(ws, "D19:F19", "お客様の重視事項",     DARK_GRN, "B8DEC9", True, 8, "center")
+ms(ws, "G19:H19", "各社の強み（参考）",   DARK_GRN, "B8DEC9", True, 8, "center")
 
 priority_items = [
-    ("保険料をできるだけ抑えたい",          "損保ジャパン（多様なプラン）／三井住友海上（ネット割引あり）"),
+    ("保険料をできるだけ抑えたい",          "損保ジャパン（多様なプラン）／三井住友海上（ネット割引）"),
     ("補償をしっかり充実させたい",          "東京海上（総合型・特約充実）／損保ジャパン（幅広い特約）"),
     ("事故時の対応・サポートを重視したい",  "三井住友海上（示談交渉◎）／東京海上（専任担当）"),
     ("手続きが簡単・わかりやすいものがいい","三井住友海上（シンプル設計・見積り速い）"),
-    ("担当者に相談しながら決めたい",        "3社すべて対応可。担当者によるサポートが手厚い"),
+    ("担当者に相談しながら決めたい",        "3社すべて対応可。担当者によるサポート"),
 ]
-dv_chk = DataValidation(type="list", formula1='"○,−"',
-                         allow_blank=True, showDropDown=False)
-ws.add_data_validation(dv_chk)
-chk_cells = []
+dv_prio = DataValidation(type="list", formula1='"○,−"',
+                          allow_blank=True, showDropDown=False)
+ws.add_data_validation(dv_prio)
+prio_cells = []
 
 for i, (item, note) in enumerate(priority_items):
     row = 20 + i
     ws.cell(row, 2).value = f"  {chr(9312+i)}"
     ws.cell(row, 2).fill  = F(GREEN)
-    ws.cell(row, 2).font  = Fn("FFFFFF", True, 10)
+    ws.cell(row, 2).font  = Fn(WHITE, True, 10)
     ws.cell(row, 2).alignment = Al("center")
 
-    ws.merge_cells(f"C{row}:E{row}")
+    ws.merge_cells(f"C{row}:F{row}")  # ← F:Gに変更してH列を独立させる
     ws.cell(row, 3).value = f"  {item}"
     ws.cell(row, 3).fill  = F(L_GRN)
     ws.cell(row, 3).font  = Fn(NAVY, False, 9)
     ws.cell(row, 3).alignment = Al("left")
 
-    ws.merge_cells(f"F{row}:H{row}")
+    ws.merge_cells(f"G{row}:G{row}")
+    ws.cell(row, 7).value = f"  {note}"
+    ws.cell(row, 7).fill  = F("F8FFF9")
+    ws.cell(row, 7).font  = Fn(DARK, False, 8)
+    ws.cell(row, 7).alignment = Al("left")
+
+    # H列: 独立した入力セル（結合しない ← バグ修正）
+    input_cell(ws, f"H{row}", color=GREEN)
+    prio_cells.append(f"H{row}")
+
+dv_prio.sqref = " ".join(prio_cells)
+
+# ── 補償内容確認（行25スペーサー、26ヘッダー、27〜29: 3項目）─
+ms(ws, "B26:H26", "  補償内容の確認（意向把握の必須事項）",
+   DARK_GRN, WHITE, True, 9)
+
+coverage_items = [
+    ("車両保険の加入希望",    '"ご希望あり,検討中,不要"',         "車両保険あり・なしで保険料が大きく変わります"),
+    ("運転者の範囲",          '"本人のみ,家族限定,限定なし"',     "限定なしは保険料が高くなる場合があります"),
+    ("年間走行距離の目安",    '"5,000km未満,〜10,000km,10,000km超"',"距離が多いほどリスクが高まる場合があります"),
+]
+dv_cov_list = []
+for i, (label, formula, note) in enumerate(coverage_items):
+    row = 27 + i
+    ws.cell(row, 2).value = f"  {chr(9312+5+i)}"
+    ws.cell(row, 2).fill  = F(DARK_GRN)
+    ws.cell(row, 2).font  = Fn(WHITE, True, 9)
+    ws.cell(row, 2).alignment = Al("center")
+
+    ws.merge_cells(f"C{row}:E{row}")
+    ws.cell(row, 3).value = f"  {label}"
+    ws.cell(row, 3).fill  = F(L_GRN)
+    ws.cell(row, 3).font  = Fn(NAVY, False, 9)
+    ws.cell(row, 3).alignment = Al("left")
+
+    ws.merge_cells(f"F{row}:G{row}")
     ws.cell(row, 6).value = f"  {note}"
     ws.cell(row, 6).fill  = F("F8FFF9")
     ws.cell(row, 6).font  = Fn(DARK, False, 8)
     ws.cell(row, 6).alignment = Al("left")
 
-    # 選択列（E列は merge済みのため D列はスキップ→別列使用不可 →Cに統合）
-    # → 代わりに右端 (H列) にチェック列を設ける
-    chk_cells.append(f"H{row}")
+    input_cell(ws, f"H{row}", color=DARK_GRN)
+    dv_cov = DataValidation(type="list", formula1=formula,
+                             allow_blank=True, showDropDown=False)
+    dv_cov.sqref = f"H{row}"
+    ws.add_data_validation(dv_cov)
 
-dv_chk.sqref = " ".join(chk_cells)
-for cell in chk_cells:
-    ws[cell].fill   = F(YELLOW)
-    ws[cell].font   = Fn(GREEN, True, 11)
-    ws[cell].alignment = Al("center")
-    ws[cell].border = Bd(GREEN, "medium")
+frame(ws, 16, 29, 2, 8)
 
-frame(ws, 16, 24, 2, 8)
-
-# ─ 3社提案 ────────────────────────────────────────────────────
-ms(ws, "B26:H26",
+# ── STEP2-2: 3社提案（行31〜37） ─────────────────────────────
+ms(ws, "B31:H31",
    "  STEP 2-2　　3社ご提案（意向確認結果をふまえて）",
-   "1E6644", "FFFFFF", True, 11)
+   DARK_GRN, WHITE, True, 11)
 
+# ポイント：顧客の意向に基づく推奨根拠のみ記載（代理店都合の表現は削除）
 script2a2 = (
-    "「ありがとうございます。いただいたご希望をもとに、損保ジャパン・三井住友海上・東京海上 "
-    "の3社でお見積りをご用意します。\n"
-    "─── 募集人ポイント ────────────────────────────────────────────────────────────\n"
-    "三井住友海上はシンプル設計で見積り・手続きが速く、担当者の手間が少ないです。\n"
-    "お客様には保険料もご提示しやすい選択肢です。必ず3社セットでお見せしましょう。\n"
-    "────────────────────────────────────────────────────────────────────────────」"
+    "「ありがとうございます。いただいたご意向をもとに、"
+    "損保ジャパン・三井住友海上・東京海上の3社でお見積りをご用意します。\n"
+    "─── 募集人ポイント（顧客の意向に基づく推奨根拠を説明してください）──────────────────\n"
+    "・保険料重視 → 三井住友海上のシンプルプランが競争力あり。ネット割引も活用可\n"
+    "・補償充実重視 → 東京海上の総合型、または損保ジャパンの幅広い特約構成\n"
+    "・事故対応重視 → 三井住友海上の示談交渉サービス、東京海上の専任担当制度\n"
+    "・手続き簡便重視 → 三井住友海上のシンプル設計はお客様にとって分かりやすい\n"
+    "必ず3社のお見積りをお客様にご提示し、推奨理由をご説明ください。」"
 )
-ms(ws, "D27:H27", script2a2, "EDF7F2", NAVY, True, 9, "left", "center", True, 1)
-ms(ws, "B27:C27", "📣 読み上げ\n+ ポイント", "1E6644", "B8DEC9", True, 8, "center")
+ms(ws, "D32:H32", script2a2, "EDF7F2", NAVY, True, 9, "left", "center", True, 1)
+ms(ws, "B32:C32", "📣 読み上げ\n+ ポイント", DARK_GRN, "B8DEC9", True, 8, "center")
 
-# 3社比較
-ms(ws, "B28:C28", "会　社", DARK, GRAY1, True, 8, "center")
-ms(ws, "D28:E28", "主な強み・特徴", DARK, GRAY1, True, 8, "center")
-ms(ws, "F28:G28", "MSI提案の一言", DARK, GRAY1, True, 8, "center")
-ws.cell(28, 8).value = "提案"
-ws.cell(28, 8).fill  = F(DARK)
-ws.cell(28, 8).font  = Fn(GRAY1, True, 8)
-ws.cell(28, 8).alignment = Al("center")
+ms(ws, "B33:C33", "会　社",         DARK, GRAY1, True, 8, "center")
+ms(ws, "D33:E33", "主な強み・特徴", DARK, GRAY1, True, 8, "center")
+ms(ws, "F33:G33", "顧客への一言",   DARK, GRAY1, True, 8, "center")
+ws.cell(33, 8).value = "提案"
+ws.cell(33, 8).fill  = F(DARK)
+ws.cell(33, 8).font  = Fn(GRAY1, True, 8)
+ws.cell(33, 8).alignment = Al("center")
 
 companies = [
-    ("損保ジャパン",  RED,   L_RED,  "取引歴が長く慣れている。多彩なプラン・特約",       "慣れ親しんだ会社。実績・信頼で推せます"),
-    ("三井住友海上",  GREEN, L_GRN,  "シンプル設計・見積り速い・ネット割引あり",          "手続きが楽で保険料も競争力あり。比較必須"),
-    ("東京海上日動",  BLUE,  L_BLUE, "業界最大手。補償・サービスの充実度が高い",          "手厚い補償を重視するお客様に有効"),
+    ("損保ジャパン",  RED,   L_RED,  "取引歴が長く多彩なプラン・特約",           "慣れ親しんだ信頼の1社。特約の選択肢が豊富"),
+    ("三井住友海上",  GREEN, L_GRN,  "シンプル設計・ネット割引・見積り速い",      "保険料を重視される方、手続きの明快さを求める方に"),
+    ("東京海上日動",  BLUE,  L_BLUE, "業界最大手・補償充実・専任担当制度あり",    "手厚い補償・事故後のサポートを重視される方に"),
 ]
 dv_prop = DataValidation(type="list",
     formula1='"◎提案する,○提案する,△保留,×見送り"',
@@ -348,11 +372,11 @@ ws.add_data_validation(dv_prop)
 prop_cells = []
 
 for i, (name, hc, bc, feat, tip) in enumerate(companies):
-    row = 29 + i
+    row = 34 + i
     ws.merge_cells(f"B{row}:C{row}")
     ws.cell(row, 2).value = f"  {name}"
     ws.cell(row, 2).fill  = F(hc)
-    ws.cell(row, 2).font  = Fn("FFFFFF", True, 9)
+    ws.cell(row, 2).font  = Fn(WHITE, True, 9)
     ws.cell(row, 2).alignment = Al("left")
 
     ws.merge_cells(f"D{row}:E{row}")
@@ -363,126 +387,150 @@ for i, (name, hc, bc, feat, tip) in enumerate(companies):
 
     ws.merge_cells(f"F{row}:G{row}")
     ws.cell(row, 6).value = f"  {tip}"
-    ws.cell(row, 6).fill  = F("FEFEFE")
+    ws.cell(row, 6).fill  = F(WHITE)
     ws.cell(row, 6).font  = Fn("2A3328", False, 8)
     ws.cell(row, 6).alignment = Al("left")
 
-    ws.cell(row, 8).fill   = F(YELLOW)
-    ws.cell(row, 8).font   = Fn(hc, True, 9)
-    ws.cell(row, 8).alignment = Al("center")
-    ws.cell(row, 8).border = Bd(hc, "medium")
+    input_cell(ws, f"H{row}", color=hc)
     prop_cells.append(f"H{row}")
 
 dv_prop.sqref = " ".join(prop_cells)
-frame(ws, 26, 33, 2, 8)
+frame(ws, 31, 37, 2, 8)
 
-# ── STEP2 ①② グループ設定（行16〜34 を折りたたみ） ──────────
-for r in range(16, 35):
+# ── STEP2 ①② グループ設定（16〜38） ─────────────────────────
+for r in range(16, 39):
     ws.row_dimensions[r].outline_level = 1
     ws.row_dimensions[r].hidden = True
 
 # ════════════════════════════════════════════════════════════════
-#  STEP 2（③通販型）  ─  行36〜45  ← グループ折りたたみ
+#  STEP 2（③通販型）行40〜50 ← グループ折りたたみ
 # ════════════════════════════════════════════════════════════════
-ws.row_dimensions[36].height = 22
-ws.row_dimensions[37].height = 18
-ws.row_dimensions[38].height = 65
-ws.row_dimensions[39].height = 65
-ws.row_dimensions[40].height = 20
+ws.row_dimensions[40].height = 22
 ws.row_dimensions[41].height = 18
-ws.row_dimensions[42].height = 18
-ws.row_dimensions[43].height = 5
+ws.row_dimensions[42].height = 60
+ws.row_dimensions[43].height = 60
+ws.row_dimensions[44].height = 22
+ws.row_dimensions[45].height = 20
+ws.row_dimensions[46].height = 5
 
-ms(ws, "B36:H36",
+ms(ws, "B40:H40",
    "  STEP 2　　ソニー損保ご案内　　通販型をご希望の方",
-   RED, "FFFFFF", True, 11)
+   RED, WHITE, True, 11)
 
-ms(ws, "B37:C37", "📋 スクリプト", "9B2335", "F5C0BB", True, 8, "center")
-ms(ws, "D37:H37", "", "9B2335", "F5C0BB", False, 8)
+ms(ws, "B41:C41", "📋 スクリプト", DARK_RED, "F5C0BB", True, 8, "center")
+ms(ws, "D41:H41", "",             DARK_RED, "F5C0BB", False, 8)
 
 script_b1 = (
     "「それではソニー損保をご案内しますので、お客様のご状況を確認させてください。\n"
     "ソニー損保はインターネットでお客様ご自身に直接ご契約いただく通販型です。"
+    "当社（代理店）が契約を代理するものではなく、申込内容・告知内容はお客様ご自身でご入力・ご確認いただきます。"
     "手続きはお客様側のご対応となりますが、よろしいでしょうか？」"
 )
-ms(ws, "D38:H38", script_b1, "FEF5F4", NAVY, True, 9, "left", "center", True, 1)
-ms(ws, "B38:C38", "📣 読み上げ①", L_RED, RED, True, 8, "center")
+ms(ws, "D42:H42", script_b1, "FEF5F4", NAVY, True, 9, "left", "center", True, 1)
+ms(ws, "B42:C42", "📣 読み上げ①", L_RED, RED, True, 8, "center")
 
 script_b2 = (
-    "「保険料面ではメリットが出る場合もありますが、事故時のサポートはコールセンター対応が基本となります。\n"
-    "当社担当者が直接サポートすることは難しくなりますが、それでもよろしいでしょうか？\n"
-    "ご希望でしたら、ソニー損保のサイトをご一緒に確認しながら手続きをご案内します。」"
+    "「事故時のサポートはソニー損保のコールセンター対応が基本となり、"
+    "当社担当者が直接サポートすることは難しくなります。\n"
+    "ご契約後の変更・事故対応についてもソニー損保に直接ご連絡いただくことになります。\n"
+    "この点をご了解いただいたうえでご希望ですか？」"
 )
-ms(ws, "D39:H39", script_b2, "FEF5F4", NAVY, True, 9, "left", "center", True, 1)
-ms(ws, "B39:C39", "📣 読み上げ②\n（留意点）", L_RED, RED, True, 8, "center")
+ms(ws, "D43:H43", script_b2, "FEF5F4", NAVY, True, 9, "left", "center", True, 1)
+ms(ws, "B43:C43", "📣 読み上げ②\n（留意事項）", L_RED, RED, True, 8, "center")
 
-ms(ws, "B40:C40", "✏️ お客様の意向", "9B2335", "F5C0BB", True, 8, "center")
-ws.merge_cells("D40:G40")
-ws["D40"].value = "ソニー損保で進める"
-ws["D40"].fill  = F(L_RED)
-ws["D40"].font  = Fn(DARK, False, 9)
-ws["D40"].alignment = Al("left")
-ws["H40"].fill  = F(YELLOW)
-ws["H40"].font  = Fn(RED, True, 9)
-ws["H40"].alignment = Al("center")
-ws["H40"].border = Bd(RED, "medium")
+# 意向確認・同意チェック行
+ms(ws, "B44:C44", "✏️ お客様確認", DARK_RED, "F5C0BB", True, 8, "center")
+ms(ws, "D44:E44", "通販型の特性（直接契約・コールセンター）を理解の上、ソニー損保を希望する",
+   L_RED, DARK, False, 8)
+ms(ws, "F44:G44", "← お客様の意向を選択",
+   L_RED, DARK_RED, False, 8)
 
+input_cell(ws, "H44", color=RED)
 dv_b = DataValidation(type="list",
-    formula1='"はい（取り次ぎ確定）,再検討（3社も比較）,見送り"',
+    formula1='"はい（取り次ぎ確定）,再検討（3社比較に戻る）,見送り"',
     allow_blank=True, showDropDown=False)
-dv_b.sqref = "H40"
+dv_b.sqref = "H44"
 ws.add_data_validation(dv_b)
 
-for r in [41, 42]:
-    ms(ws, f"B{r}:C{r}", "", "9B2335", "F5C0BB", False, 8)
+frame(ws, 40, 45, 2, 8)
 
-frame(ws, 36, 42, 2, 8)
-
-# ── STEP2 ③ グループ設定（行36〜44 を折りたたみ） ──────────
-for r in range(36, 45):
+# ── STEP2 ③ グループ設定（40〜46） ───────────────────────────
+for r in range(40, 47):
     ws.row_dimensions[r].outline_level = 1
     ws.row_dimensions[r].hidden = True
 
 # ════════════════════════════════════════════════════════════════
+#  意向と最終契約の確認（常時表示）
+# ════════════════════════════════════════════════════════════════
+ws.row_dimensions[48].height = 22
+ws.row_dimensions[49].height = 40
+ws.row_dimensions[50].height = 5
+
+ms(ws, "B48:H48",
+   "  ■ 意向と最終選択の確認（契約前に必ず実施）",
+   NAVY, WHITE, True, 10)
+
+final_confirm = (
+    "「本日ご提案した○○（会社名）の○○プランは、先ほどお伺いしたご意向（○○を重視）"
+    "に沿ったものです。ご確認いただけますか？」\n"
+    "→ 異なる商品をご選択の場合は、右の欄にその理由を記録してください。"
+)
+ms(ws, "D49:G49", final_confirm, L_BLUE, NAVY, False, 9, "left", "center", True, 1)
+ms(ws, "B49:C49", "📣 確認・記録", NAVY, "93B8DC", True, 8, "center")
+ws["H49"].fill  = F(YELLOW)
+ws["H49"].font  = Fn(DARK, False, 9)
+ws["H49"].alignment = Al("left", "top", True)
+ws["H49"].border = Bd(NAVY, "medium")
+frame(ws, 48, 49, 2, 8)
+
+# ════════════════════════════════════════════════════════════════
 #  メモ欄
 # ════════════════════════════════════════════════════════════════
-ws.row_dimensions[46].height = 20
-ws.row_dimensions[47].height = 80
-ws.row_dimensions[48].height = 5
-ws.row_dimensions[49].height = 20
-ws.row_dimensions[50].height = 30
-ws.row_dimensions[51].height = 5
+ws.row_dimensions[51].height = 20
+ws.row_dimensions[52].height = 75
+ws.row_dimensions[53].height = 5
+ws.row_dimensions[54].height = 20
+ws.row_dimensions[55].height = 30
+ws.row_dimensions[56].height = 5
 
-ms(ws, "B46:H46", "  📝 面談メモ・お客様の声", DARK, "FFFFFF", True, 10)
-ws.merge_cells("B47:H47")
-ws["B47"].fill = F(YELLOW)
-ws["B47"].font = Fn("000000", False, 10)
-ws["B47"].alignment = Alignment(horizontal="left", vertical="top",
+ms(ws, "B51:H51", "  📝 面談メモ・お客様の声", DARK, WHITE, True, 10)
+ws.merge_cells("B52:H52")
+ws["B52"].fill = F(YELLOW)
+ws["B52"].alignment = Alignment(horizontal="left", vertical="top",
                                   wrap_text=True, indent=1)
-ws["B47"].border = BdOuter()
+ws["B52"].border = Border(
+    top=Side(style="medium", color="7A8575"),
+    bottom=Side(style="medium", color="7A8575"),
+    left=Side(style="medium", color="7A8575"),
+    right=Side(style="medium", color="7A8575"),
+)
+frame(ws, 51, 52, 2, 8)
 
-ms(ws, "B49:H49", "  📌 次回アクション", DARK, "FFFFFF", True, 10)
-ws.merge_cells("B50:H50")
-ws["B50"].fill = F(YELLOW)
-ws["B50"].font = Fn("000000", False, 10)
-ws["B50"].alignment = Alignment(horizontal="left", vertical="top",
+ms(ws, "B54:H54", "  📌 次回アクション", DARK, WHITE, True, 10)
+ws.merge_cells("B55:H55")
+ws["B55"].fill = F(YELLOW)
+ws["B55"].alignment = Alignment(horizontal="left", vertical="top",
                                   wrap_text=True, indent=1)
-ws["B50"].border = BdOuter()
+ws["B55"].border = Border(
+    top=Side(style="medium", color="7A8575"),
+    bottom=Side(style="medium", color="7A8575"),
+    left=Side(style="medium", color="7A8575"),
+    right=Side(style="medium", color="7A8575"),
+)
+frame(ws, 54, 55, 2, 8)
 
-frame(ws, 46, 50, 2, 8)
-
-# ────── フッター ──────────────────────────────────────────────
-ws.row_dimensions[52].height = 16
-ms(ws, "B52:H52",
-   "  ＊本シートは比較推奨規制対応の意向確認記録として活用してください。面談後は保存・アーカイブをお願いします。",
+ws.row_dimensions[57].height = 16
+ms(ws, "B57:H57",
+   "  ＊本シートは比較推奨規制対応の意向確認記録として活用してください。"
+   "面談後は必ず保存・アーカイブをお願いします。",
    NAVY, "93B8DC", False, 7)
 
 # ════════════════════════════════════════════════════════════════
-#  Sheet 2: 比較推奨チェックリスト
+#  Sheet 2: 比較推奨チェックリスト（改訂版）
 # ════════════════════════════════════════════════════════════════
 ws2 = wb.create_sheet("比較推奨チェックリスト")
 
-for r in range(1, 60):
+for r in range(1, 70):
     ws2.row_dimensions[r].height = 16
     for c in range(1, 8):
         ws2.cell(r, c).fill = F("F5F7F4")
@@ -492,15 +540,15 @@ for col, w in [("A",3),("B",4),("C",44),("D",22),("E",10),("F",10),("G",10)]:
 
 ws2.row_dimensions[1].height = 34
 ws2.merge_cells("A1:G1")
-ws2["A1"].value = "  ■ 比較推奨チェックリスト（金融庁指針対応）"
+ws2["A1"].value = "  ■ 比較推奨チェックリスト（改正保険業法対応・金融庁指針準拠）"
 ws2["A1"].fill  = F(NAVY)
-ws2["A1"].font  = Fn("FFFFFF", True, 13)
+ws2["A1"].font  = Fn(WHITE, True, 13)
 ws2["A1"].alignment = Al("left", "center")
 
 ws2.row_dimensions[2].height = 18
 ws2.merge_cells("A2:G2")
-ws2["A2"].value = "  面談前後に確認し、すべて「✅ 済」になっていることを確認してください。"
-ws2["A2"].fill  = F("16304F")
+ws2["A2"].value = "  面談後に全項目を確認し、すべて「✅ 済」になっていることを確認してください。"
+ws2["A2"].fill  = F(DARK_NAVY)
 ws2["A2"].font  = Fn("C8D8F0", False, 8)
 ws2["A2"].alignment = Al("left", "center")
 
@@ -521,26 +569,29 @@ dv_c = DataValidation(type="list", formula1='"✅ 済,⬜ 未,N/A"',
 ws2.add_data_validation(dv_c)
 c_cells = []
 
+# ── 改訂版チェックリスト ─────────────────────────────────────
 checklist = [
-    ("事前確認", GREEN, [
+    ("① 事前確認（意向把握）", GREEN, [
         "お客様の意向（重視事項）を確認した",
-        "複数社（原則3社）の見積りを取得した",
+        "補償内容の希望（車両保険・運転者範囲等）を確認した",
+        "複数社（3社）の見積りを取得した",
         "各社の保険料・補償内容を比較説明した",
-        "比較に用いた基準・理由を説明できる",
     ]),
-    ("三井住友海上の提案", "1E6644", [
-        "三井住友海上の見積りを必ず含めた",
-        "損保ジャパンとの比較ポイントを説明した",
-        "MSIを選ばない場合、理由を記録した",
+    ("② 比較推奨の実施", DARK_GRN, [
+        # 改訂：「三井住友海上を必ず含める」→ 顧客意向照合に変更
+        "お客様の意向に照らして比較対象3社を選定し、選定理由を説明できる",
+        "各社の特徴・強みをお客様の意向と紐づけて説明した",
+        "推奨・非推奨の根拠が顧客の意向に基づいていることを確認した",
     ]),
-    ("推奨根拠の記録", BLUE, [
+    ("③ 推奨根拠の記録", BLUE, [
         "推奨する会社・商品とその理由を記録した",
         "お客様が選んだ会社・商品を記録した",
-        "意向と選択が異なる場合、経緯を記録した",
+        "意向と異なる商品を選択した場合、その理由を確認・記録した",
     ]),
-    ("コンプライアンス", RED, [
-        "特定会社への誘導はない",
-        "意向確認の同意を得た",
+    ("④ コンプライアンス", RED, [
+        "特定会社への一方的な誘導はなく、公平な比較を実施した",
+        "意向確認の内容をお客様に読み上げ・確認いただいた",  # 新規追加
+        "推奨内容がお客様の意向に沿うことを口頭で説明した",  # 新規追加
         "本シートを保管・アーカイブ予定",
     ]),
 ]
@@ -551,7 +602,7 @@ for section, color, items in checklist:
     ws2.merge_cells(f"B{row}:G{row}")
     ws2.cell(row, 2).value = f"  【 {section} 】"
     ws2.cell(row, 2).fill  = F(DARK)
-    ws2.cell(row, 2).font  = Fn("FFFFFF", True, 9)
+    ws2.cell(row, 2).font  = Fn(WHITE, True, 9)
     ws2.cell(row, 2).alignment = Al("left")
     row += 1
 
@@ -559,7 +610,7 @@ for section, color, items in checklist:
         ws2.row_dimensions[row].height = 20
         ws2.cell(row, 2).value = "▸"
         ws2.cell(row, 2).fill  = F(color)
-        ws2.cell(row, 2).font  = Fn("FFFFFF", True, 9)
+        ws2.cell(row, 2).font  = Fn(WHITE, True, 9)
         ws2.cell(row, 2).alignment = Al("center")
 
         ws2.merge_cells(f"C{row}:D{row}")
@@ -568,20 +619,35 @@ for section, color, items in checklist:
         ws2.cell(row, 3).font  = Fn(NAVY, False, 9)
         ws2.cell(row, 3).alignment = Al("left")
 
+        # 入力セル E・F・G 全列に統一した枠線を適用（デザイナー指摘修正）
         for c in [5, 6, 7]:
             ws2.cell(row, c).fill   = F(YELLOW)
-            ws2.cell(row, c).font   = Fn("000000", True, 10)
+            ws2.cell(row, c).font   = Fn("000000", True, 11)
             ws2.cell(row, c).alignment = Al("center")
-            ws2.cell(row, c).border = Bd(GRAY2)
+            ws2.cell(row, c).border = Border(
+                top=Side(style="medium", color=color),
+                bottom=Side(style="medium", color=color),
+                left=Side(style="medium", color=color),
+                right=Side(style="medium", color=color),
+            )
             c_cells.append(f"{get_column_letter(c)}{row}")
 
-        ws2.cell(row, 5).border = Bd(color, "medium")
         row += 1
 
     ws2.row_dimensions[row].height = 4
     row += 1
 
 dv_c.sqref = " ".join(c_cells)
+
+# Sheet2 フッター
+ws2.merge_cells(f"B{row}:G{row}")
+ws2.cell(row, 2).value = (
+    "  ＊推奨根拠は必ず「顧客の意向との対応関係」で記録してください（保険業法施行規則第227条の2）。"
+)
+ws2.cell(row, 2).fill  = F(NAVY)
+ws2.cell(row, 2).font  = Fn("93B8DC", False, 7)
+ws2.cell(row, 2).alignment = Al("left", "center")
+ws2.row_dimensions[row].height = 18
 
 # ─── 保存 ─────────────────────────────────────────────────────
 out = "/home/user/Sunplaza-supermarket/intent_tool.xlsx"
