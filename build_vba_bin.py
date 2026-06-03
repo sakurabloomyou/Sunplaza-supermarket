@@ -44,8 +44,9 @@ def ovba_compress(data: bytes) -> bytes:
             i += 8
         comp_bytes = comp.getvalue()
 
-        # CompressedChunkHeader: bit15=1, bits14-0 = size-3
-        hdr = 0xB000 | (len(comp_bytes) - 3)
+        # MS-OVBA 2.4.1.1.4: CompressedChunkSize = data_size + 2 (includes header)
+        # bits 0-11 = CompressedChunkSize - 3 = (data_size + 2) - 3 = data_size - 1
+        hdr = 0xB000 | (len(comp_bytes) - 1)
         out.write(struct.pack('<H', hdr))
         out.write(comp_bytes)
 
@@ -78,10 +79,11 @@ def build_dir_stream(vba_code: str) -> bytes:
     out.write(rec(0x003D, b''))                              # PROJECTHELPFILEPATH 2
     out.write(rec(0x0007, struct.pack('<I', 0)))             # PROJECTHELPCONTEXT
     out.write(rec(0x0008, struct.pack('<I', 0)))             # PROJECTLIBFLAGS
-    # PROJECTVERSION: Id=0x0009, Size=4, MajorVersion(4), then Id2=0x0049, MinorVersion(2)
+    # PROJECTVERSION: Id(2) + Reserved=4(4) + MajorVersion(4) + MinorVersion(2)
+    # Note: no separate Id2=0x0049 field in the actual byte stream
     out.write(struct.pack('<HI', 0x0009, 4))
-    out.write(struct.pack('<I', 0x61440000))                 # MajorVersion (arbitrary)
-    out.write(struct.pack('<HH', 0x0049, 0))                 # MinorVersion=0
+    out.write(struct.pack('<I', 0x61440000))                 # MajorVersion
+    out.write(struct.pack('<H', 0))                          # MinorVersion
     out.write(rec(0x000C, b''))                              # PROJECTCONSTANTS ANSI
     out.write(rec(0x003C, b''))                              # PROJECTCONSTANTS Unicode
 
@@ -98,12 +100,12 @@ def build_dir_stream(vba_code: str) -> bytes:
     name_unicode = 'Sheet1'.encode('utf-16-le')
 
     out.write(rec(0x0019, name_ansi))                        # MODULENAME ANSI
-    out.write(rec(0x0031, name_unicode))                     # MODULENAMEUNICODE (first 0x0031)
+    out.write(rec(0x0047, name_unicode))                     # MODULENAMEUNICODE (real id=0x0047)
     out.write(rec(0x001A, name_ansi))                        # MODULESTREAMNAME ANSI
     out.write(rec(0x0032, name_unicode))                     # MODULESTREAMNAME Unicode
     out.write(rec(0x001C, b''))                              # MODULEDOCSTRING ANSI
     out.write(rec(0x0048, b''))                              # MODULEDOCSTRING Unicode
-    out.write(rec(0x0031, struct.pack('<I', 0)))             # MODULEOFFSET = 0 (second 0x0031)
+    out.write(rec(0x0031, struct.pack('<I', 0)))             # MODULEOFFSET = 0
     out.write(rec(0x001E, struct.pack('<I', 0)))             # MODULEHELPCONTEXT = 0
     out.write(rec(0x002C, struct.pack('<H', 0xFFFF)))        # MODULECOOKIE
     out.write(rec(0x0022, b''))                              # MODULETYPE: document/class
