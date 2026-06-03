@@ -157,7 +157,6 @@ def make_streams():
     # Worksheet_Change events fire.  ThisWorkbook is the workbook module.
     project_stream = (
         'ID="{00000000-0000-0000-0000-000000000000}"\r\n'
-        'Document=ThisWorkbook/&H00000000\r\n'
         'Document=Sheet1/&H00000000\r\n'
         'HelpContextID="0"\r\n'
         'VersionCompatible32="393222000"\r\n'
@@ -437,7 +436,7 @@ def build_cfb(streams: dict) -> bytes:
         struct.pack('<H', 9) +                        # SectorSizePower (2^9 = 512)
         struct.pack('<H', 6) +                        # MiniSectorSizePower (2^6 = 64)
         b'\x00' * 6 +                                 # Reserved
-        struct.pack('<I', 2) +                        # NumDirSectors = 2 (for v4 only; v3 = 0)
+        struct.pack('<I', 0) +                        # NumDirSectors MUST be 0 for v3
         struct.pack('<I', 1) +                        # NumFATSectors = 1
         struct.pack('<I', DIR_SECTOR_0) +             # FirstDirSectorLoc
         struct.pack('<I', 0) +                        # TransactionSig
