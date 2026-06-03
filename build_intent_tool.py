@@ -118,20 +118,31 @@ ws.cell(4, 8).alignment = Al("center")
 ws.row_dimensions[7].height  = 22
 ws.row_dimensions[8].height  = 18
 ws.row_dimensions[9].height  = 80
-ws.row_dimensions[10].height = 20
+ws.row_dimensions[10].height = 26
 ws.row_dimensions[11].height = 20
 ws.row_dimensions[12].height = 20
 ws.row_dimensions[13].height = 20
 ws.row_dimensions[14].height = 5
 
-ms(ws, "B7:G7",
+# STEP1 ヘッダー B7:F7（H7をドロップダウン専用に空ける）
+ms(ws, "B7:F7",
    "  STEP 1　　契約方法の確認",
    BLUE, "FFFFFF", True, 11)
+
+# G7: ドロップダウンのラベル
+ws["G7"].value = "契約方法を選択 ▼"
+ws["G7"].fill  = F(RED)
+ws["G7"].font  = Fn("FFFFFF", True, 8)
+ws["G7"].alignment = Al("center", "center", False)
+
+# H7: ドロップダウンセル（value は設定しない ← 重要）
+ws["H7"].fill  = F(YELLOW)
+ws["H7"].font  = Fn(NAVY, True, 11)
+ws["H7"].alignment = Al("center", "center", False)
 
 ms(ws, "B8:C8", "📋 スクリプト", "2146A0", "C5D8F5", True, 8, "center")
 ms(ws, "D8:H8", "", "2146A0", "C5D8F5", False, 8)
 
-# スクリプト本文（H7ドロップダウンへの誘導を含む）
 script1 = (
     "「当社では●社の自動車保険を扱っています。\n"
     "そのうち 給与天引き（団体割引）が使えるのは 損保ジャパン・三井住友海上・東京海上 の3社です。\n"
@@ -139,43 +150,20 @@ script1 = (
     "クレジットカード払いや口座振替の一般契約もご案内できます。\n\n"
     "どのご契約方法をご希望ですか？」"
 )
-ms(ws, "D9:G9", script1, "EBF2FC", NAVY, True, 10, "left", "center", True, 1)
+ms(ws, "D9:H9", script1, "EBF2FC", NAVY, True, 10, "left", "center", True, 1)
 ms(ws, "B9:C9", "📣 読み上げ", L_BLUE, BLUE, True, 8, "center")
 
-# ── H7 にドロップダウンを配置（STEP1 タイトル行の右端）────────
-ws["H7"].value  = ""
-ws["H7"].fill   = F(YELLOW)
-ws["H7"].font   = Fn(RED, True, 10)
-ws["H7"].alignment = Al("center", "center", True)
-ws["H7"].border = Border(
-    top=Side(style="medium", color=RED),
-    bottom=Side(style="medium", color=RED),
-    left=Side(style="medium", color=RED),
-    right=Side(style="medium", color=RED),
-)
+# 行10: ドロップダウン専用の目立つ入力行
+ms(ws, "B10:F10", "  ▶ お客様のご希望の契約方法（右の黄色セルで選択してください）",
+   "FFF8E1", "C0392B", True, 9, "left")
+ms(ws, "G10:G10", "契約方法 →", RED, "FFFFFF", True, 8, "center")
+# H10 にもドロップダウンを追加（H7 と同じ内容、より目立つ位置）
 
-dv1 = DataValidation(
-    type="list",
-    formula1='"①給与天引き（団体割引）,②一般契約（クレカ・口振）,③通販型（ソニー損保）"',
-    allow_blank=True, showDropDown=False,
-    prompt="契約方法を選択してください",
-    promptTitle="STEP1 選択"
-)
-dv1.sqref = "H7"
-ws.add_data_validation(dv1)
-
-# H9: 「ここで選択」ガイド
-ws["H9"].value = "← ここで\n選択"
-ws["H9"].fill  = F("FFF0F0")
-ws["H9"].font  = Fn(RED, True, 8)
-ws["H9"].alignment = Al("center", "center", True)
-ws["H9"].border = Bd(RED)
-
-# 選択肢の説明（行10〜12）
+# 選択肢の説明（行11〜13）
 choices = [
-    (10, "①", "給与天引き（団体割引）",    "→ 下のグループ「①②」を展開",  GREEN, L_GRN),
-    (11, "②", "一般契約（クレカ・口振）",   "→ 下のグループ「①②」を展開",  BLUE,  L_BLUE),
-    (12, "③", "通販型（ソニー損保）",       "→ 下のグループ「③」を展開",    RED,   L_RED),
+    (11, "①", "給与天引き（団体割引）",    "→ 下のグループ「①②」を展開",  GREEN, L_GRN),
+    (12, "②", "一般契約（クレカ・口振）",   "→ 下のグループ「①②」を展開",  BLUE,  L_BLUE),
+    (13, "③", "通販型（ソニー損保）",       "→ 下のグループ「③」を展開",    RED,   L_RED),
 ]
 for row, num, label, guide, hc, bc in choices:
     ws.cell(row, 2).value = num
@@ -196,7 +184,35 @@ for row, num, label, guide, hc, bc in choices:
 
     ws.cell(row, 8).fill = F(bc)
 
+# ── フレーム適用（frame の後で H7/H10 ボーダーを上書き） ──────
 frame(ws, 7, 13, 2, 8)
+
+# H7 ボーダー（frame の後に適用して目立つ赤枠に）
+ws["H7"].border = Border(
+    top=Side(style="medium", color=RED),
+    bottom=Side(style="medium", color=RED),
+    left=Side(style="medium", color=RED),
+    right=Side(style="medium", color=RED),
+)
+# H10 も同様
+ws["H10"].fill   = F(YELLOW)
+ws["H10"].font   = Fn(NAVY, True, 11)
+ws["H10"].alignment = Al("center", "center", False)
+ws["H10"].border = Border(
+    top=Side(style="medium", color=RED),
+    bottom=Side(style="medium", color=RED),
+    left=Side(style="medium", color=RED),
+    right=Side(style="medium", color=RED),
+)
+
+# ── データ検証：H7 と H10 の両方に同じドロップダウンを設定 ───
+dv1 = DataValidation(
+    type="list",
+    formula1='"①給与天引き（団体割引）,②一般契約（クレカ・口振）,③通販型（ソニー損保）"',
+    allow_blank=True, showDropDown=False
+)
+dv1.sqref = "H7 H10"
+ws.add_data_validation(dv1)
 
 # ─── 分岐ガイド行（常時表示） ─────────────────────────────────
 ws.row_dimensions[15].height = 20
