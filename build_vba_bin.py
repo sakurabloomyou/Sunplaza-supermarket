@@ -8,44 +8,29 @@ References:
   [MS-OVBA] https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-ovba
 """
 
-import struct
-import io
-import zipfile
-import shutil
-import os
-import re
+import struct, io, zipfile, shutil, os
 
-# ── STEP 1: MS-OVBA Compression ────────────────────────────────────────────
+# ── MS-OVBA Compression ─────────────────────────────────────────────────────
 
 def ovba_compress(data: bytes) -> bytes:
-    """Compress bytes using MS-OVBA algorithm (Section 2.4).
-    Uses all-literal tokens (flag byte = 0x00 for every group).
-    """
-    sig = b'\x01'  # SignatureByte
-    if not data:
-        return sig
-
+    """MS-OVBA Section 2.4 compression (all-literal tokens)."""
     out = io.BytesIO()
-    out.write(sig)
+    out.write(b'\x01')          # SignatureByte
 
     pos = 0
     while pos < len(data):
         chunk = data[pos: pos + 4096]
         pos += 4096
 
-        # Build compressed chunk with all-literal tokens
         comp = io.BytesIO()
         i = 0
-        n = len(chunk)
-        while i < n:
-            group = chunk[i: i + 8]
-            comp.write(b'\x00')        # flags: all 8 tokens are literals
-            comp.write(group)
+        while i < len(chunk):
+            comp.write(b'\x00')             # flags: all literals
+            comp.write(chunk[i: i + 8])
             i += 8
         comp_bytes = comp.getvalue()
 
-        # MS-OVBA 2.4.1.1.4: CompressedChunkSize = data_size + 2 (includes header)
-        # bits 0-11 = CompressedChunkSize - 3 = (data_size + 2) - 3 = data_size - 1
+        # bits 0-11 = CompressedChunkSize-3 = (data_size+2)-3 = data_size-1
         hdr = 0xB000 | (len(comp_bytes) - 1)
         out.write(struct.pack('<H', hdr))
         out.write(comp_bytes)
@@ -53,70 +38,71 @@ def ovba_compress(data: bytes) -> bytes:
     return out.getvalue()
 
 
-# ── STEP 2: Build the VBA dir stream (uncompressed) ────────────────────────
+# ── dir stream builder ───────────────────────────────────────────────────────
 
-def build_dir_stream(vba_code: str) -> bytes:
+def _rec(id_: int, data: bytes) -> bytes:
+    return struct.pack('<HI', id_, len(data)) + data
+
+def _module_record(name: str, source_offset: int, is_document: bool) -> bytes:
+    """Build one MODULE record for the dir stream."""
+    ansi    = name.encode('latin-1')
+    unicode_ = name.encode('utf-16-le')
+    out = io.BytesIO()
+    out.write(_rec(0x0019, ansi))               # MODULENAME
+    out.write(_rec(0x0047, unicode_))            # MODULENAMEUNICODE  (real id=0x0047)
+    out.write(_rec(0x001A, ansi))               # MODULESTREAMNAME ANSI
+    out.write(_rec(0x0032, unicode_))            # MODULESTREAMNAME Unicode
+    out.write(_rec(0x001C, b''))                 # MODULEDOCSTRING ANSI
+    out.write(_rec(0x0048, b''))                 # MODULEDOCSTRING Unicode
+    out.write(_rec(0x0031, struct.pack('<I', source_offset)))  # MODULEOFFSET
+    out.write(_rec(0x001E, struct.pack('<I', 0)))               # MODULEHELPCONTEXT
+    out.write(_rec(0x002C, struct.pack('<H', 0xFFFF)))          # MODULECOOKIE
+    mod_type = 0x0022 if is_document else 0x0021
+    out.write(_rec(mod_type, b''))               # MODULETYPE
+    out.write(_rec(0x002B, b''))                 # MODULETERM
+    return out.getvalue()
+
+def build_dir_stream(modules: list) -> bytes:
     """
-    Build the uncompressed VBA dir stream (MS-OVBA 2.3.4.2).
-    Module name = stream name = 'Sheet1'.
-    Source is at offset 0 in the Sheet1 stream.
+    modules: list of (name, source_offset, is_document)
+    Returns uncompressed dir stream bytes.
     """
-
-    def rec(id_: int, data: bytes) -> bytes:
-        return struct.pack('<HI', id_, len(data)) + data
-
     out = io.BytesIO()
 
-    # ── Project properties ──────────────────────────────────────────────────
-    out.write(rec(0x0001, struct.pack('<I', 0x00000001)))   # PROJECTSYSKIND: Win32
-    out.write(rec(0x0002, struct.pack('<I', 0x0409)))        # PROJECTLCID
-    out.write(rec(0x0014, struct.pack('<I', 0x0409)))        # PROJECTLCIDINVOKE
-    out.write(rec(0x0003, struct.pack('<H', 1252)))          # PROJECTCODEPAGE
-    out.write(rec(0x0004, b'VBAProject'))                    # PROJECTNAME
-    out.write(rec(0x0005, b''))                              # PROJECTDOCSTRING ANSI
-    out.write(rec(0x0040, b''))                              # PROJECTDOCSTRING Unicode
-    out.write(rec(0x0006, b''))                              # PROJECTHELPFILEPATH 1
-    out.write(rec(0x003D, b''))                              # PROJECTHELPFILEPATH 2
-    out.write(rec(0x0007, struct.pack('<I', 0)))             # PROJECTHELPCONTEXT
-    out.write(rec(0x0008, struct.pack('<I', 0)))             # PROJECTLIBFLAGS
-    # PROJECTVERSION: Id(2) + Reserved=4(4) + MajorVersion(4) + MinorVersion(2)
-    # Note: no separate Id2=0x0049 field in the actual byte stream
+    # Project properties
+    out.write(_rec(0x0001, struct.pack('<I', 0x00000001)))   # PROJECTSYSKIND Win32
+    out.write(_rec(0x0002, struct.pack('<I', 0x0409)))        # PROJECTLCID
+    out.write(_rec(0x0014, struct.pack('<I', 0x0409)))        # PROJECTLCIDINVOKE
+    out.write(_rec(0x0003, struct.pack('<H', 1252)))          # PROJECTCODEPAGE
+    out.write(_rec(0x0004, b'VBAProject'))                    # PROJECTNAME
+    out.write(_rec(0x0005, b''))                              # PROJECTDOCSTRING ANSI
+    out.write(_rec(0x0040, b''))                              # PROJECTDOCSTRING Unicode
+    out.write(_rec(0x0006, b''))                              # PROJECTHELPFILEPATH 1
+    out.write(_rec(0x003D, b''))                              # PROJECTHELPFILEPATH 2
+    out.write(_rec(0x0007, struct.pack('<I', 0)))             # PROJECTHELPCONTEXT
+    out.write(_rec(0x0008, struct.pack('<I', 0)))             # PROJECTLIBFLAGS
+    # PROJECTVERSION: no Id2 field in actual stream (oletools confirmed)
     out.write(struct.pack('<HI', 0x0009, 4))
-    out.write(struct.pack('<I', 0x61440000))                 # MajorVersion
-    out.write(struct.pack('<H', 0))                          # MinorVersion
-    out.write(rec(0x000C, b''))                              # PROJECTCONSTANTS ANSI
-    out.write(rec(0x003C, b''))                              # PROJECTCONSTANTS Unicode
+    out.write(struct.pack('<I', 0x61440000))    # MajorVersion
+    out.write(struct.pack('<H', 0))             # MinorVersion
+    out.write(_rec(0x000C, b''))                              # PROJECTCONSTANTS ANSI
+    out.write(_rec(0x003C, b''))                              # PROJECTCONSTANTS Unicode
 
-    # ── PROJECTREFERENCES: none ─────────────────────────────────────────────
+    # PROJECTMODULES
+    out.write(struct.pack('<HI', 0x000F, 4))
+    out.write(struct.pack('<I', len(modules)))
+    out.write(struct.pack('<HH', 0x0013, 2))
+    out.write(struct.pack('<H', 0xFFFF))
 
-    # ── PROJECTMODULES ──────────────────────────────────────────────────────
-    out.write(struct.pack('<HI', 0x000F, 4))                 # PROJECTMODULES Id, Size=4
-    out.write(struct.pack('<I', 1))                          # Count = 1
-    out.write(struct.pack('<HH', 0x0013, 2))                 # ProjectCookie Id, Size=2
-    out.write(struct.pack('<H', 0xFFFF))                     # Cookie
-
-    # ── Module: Sheet1 ──────────────────────────────────────────────────────
-    name_ansi    = b'Sheet1'
-    name_unicode = 'Sheet1'.encode('utf-16-le')
-
-    out.write(rec(0x0019, name_ansi))                        # MODULENAME ANSI
-    out.write(rec(0x0047, name_unicode))                     # MODULENAMEUNICODE (real id=0x0047)
-    out.write(rec(0x001A, name_ansi))                        # MODULESTREAMNAME ANSI
-    out.write(rec(0x0032, name_unicode))                     # MODULESTREAMNAME Unicode
-    out.write(rec(0x001C, b''))                              # MODULEDOCSTRING ANSI
-    out.write(rec(0x0048, b''))                              # MODULEDOCSTRING Unicode
-    out.write(rec(0x0031, struct.pack('<I', 0)))             # MODULEOFFSET = 0
-    out.write(rec(0x001E, struct.pack('<I', 0)))             # MODULEHELPCONTEXT = 0
-    out.write(rec(0x002C, struct.pack('<H', 0xFFFF)))        # MODULECOOKIE
-    out.write(rec(0x0022, b''))                              # MODULETYPE: document/class
-    out.write(rec(0x002B, b''))                              # MODULETERM
+    for (name, offset, is_doc) in modules:
+        out.write(_module_record(name, offset, is_doc))
 
     return out.getvalue()
 
 
-# ── STEP 3: Assemble streams ────────────────────────────────────────────────
+# ── VBA source code ──────────────────────────────────────────────────────────
 
-VBA_CODE = """\
+VBA_CODE_SHEET1 = """\
 Private Sub Worksheet_Change(ByVal Target As Range)
     If Target.Address <> "$H$10" Then Exit Sub
     Dim r As Long
@@ -141,24 +127,28 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub
 """
 
-def make_streams():
-    """Return dict of stream_path → bytes for all required VBA streams."""
-    # Sheet1 module stream: compressed source (offset=0, no p-code before it)
-    sheet1_src = VBA_CODE.encode('latin-1')
-    sheet1_stream = ovba_compress(sheet1_src)
+VBA_CODE_THISWORKBOOK = ""  # empty – just the module binding
 
-    # dir stream: compressed dir record
-    dir_uncompressed = build_dir_stream(VBA_CODE)
-    dir_stream = ovba_compress(dir_uncompressed)
 
-    # _VBA_PROJECT: minimal performance cache stub (CC 61 signature + reserved)
-    vba_project_stream = b'\xCC\x61' + b'\x00' * 5
+# ── Assemble all streams ─────────────────────────────────────────────────────
 
-    # PROJECT text stream
-    # Sheet1 must be listed as Document= (class/document module) so that
-    # Worksheet_Change events fire.  ThisWorkbook is the workbook module.
+def make_streams() -> dict:
+    s_sheet1 = ovba_compress(VBA_CODE_SHEET1.encode('latin-1'))
+    s_twb    = ovba_compress(VBA_CODE_THISWORKBOOK.encode('latin-1'))
+
+    modules = [
+        ('ThisWorkbook', 0, True),
+        ('Sheet1',       0, True),
+    ]
+    dir_unc = build_dir_stream(modules)
+    s_dir   = ovba_compress(dir_unc)
+
+    # _VBA_PROJECT: exactly the 2-byte Reserved signature (no p-code)
+    s_vba_project = b'\xCC\x61'
+
     project_stream = (
         'ID="{00000000-0000-0000-0000-000000000000}"\r\n'
+        'Document=ThisWorkbook/&H00000000\r\n'
         'Document=Sheet1/&H00000000\r\n'
         'HelpContextID="0"\r\n'
         'VersionCompatible32="393222000"\r\n'
@@ -167,399 +157,299 @@ def make_streams():
         'GC=""\r\n'
     ).encode('latin-1')
 
-    # PROJECTwm: module name → Unicode name mapping
-    projectwm_stream = b'Sheet1\x00' + 'Sheet1'.encode('utf-16-le') + b'\x00\x00'
+    # PROJECTwm: ANSI name \0 UTF-16LE name \0\0 for each module
+    pwm = b''
+    for name in ('ThisWorkbook', 'Sheet1'):
+        pwm += name.encode('latin-1') + b'\x00' + name.encode('utf-16-le') + b'\x00\x00'
+    projectwm_stream = pwm
 
     return {
-        'VBA/Sheet1':       sheet1_stream,
-        'VBA/dir':          dir_stream,
-        'VBA/_VBA_PROJECT': vba_project_stream,
+        'VBA/ThisWorkbook': s_twb,
+        'VBA/Sheet1':       s_sheet1,
+        'VBA/dir':          s_dir,
+        'VBA/_VBA_PROJECT': s_vba_project,
         'PROJECT':          project_stream,
         'PROJECTwm':        projectwm_stream,
     }
 
 
-# ── STEP 4: Build OLE2 CFB (Compound File Binary) ──────────────────────────
+# ── OLE2 CFB builder ─────────────────────────────────────────────────────────
 
 FREESECT   = 0xFFFFFFFF
 ENDOFCHAIN = 0xFFFFFFFE
 FATSECT    = 0xFFFFFFFD
-DIFSECT    = 0xFFFFFFFC
 NOSTREAM   = 0xFFFFFFFF
-
 SECTOR_SIZE      = 512
 MINI_SECTOR_SIZE = 64
 MINI_CUTOFF      = 4096
 
 
-def _pad(data: bytes, multiple: int) -> bytes:
-    rem = len(data) % multiple
-    return data + b'\x00' * (multiple - rem) if rem else data
+def _pad(data: bytes, mult: int) -> bytes:
+    r = len(data) % mult
+    return data + b'\x00' * (mult - r) if r else data
+
+
+def _dir_entry(name: str, obj_type: int, color: int,
+               left: int, right: int, child: int,
+               clsid: bytes, start: int, size: int) -> bytes:
+    enc = name.encode('utf-16-le')
+    nlen = len(enc) + 2
+    nfield = (enc + b'\x00\x00').ljust(64, b'\x00')[:64]
+    return (nfield
+            + struct.pack('<H', nlen)
+            + struct.pack('<BB', obj_type, color)
+            + struct.pack('<III', left, right, child)
+            + clsid
+            + struct.pack('<I', 0)    # StateBits
+            + b'\x00' * 16           # timestamps
+            + struct.pack('<I', start)
+            + struct.pack('<I', size)
+            + struct.pack('<I', 0))  # SizeHigh=0 (v3)
 
 
 def build_cfb(streams: dict) -> bytes:
     """
-    Build a minimal OLE2 CFB file containing the given streams.
-    streams: dict mapping 'StorageName/StreamName' or 'StreamName' → bytes
-
-    Directory layout:
-      0: Root Entry  (storage)
-      1: VBA         (storage, CLSID={EA7BAE70-...})
-      2: PROJECT     (stream)
-      3: PROJECTwm   (stream)
-      4: _VBA_PROJECT (stream, inside VBA)
-      5: dir          (stream, inside VBA)
-      6: Sheet1       (stream, inside VBA)
+    Directory layout (9 entries = 3 sectors of 4 each):
+      0: Root Entry
+      1: VBA  (storage)
+      2: PROJECT
+      3: PROJECTwm
+      4: _VBA_PROJECT
+      5: dir
+      6: Sheet1
+      7: ThisWorkbook
+      8: (unused)
     """
-
-    # ── Gather stream data ───────────────────────────────────────────────────
-    s_vba_project = streams['VBA/_VBA_PROJECT']
-    s_dir         = streams['VBA/dir']
-    s_sheet1      = streams['VBA/Sheet1']
-    s_project     = streams['PROJECT']
-    s_projectwm   = streams['PROJECTwm']
-
-    # All streams go to mini stream (all are < MINI_CUTOFF = 4096 bytes)
-    # Mini sectors are 64 bytes each.
-
-    def mini_alloc(data: bytes):
-        """Allocate mini sectors for data. Returns (first_sector, padded_data)."""
-        padded = _pad(data, MINI_SECTOR_SIZE)
-        count = len(padded) // MINI_SECTOR_SIZE
-        return count, padded
-
-    # Allocate mini sectors:
-    #   Sheet1: first
-    #   dir: next
-    #   _VBA_PROJECT: next
-    #   PROJECT: next
-    #   PROJECTwm: last
-
-    mini_data = bytearray()
-    allocs = {}   # name → (first_mini_sector, size_bytes)
-
-    def alloc(name, data):
-        first = len(mini_data) // MINI_SECTOR_SIZE
-        count, padded = mini_alloc(data)
-        mini_data.extend(padded)
-        allocs[name] = (first, len(data), count)  # (start, size, num_sectors)
-
-    alloc('Sheet1',       s_sheet1)
-    alloc('dir',          s_dir)
-    alloc('_VBA_PROJECT', s_vba_project)
-    alloc('PROJECT',      s_project)
-    alloc('PROJECTwm',    s_projectwm)
-
-    total_mini_bytes = len(mini_data)
-    total_mini_sectors = total_mini_bytes // MINI_SECTOR_SIZE
-
-    # Build mini FAT (one mini FAT sector should be enough for ≤128 mini sectors)
-    mini_fat = []
-    for name in ('Sheet1', 'dir', '_VBA_PROJECT', 'PROJECT', 'PROJECTwm'):
-        first, size, count = allocs[name]
-        for i in range(count):
-            if i < count - 1:
-                mini_fat.append(first + i + 1)
-            else:
-                mini_fat.append(ENDOFCHAIN)
-    assert len(mini_fat) == total_mini_sectors
-
-    # Pad mini FAT to 128 entries (one full sector)
-    mini_fat_padded = mini_fat + [FREESECT] * (128 - len(mini_fat))
-    mini_fat_bytes = struct.pack('<128I', *mini_fat_padded)
-
-    # Mini stream container (regular sectors, each 512 bytes)
-    mini_container = _pad(bytes(mini_data), SECTOR_SIZE)
-    mini_sectors_count = len(mini_container) // SECTOR_SIZE
-
-    # ── Sector layout ────────────────────────────────────────────────────────
-    # Sector 0:  FAT sector
-    # Sector 1:  Directory sector 0 (entries 0-3)
-    # Sector 2:  Directory sector 1 (entries 4-7)
-    # Sector 3:  Mini FAT sector
-    # Sector 4…: Mini stream container sectors
-
-    DIR_SECTOR_0    = 1
-    DIR_SECTOR_1    = 2
-    MINI_FAT_SECTOR = 3
-    MINI_CONT_FIRST = 4
-    MINI_CONT_LAST  = MINI_CONT_FIRST + mini_sectors_count - 1
-
-    total_sectors = MINI_CONT_LAST + 1  # sectors 0 .. MINI_CONT_LAST
-
-    # Build FAT (one sector = 128 entries)
-    fat = [FREESECT] * 128
-    fat[0]              = FATSECT        # Sector 0 = FAT sector itself
-    fat[DIR_SECTOR_0]   = DIR_SECTOR_1   # Sector 1 → 2 (directory chain)
-    fat[DIR_SECTOR_1]   = ENDOFCHAIN     # Sector 2 = end of directory chain
-    fat[MINI_FAT_SECTOR] = ENDOFCHAIN    # Sector 3 = mini FAT (single sector chain)
-    for s in range(MINI_CONT_FIRST, MINI_CONT_LAST + 1):
-        fat[s] = s + 1 if s < MINI_CONT_LAST else ENDOFCHAIN
-    fat_bytes = struct.pack('<128I', *fat)
-
-    # ── Directory entries (128 bytes each, 4 per sector) ─────────────────────
-
-    def dir_entry(name: str, obj_type: int, color: int,
-                  left: int, right: int, child: int,
-                  clsid: bytes, start: int, size: int) -> bytes:
-        name_utf16 = name.encode('utf-16-le')
-        name_len   = len(name_utf16) + 2   # includes null terminator
-        name_field = (name_utf16 + b'\x00\x00').ljust(64, b'\x00')[:64]
-        return (
-            name_field +
-            struct.pack('<H', name_len) +
-            struct.pack('<BB', obj_type, color) +
-            struct.pack('<III', left, right, child) +
-            clsid +                          # 16 bytes CLSID
-            struct.pack('<II', 0, 0) +       # State, reserved
-            b'\x00' * 16 +                   # Created + Modified timestamps
-            struct.pack('<I', start) +
-            struct.pack('<Q', size)           # size (8 bytes for v4; v3 uses 4+4pad)
-        )
-
-    # Actually for CFB version 3, the size field in directory entry is:
-    # 4-byte size + 4-byte padding (high word MUST be zero)
-    # Let's use that format.
-
-    def dir_entry_v3(name: str, obj_type: int, color: int,
-                     left: int, right: int, child: int,
-                     clsid: bytes, start: int, size: int) -> bytes:
-        name_utf16 = name.encode('utf-16-le')
-        name_len   = len(name_utf16) + 2
-        name_field = (name_utf16 + b'\x00\x00').ljust(64, b'\x00')[:64]
-        return (
-            name_field +
-            struct.pack('<H', name_len) +     # DirectoryEntryNameLength
-            struct.pack('<BB', obj_type, color) +  # ObjectType, ColorFlag
-            struct.pack('<III', left, right, child) +  # LeftSibling, RightSibling, Child
-            clsid +                            # CLSID (16 bytes)
-            struct.pack('<I', 0) +             # StateBits
-            b'\x00' * 8 +                      # CreatedTime
-            b'\x00' * 8 +                      # ModifiedTime
-            struct.pack('<I', start) +          # StartingSectorLocation
-            struct.pack('<I', size) +           # SizeLow (v3)
-            struct.pack('<I', 0)                # SizeHigh = 0 (v3)
-        )
-
-    # VBA storage CLSID: {EA7BAE70-FB3B-11CD-A903-00AA00510EA3}
-    VBA_CLSID = bytes([
-        0x70, 0xAE, 0x7B, 0xEA, 0x3B, 0xFB, 0xCD, 0x11,
-        0xA9, 0x03, 0x00, 0xAA, 0x00, 0x51, 0x0E, 0xA3
-    ])
+    VBA_CLSID  = bytes([0x70,0xAE,0x7B,0xEA,0x3B,0xFB,0xCD,0x11,
+                         0xA9,0x03,0x00,0xAA,0x00,0x51,0x0E,0xA3])
     NULL_CLSID = b'\x00' * 16
 
-    # Root Entry CLSID (for vbaProject.bin): NULL or specific
-    ROOT_CLSID = NULL_CLSID
+    # ── Allocate mini sectors ────────────────────────────────────────────────
+    ORDER = ['Sheet1', 'ThisWorkbook', 'dir', '_VBA_PROJECT', 'PROJECT', 'PROJECTwm']
+    mini_data = bytearray()
+    allocs = {}
 
-    # ── Tree structure ──────────────────────────────────────────────────────
-    # Root level children (alphabetical, case-insensitive): PROJECT < PROJECTwm < VBA
-    #   Tree root: PROJECTwm (idx=3), left=PROJECT(2), right=VBA(1)
-    # VBA storage children: _VBA_PROJECT < dir < Sheet1 (case-insensitive)
-    #   Tree root: dir (idx=5), left=_VBA_PROJECT(4), right=Sheet1(6)
+    for key in ORDER:
+        skey = 'VBA/' + key if key in ('Sheet1','ThisWorkbook','dir','_VBA_PROJECT') else key
+        data = streams[skey]
+        first = len(mini_data) // MINI_SECTOR_SIZE
+        padded = _pad(data, MINI_SECTOR_SIZE)
+        count  = len(padded) // MINI_SECTOR_SIZE
+        mini_data.extend(padded)
+        allocs[key] = (first, len(data), count)
 
-    # Color: 0=RED, 1=BLACK
+    total_mini_sects = len(mini_data) // MINI_SECTOR_SIZE
 
-    root_mini_size = total_mini_bytes  # size of mini stream
+    # ── Mini FAT ─────────────────────────────────────────────────────────────
+    mini_fat = []
+    for key in ORDER:
+        first, size, count = allocs[key]
+        for i in range(count):
+            mini_fat.append(first + i + 1 if i < count - 1 else ENDOFCHAIN)
+    assert len(mini_fat) == total_mini_sects
+    mini_fat += [FREESECT] * (128 - len(mini_fat))
+    mini_fat_bytes = struct.pack('<128I', *mini_fat)
+
+    # ── Sector layout ────────────────────────────────────────────────────────
+    mini_container = _pad(bytes(mini_data), SECTOR_SIZE)
+    mini_cont_sects = len(mini_container) // SECTOR_SIZE
+
+    # Sector 0: FAT
+    # Sector 1-3: Directory  (12 dir entries = 3 × 512-byte sectors)
+    # Sector 4: Mini FAT
+    # Sector 5+: Mini stream container
+
+    DIR_S0        = 1
+    DIR_S1        = 2
+    DIR_S2        = 3
+    MINIFAT_S     = 4
+    MINICONT_FIRST = 5
+    MINICONT_LAST  = MINICONT_FIRST + mini_cont_sects - 1
+
+    fat = [FREESECT] * 128
+    fat[0]      = FATSECT
+    fat[DIR_S0] = DIR_S1
+    fat[DIR_S1] = DIR_S2
+    fat[DIR_S2] = ENDOFCHAIN
+    fat[MINIFAT_S] = ENDOFCHAIN
+    for s in range(MINICONT_FIRST, MINICONT_LAST + 1):
+        fat[s] = s + 1 if s < MINICONT_LAST else ENDOFCHAIN
+    fat_bytes = struct.pack('<128I', *fat)
+
+    # ── Directory entries ────────────────────────────────────────────────────
+    # Root level (case-insensitive alphabetical): PROJECT < PROJECTwm < VBA
+    #   Balanced: PROJECTwm(3) is root, left=PROJECT(2), right=VBA(1)
+    # VBA children (alpha): _VBA_PROJECT < dir < Sheet1 < ThisWorkbook
+    #   Balanced: Sheet1(6) root, left=dir(5,left=_VBA_PROJECT(4)), right=ThisWorkbook(7)
+
+    root_size = len(mini_data)
 
     entries = [
         # 0: Root Entry
-        dir_entry_v3(
-            'Root Entry', 5, 1,   # type=5 (root), color=black
-            NOSTREAM, NOSTREAM, 3,  # child = PROJECTwm (root of level-1 tree)
-            ROOT_CLSID,
-            MINI_CONT_FIRST, root_mini_size
-        ),
+        _dir_entry('Root Entry', 5, 1, NOSTREAM, NOSTREAM, 3,
+                   NULL_CLSID, MINICONT_FIRST, root_size),
         # 1: VBA storage
-        dir_entry_v3(
-            'VBA', 1, 0,           # type=1 (storage), color=red
-            NOSTREAM, NOSTREAM, 5, # child = dir (root of VBA children tree)
-            VBA_CLSID,
-            ENDOFCHAIN, 0
-        ),
-        # 2: PROJECT stream
-        dir_entry_v3(
-            'PROJECT', 2, 0,       # type=2 (stream), color=red
-            NOSTREAM, NOSTREAM, NOSTREAM,
-            NULL_CLSID,
-            allocs['PROJECT'][0], allocs['PROJECT'][1]
-        ),
-        # 3: PROJECTwm stream (root of level-1 sibling tree)
-        dir_entry_v3(
-            'PROJECTwm', 2, 1,     # type=2, color=black (root of subtree)
-            2, 1, NOSTREAM,        # left=PROJECT(2), right=VBA(1)
-            NULL_CLSID,
-            allocs['PROJECTwm'][0], allocs['PROJECTwm'][1]
-        ),
-        # 4: _VBA_PROJECT stream (child of VBA)
-        dir_entry_v3(
-            '_VBA_PROJECT', 2, 0,  # color=red
-            NOSTREAM, NOSTREAM, NOSTREAM,
-            NULL_CLSID,
-            allocs['_VBA_PROJECT'][0], allocs['_VBA_PROJECT'][1]
-        ),
-        # 5: dir stream (root of VBA children tree)
-        dir_entry_v3(
-            'dir', 2, 1,           # color=black
-            4, 6, NOSTREAM,        # left=_VBA_PROJECT(4), right=Sheet1(6)
-            NULL_CLSID,
-            allocs['dir'][0], allocs['dir'][1]
-        ),
-        # 6: Sheet1 stream
-        dir_entry_v3(
-            'Sheet1', 2, 0,        # color=red
-            NOSTREAM, NOSTREAM, NOSTREAM,
-            NULL_CLSID,
-            allocs['Sheet1'][0], allocs['Sheet1'][1]
-        ),
-        # 7: unused padding
-        dir_entry_v3(
-            '', 0, 1,              # type=0 (unused)
-            NOSTREAM, NOSTREAM, NOSTREAM,
-            NULL_CLSID,
-            ENDOFCHAIN, 0
-        ),
+        _dir_entry('VBA', 1, 0, NOSTREAM, NOSTREAM, 6,
+                   VBA_CLSID, ENDOFCHAIN, 0),
+        # 2: PROJECT
+        _dir_entry('PROJECT', 2, 0, NOSTREAM, NOSTREAM, NOSTREAM,
+                   NULL_CLSID, allocs['PROJECT'][0], allocs['PROJECT'][1]),
+        # 3: PROJECTwm  (root of sibling tree for root storage)
+        _dir_entry('PROJECTwm', 2, 1, 2, 1, NOSTREAM,
+                   NULL_CLSID, allocs['PROJECTwm'][0], allocs['PROJECTwm'][1]),
+        # 4: _VBA_PROJECT
+        _dir_entry('_VBA_PROJECT', 2, 0, NOSTREAM, NOSTREAM, NOSTREAM,
+                   NULL_CLSID, allocs['_VBA_PROJECT'][0], allocs['_VBA_PROJECT'][1]),
+        # 5: dir  (left child: _VBA_PROJECT)
+        _dir_entry('dir', 2, 1, 4, NOSTREAM, NOSTREAM,
+                   NULL_CLSID, allocs['dir'][0], allocs['dir'][1]),
+        # 6: Sheet1  (root of VBA children tree; left=dir subtree, right=ThisWorkbook)
+        _dir_entry('Sheet1', 2, 1, 5, 7, NOSTREAM,
+                   NULL_CLSID, allocs['Sheet1'][0], allocs['Sheet1'][1]),
+        # 7: ThisWorkbook
+        _dir_entry('ThisWorkbook', 2, 0, NOSTREAM, NOSTREAM, NOSTREAM,
+                   NULL_CLSID, allocs['ThisWorkbook'][0], allocs['ThisWorkbook'][1]),
+        # 8, 9, 10, 11: unused
+        *[_dir_entry('', 0, 1, NOSTREAM, NOSTREAM, NOSTREAM,
+                     NULL_CLSID, ENDOFCHAIN, 0) for _ in range(4)],
     ]
 
-    dir_sector = b''.join(entries)   # 8 × 128 = 1024 bytes = 2 sectors ✓
+    dir_bytes = b''.join(entries)  # 12 × 128 = 1536 = 3 × 512 ✓
 
-    # ── CFB Header (512 bytes) ────────────────────────────────────────────────
-    MAGIC = b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'
-
-    # DIFAT: first 109 sector locations that contain FAT sectors
-    # We have only 1 FAT sector (sector 0)
-    difat = [0] + [FREESECT] * 108   # sector 0 is the FAT; rest are free
-
+    # ── CFB Header ───────────────────────────────────────────────────────────
+    difat = [0] + [FREESECT] * 108
     header = (
-        MAGIC +                                       # Signature
-        b'\x00' * 16 +                                # CLSID (null)
-        struct.pack('<H', 0x003E) +                   # MinorVersion
-        struct.pack('<H', 0x0003) +                   # MajorVersion = 3
-        struct.pack('<H', 0xFFFE) +                   # ByteOrder (little-endian)
-        struct.pack('<H', 9) +                        # SectorSizePower (2^9 = 512)
-        struct.pack('<H', 6) +                        # MiniSectorSizePower (2^6 = 64)
-        b'\x00' * 6 +                                 # Reserved
-        struct.pack('<I', 0) +                        # NumDirSectors MUST be 0 for v3
-        struct.pack('<I', 1) +                        # NumFATSectors = 1
-        struct.pack('<I', DIR_SECTOR_0) +             # FirstDirSectorLoc
-        struct.pack('<I', 0) +                        # TransactionSig
-        struct.pack('<I', MINI_CUTOFF) +              # MiniStreamCutoff = 4096
-        struct.pack('<I', MINI_FAT_SECTOR) +          # FirstMiniFATSectorLoc
-        struct.pack('<I', 1) +                        # NumMiniFATSectors = 1
-        struct.pack('<I', FREESECT) +                 # FirstDIFATSectorLoc (none)
-        struct.pack('<I', 0) +                        # NumDIFATSectors = 0
-        struct.pack('<109I', *difat)                  # DIFAT array
+        b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'   # Magic
+        + b'\x00' * 16                           # CLSID
+        + struct.pack('<H', 0x003E)              # MinorVersion
+        + struct.pack('<H', 0x0003)              # MajorVersion = 3
+        + struct.pack('<H', 0xFFFE)              # ByteOrder
+        + struct.pack('<H', 9)                   # SectorSizePower
+        + struct.pack('<H', 6)                   # MiniSectorSizePower
+        + b'\x00' * 6                            # Reserved
+        + struct.pack('<I', 0)                   # NumDirSectors = 0 (v3)
+        + struct.pack('<I', 1)                   # NumFATSectors
+        + struct.pack('<I', DIR_S0)              # FirstDirSectorLoc
+        + struct.pack('<I', 0)                   # TransactionSig
+        + struct.pack('<I', MINI_CUTOFF)         # MiniStreamCutoff
+        + struct.pack('<I', MINIFAT_S)           # FirstMiniFATSectorLoc
+        + struct.pack('<I', 1)                   # NumMiniFATSectors
+        + struct.pack('<I', FREESECT)            # FirstDIFATSectorLoc
+        + struct.pack('<I', 0)                   # NumDIFATSectors
+        + struct.pack('<109I', *difat)
     )
-    assert len(header) == 512, f"Header is {len(header)} bytes"
+    assert len(header) == 512
 
-    # ── Assemble file ──────────────────────────────────────────────────────
     cfb = io.BytesIO()
-    cfb.write(header)           # Sector -1 (header)
-    cfb.write(fat_bytes)        # Sector 0: FAT
-    cfb.write(dir_sector)       # Sectors 1-2: Directory
-    cfb.write(mini_fat_bytes)   # Sector 3: Mini FAT
-    cfb.write(mini_container)   # Sectors 4+: Mini stream container
-
+    cfb.write(header)
+    cfb.write(fat_bytes)
+    cfb.write(dir_bytes)
+    cfb.write(mini_fat_bytes)
+    cfb.write(mini_container)
     return cfb.getvalue()
 
 
-# ── STEP 5: Inject vbaProject.bin into xlsx → xlsm ─────────────────────────
+# ── Inject vbaProject.bin into xlsx → xlsm ──────────────────────────────────
 
 def inject_vba(xlsx_path: str, xlsm_path: str, vba_bin: bytes):
-    """
-    Copy xlsx as xlsm, injecting xl/vbaProject.bin.
-    Updates [Content_Types].xml and xl/_rels/workbook.xml.rels.
-    """
-    shutil.copy2(xlsx_path, xlsm_path)
-
-    with zipfile.ZipFile(xlsm_path, 'a') as zf:
-        # Add vbaProject.bin
-        zf.writestr('xl/vbaProject.bin', vba_bin)
-
-    # Now we need to update existing XML entries — rebuild the zip
-    tmp_path = xlsm_path + '.tmp'
-    with zipfile.ZipFile(xlsm_path, 'r') as zin, \
-         zipfile.ZipFile(tmp_path, 'w', zipfile.ZIP_DEFLATED) as zout:
+    tmp = xlsm_path + '.tmp'
+    with zipfile.ZipFile(xlsx_path, 'r') as zin, \
+         zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zout:
 
         for item in zin.infolist():
             data = zin.read(item.filename)
 
             if item.filename == '[Content_Types].xml':
                 ct = data.decode('utf-8')
-                # Add xlsm content type
-                if 'vbaProject.bin' not in ct:
-                    ct = ct.replace(
-                        '</Types>',
-                        '<Override PartName="/xl/vbaProject.bin"'
-                        ' ContentType="application/vnd.ms-office.activeX+xml"/>\n'
-                        '</Types>'
-                    )
-                # Change workbook content type from xlsx to xlsm
                 ct = ct.replace(
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml',
+                    'application/vnd.openxmlformats-officedocument'
+                    '.spreadsheetml.sheet.main+xml',
                     'application/vnd.ms-excel.sheet.macroEnabled.main+xml'
                 )
-                # Fix vbaProject content type (may have been added wrong above)
-                ct = ct.replace(
-                    'application/vnd.ms-office.activeX+xml',
-                    'application/vnd.ms-office.vbaProject'
-                )
+                if 'vbaProject' not in ct:
+                    ct = ct.replace('</Types>',
+                        '<Override PartName="/xl/vbaProject.bin"'
+                        ' ContentType="application/vnd.ms-office.vbaProject"/>\n</Types>')
                 data = ct.encode('utf-8')
 
+            elif item.filename == 'xl/workbook.xml':
+                xml = data.decode('utf-8')
+                # Add codeName to <workbook> element
+                if 'codeName' not in xml:
+                    xml = xml.replace('<workbook ', '<workbook codeName="ThisWorkbook" ', 1)
+                # Add codeName to first <sheet> element (意向確認シート = Sheet1 VBA module)
+                import re
+                def add_sheet_codename(m):
+                    s = m.group(0)
+                    if 'codeName' not in s:
+                        s = s[:-2] + ' codeName="Sheet1"/>'
+                    return s
+                xml = re.sub(r'<sheet [^/]*/>', add_sheet_codename, xml, count=1)
+                data = xml.encode('utf-8')
+
             elif item.filename == 'xl/worksheets/sheet1.xml':
-                # Add codeName="Sheet1" so VBA doc module binds to this sheet
                 xml = data.decode('utf-8')
                 if 'codeName' not in xml:
-                    xml = xml.replace('<sheetPr>', '<sheetPr codeName="Sheet1">', 1)
-                    if '<sheetPr>' not in xml and 'codeName' not in xml:
-                        xml = xml.replace('<sheetPr ', '<sheetPr codeName="Sheet1" ', 1)
+                    xml = xml.replace('<sheetPr', '<sheetPr codeName="Sheet1"', 1)
                 data = xml.encode('utf-8')
 
             elif item.filename == 'xl/_rels/workbook.xml.rels':
                 rels = data.decode('utf-8')
-                if 'vbaProject.bin' not in rels:
-                    rels = rels.replace(
-                        '</Relationships>',
-                        '<Relationship Id="rId99" '
-                        'Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" '
-                        'Target="vbaProject.bin"/>\n'
-                        '</Relationships>'
-                    )
+                if 'vbaProject' not in rels:
+                    rels = rels.replace('</Relationships>',
+                        '<Relationship Id="rId99"'
+                        ' Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject"'
+                        ' Target="vbaProject.bin"/>\n</Relationships>')
                 data = rels.encode('utf-8')
 
             zout.writestr(item, data)
 
-    os.replace(tmp_path, xlsm_path)
+        # Add vbaProject.bin
+        zout.writestr('xl/vbaProject.bin', vba_bin)
+
+    os.replace(tmp, xlsm_path)
     print(f"Saved: {xlsm_path}")
 
 
-# ── Main ────────────────────────────────────────────────────────────────────
+# ── Main ─────────────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
-    base = '/home/user/Sunplaza-supermarket'
-    xlsx_src  = os.path.join(base, 'intent_tool.xlsx')
-    xlsm_dst  = os.path.join(base, 'intent_tool.xlsm')
-    bin_dst   = os.path.join(base, 'vbaProject.bin')
+    base     = '/home/user/Sunplaza-supermarket'
+    xlsx_src = os.path.join(base, 'intent_tool.xlsx')
+    xlsm_dst = os.path.join(base, 'intent_tool.xlsm')
+    bin_dst  = os.path.join(base, 'vbaProject.bin')
 
-    streams   = make_streams()
-    vba_bin   = build_cfb(streams)
+    streams = make_streams()
+    vba_bin = build_cfb(streams)
 
     with open(bin_dst, 'wb') as f:
         f.write(vba_bin)
-    print(f"vbaProject.bin written: {len(vba_bin)} bytes")
+    print(f"vbaProject.bin: {len(vba_bin)} bytes")
 
-    # Quick sanity check with olefile
     import olefile
     ole = olefile.OleFileIO(bin_dst)
     print("OLE streams:", ole.listdir())
     ole.close()
 
+    # Validate with oletools
+    from oletools.olevba import VBA_Parser
+    p = VBA_Parser(bin_dst)
+    macros = list(p.extract_macros())
+    print(f"Macros found: {len(macros)}")
+    for m in macros:
+        code = m[3] if len(m) > 3 else None
+        print(f"  stream={m[1]}  code={'OK' if code else 'EMPTY'}")
+        if code:
+            print("  ", code[:80].replace('\n', ' '))
+
     inject_vba(xlsx_src, xlsm_dst, vba_bin)
 
-    # Verify xlsm contents
+    # Spot-check xlsm
     with zipfile.ZipFile(xlsm_dst) as z:
-        names = z.namelist()
-        print("xlsm files:", [n for n in names if 'vba' in n.lower() or 'Content' in n])
-        ct = z.read('[Content_Types].xml').decode()
-        rels = z.read('xl/_rels/workbook.xml.rels').decode()
-    print("Content-Type xlsm:", 'macroEnabled' in ct)
-    print("vbaProject rel:", 'vbaProject' in rels)
+        wb  = z.read('xl/workbook.xml').decode()
+        ct  = z.read('[Content_Types].xml').decode()
+    import re
+    print("workbook codeName:", re.search(r'codeName="[^"]*"', wb).group() if re.search(r'codeName', wb) else 'MISSING')
+    sheet_cn = re.findall(r'<sheet [^>]*>', wb)
+    print("sheet elements:", sheet_cn[:2])
+    print("macroEnabled CT:", 'macroEnabled' in ct)
