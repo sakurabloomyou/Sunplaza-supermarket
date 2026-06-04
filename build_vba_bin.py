@@ -107,19 +107,19 @@ Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
     If Sh.Index <> 1 Or Target.Address <> "$H$10" Then Exit Sub
     Dim r As Long
     Application.ScreenUpdating = False
-    For r = 16 To 38
+    For r = 16 To 49
         Sh.Rows(r).Hidden = True
     Next r
-    For r = 40 To 46
+    For r = 51 To 57
         Sh.Rows(r).Hidden = True
     Next r
     Select Case Left(Target.Value, 1)
         Case Chr(9312), Chr(9313)
-            For r = 16 To 38
+            For r = 16 To 49
                 Sh.Rows(r).Hidden = False
             Next r
         Case Chr(9314)
-            For r = 40 To 46
+            For r = 51 To 57
                 Sh.Rows(r).Hidden = False
             Next r
     End Select
