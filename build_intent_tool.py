@@ -270,7 +270,6 @@ for i, (item, note) in enumerate(priority_items):
     ws.cell(row, 3).font  = Fn(NAVY, False, 9)
     ws.cell(row, 3).alignment = Al("left")
 
-    ws.merge_cells(f"G{row}:G{row}")
     ws.cell(row, 7).value = f"  {note}"
     ws.cell(row, 7).fill  = F("F8FFF9")
     ws.cell(row, 7).font  = Fn(DARK, False, 8)
@@ -355,7 +354,6 @@ for i, (risk, coverage) in enumerate(risk_items):
     ws.cell(row, 3).font  = Fn(NAVY, False, 9)
     ws.cell(row, 3).alignment = Al("left")
 
-    ws.merge_cells(f"G{row}:G{row}")
     ws.cell(row, 7).value = f"  {coverage}"
     ws.cell(row, 7).fill  = F("FFF8F0")
     ws.cell(row, 7).font  = Fn(DARK, False, 8)
