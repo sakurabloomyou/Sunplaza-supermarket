@@ -40,13 +40,14 @@ ORANGE    = "E67E22"
 L_ORANGE  = "FEF0E3"
 
 # ─── ヘルパー ─────────────────────────────────────────────────
-def F(c): return PatternFill("solid", fgColor=c)
+def argb(c): return c if len(c) == 8 else "FF" + c
+def F(c): return PatternFill("solid", fgColor=argb(c))
 def Fn(c=None, bold=False, sz=10, name="Meiryo UI"):
-    return Font(name=name, bold=bold, size=sz, color=c or "000000")
+    return Font(name=name, bold=bold, size=sz, color=argb(c) if c else "FF000000")
 def Al(h="left", v="center", wrap=True, indent=0):
     return Alignment(horizontal=h, vertical=v, wrap_text=wrap, indent=indent)
 def Bd(color=GRAY2, style="thin"):
-    s = Side(style=style, color=color)
+    s = Side(style=style, color=argb(color))
     return Border(top=s, bottom=s, left=s, right=s)
 
 def ms(ws, rng, text, bg, fg=WHITE, bold=True, sz=10,
@@ -59,8 +60,8 @@ def ms(ws, rng, text, bg, fg=WHITE, bold=True, sz=10,
     c.alignment = Al(h, v, wrap, indent)
 
 def frame(ws, r1, r2, c1, c2, outer="7A8575", inner=GRAY2):
-    so = Side(style="medium", color=outer)
-    si = Side(style="thin",   color=inner)
+    so = Side(style="medium", color=argb(outer))
+    si = Side(style="thin",   color=argb(inner))
     for r in range(r1, r2 + 1):
         for c in range(c1, c2 + 1):
             ws.cell(r, c).border = Border(
@@ -76,10 +77,10 @@ def input_cell(ws, ref, dv=None, color=GREEN):
     c.font   = Fn(NAVY, True, 11)
     c.alignment = Al("center", "center", False)
     c.border = Border(
-        top=Side(style="medium", color=color),
-        bottom=Side(style="medium", color=color),
-        left=Side(style="medium", color=color),
-        right=Side(style="medium", color=color),
+        top=Side(style="medium", color=argb(color)),
+        bottom=Side(style="medium", color=argb(color)),
+        left=Side(style="medium", color=argb(color)),
+        right=Side(style="medium", color=argb(color)),
     )
 
 # ─── 列幅・シート背景 ─────────────────────────────────────────
@@ -474,10 +475,10 @@ ws["H45"].fill  = F(YELLOW)
 ws["H45"].font  = Fn(NAVY, True, 10)
 ws["H45"].alignment = Al("center", "center", False)
 ws["H45"].border = Border(
-    top=Side(style="medium", color=NAVY),
-    bottom=Side(style="medium", color=NAVY),
-    left=Side(style="medium", color=NAVY),
-    right=Side(style="medium", color=NAVY),
+    top=Side(style="medium", color=argb(NAVY)),
+    bottom=Side(style="medium", color=argb(NAVY)),
+    left=Side(style="medium", color=argb(NAVY)),
+    right=Side(style="medium", color=argb(NAVY)),
 )
 dv_rec = DataValidation(type="list",
     formula1='"損保ジャパン,三井住友海上,東京海上日動,お客様選択"',
@@ -515,10 +516,10 @@ ws.cell(48, 8).fill  = F(YELLOW)
 ws.cell(48, 8).font  = Fn(DARK, False, 9)
 ws.cell(48, 8).alignment = Al("center", "center", False)
 ws.cell(48, 8).border = Border(
-    top=Side(style="medium", color=DARK_NAVY),
-    bottom=Side(style="medium", color=DARK_NAVY),
-    left=Side(style="medium", color=DARK_NAVY),
-    right=Side(style="medium", color=DARK_NAVY),
+    top=Side(style="medium", color=argb(DARK_NAVY)),
+    bottom=Side(style="medium", color=argb(DARK_NAVY)),
+    left=Side(style="medium", color=argb(DARK_NAVY)),
+    right=Side(style="medium", color=argb(DARK_NAVY)),
 )
 frame(ws, 47, 48, 2, 8)
 
@@ -623,10 +624,10 @@ ws["B63"].fill = F(YELLOW)
 ws["B63"].alignment = Alignment(horizontal="left", vertical="top",
                                   wrap_text=True, indent=1)
 ws["B63"].border = Border(
-    top=Side(style="medium", color="7A8575"),
-    bottom=Side(style="medium", color="7A8575"),
-    left=Side(style="medium", color="7A8575"),
-    right=Side(style="medium", color="7A8575"),
+    top=Side(style="medium", color=argb("7A8575")),
+    bottom=Side(style="medium", color=argb("7A8575")),
+    left=Side(style="medium", color=argb("7A8575")),
+    right=Side(style="medium", color=argb("7A8575")),
 )
 frame(ws, 62, 63, 2, 8)
 
@@ -636,10 +637,10 @@ ws["B66"].fill = F(YELLOW)
 ws["B66"].alignment = Alignment(horizontal="left", vertical="top",
                                   wrap_text=True, indent=1)
 ws["B66"].border = Border(
-    top=Side(style="medium", color="7A8575"),
-    bottom=Side(style="medium", color="7A8575"),
-    left=Side(style="medium", color="7A8575"),
-    right=Side(style="medium", color="7A8575"),
+    top=Side(style="medium", color=argb("7A8575")),
+    bottom=Side(style="medium", color=argb("7A8575")),
+    left=Side(style="medium", color=argb("7A8575")),
+    right=Side(style="medium", color=argb("7A8575")),
 )
 frame(ws, 65, 66, 2, 8)
 
@@ -752,10 +753,10 @@ for section, color, items in checklist:
             ws2.cell(row, c).font   = Fn("000000", True, 11)
             ws2.cell(row, c).alignment = Al("center")
             ws2.cell(row, c).border = Border(
-                top=Side(style="medium", color=color),
-                bottom=Side(style="medium", color=color),
-                left=Side(style="medium", color=color),
-                right=Side(style="medium", color=color),
+                top=Side(style="medium", color=argb(color)),
+                bottom=Side(style="medium", color=argb(color)),
+                left=Side(style="medium", color=argb(color)),
+                right=Side(style="medium", color=argb(color)),
             )
             c_cells.append(f"{get_column_letter(c)}{row}")
 
@@ -777,6 +778,26 @@ ws2.cell(row, 2).alignment = Al("left", "center")
 ws2.row_dimensions[row].height = 18
 
 # ─── 保存 ─────────────────────────────────────────────────────
+import re, io
+
 out = "/home/user/Sunplaza-supermarket/intent_tool.xlsx"
 wb.save(out)
+
+# Post-process: fix alpha=00 in all rgb color values inside styles.xml
+# OOXML requires ARGB format; openpyxl's indexed color table uses 00XX instead of FFXX
+import zipfile, shutil, os
+
+tmp = out + ".tmp"
+with zipfile.ZipFile(out, 'r') as zin, zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zout:
+    for item in zin.infolist():
+        data = zin.read(item.filename)
+        if item.filename in ('xl/styles.xml', 'xl/worksheets/sheet1.xml',
+                             'xl/worksheets/sheet2.xml'):
+            text = data.decode('utf-8')
+            # Replace rgb="00XXXXXX" with rgb="FFXXXXXX" (fix zero-alpha colors)
+            text = re.sub(r'rgb="00([0-9A-Fa-f]{6})"', r'rgb="FF\1"', text)
+            data = text.encode('utf-8')
+        zout.writestr(item, data)
+
+os.replace(tmp, out)
 print(f"Saved: {out}")
