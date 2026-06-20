@@ -81,7 +81,6 @@ def build_dir_stream(modules: list) -> bytes:
     out.write(_rec(0x003D, b''))                              # PROJECTHELPFILEPATH 2
     out.write(_rec(0x0007, struct.pack('<I', 0)))             # PROJECTHELPCONTEXT
     out.write(_rec(0x0008, struct.pack('<I', 0)))             # PROJECTLIBFLAGS
-    # PROJECTVERSION: no Id2 field in actual stream (oletools confirmed)
     out.write(struct.pack('<HI', 0x0009, 4))
     out.write(struct.pack('<I', 0x61440000))    # MajorVersion
     out.write(struct.pack('<H', 0))             # MinorVersion
@@ -103,7 +102,7 @@ def build_dir_stream(modules: list) -> bytes:
 # ── VBA source code ──────────────────────────────────────────────────────────
 
 VBA_CODE_THISWORKBOOK = """\
-Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
+Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Object)
     If Sh.Index <> 1 Or Target.Address <> "$H$10" Then Exit Sub
     Dim r As Long
     Application.ScreenUpdating = False
@@ -150,6 +149,9 @@ def make_streams() -> dict:
         'ID="{00000000-0000-0000-0000-000000000000}"\r\n'
         'Document=ThisWorkbook/&H00000000\r\n'
         'Document=Sheet1/&H00000000\r\n'
+        'Reference=stdole|*\\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\\Windows\\System32\\stdole2.tlb#OLE Automation\r\n'
+        'Reference=Excel|*\\G{00020813-0000-0000-C000-000000000046}#1.9#0#EXCEL.EXE#Microsoft Excel 16.0 Object Library\r\n'
+        'Reference=Office|*\\G{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}#2.0#0#MSO.DLL#Microsoft Office 16.0 Object Library\r\n'
         'HelpContextID="0"\r\n'
         'VersionCompatible32="393222000"\r\n'
         'CMG=""\r\n'
