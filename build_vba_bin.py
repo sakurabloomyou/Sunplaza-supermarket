@@ -87,10 +87,11 @@ def build_dir_stream(modules: list) -> bytes:
     out.write(_rec(0x000C, b''))                              # PROJECTCONSTANTS ANSI
     out.write(_rec(0x003C, b''))                              # PROJECTCONSTANTS Unicode
 
-    # PROJECTMODULES
-    out.write(struct.pack('<HI', 0x000F, 4))
-    out.write(struct.pack('<I', len(modules)))
-    out.write(struct.pack('<HH', 0x0013, 2))
+    # PROJECTMODULES  (MS-OVBA 2.3.4.8.1: Size=2, Count=UINT16)
+    out.write(struct.pack('<HI', 0x000F, 2))
+    out.write(struct.pack('<H', len(modules)))
+    # PROJECTCOOKIE  (MS-OVBA 2.3.4.8.2: Size=2, Cookie=UINT16 always 0xFFFF)
+    out.write(struct.pack('<HI', 0x0013, 2))
     out.write(struct.pack('<H', 0xFFFF))
 
     for (name, offset, is_doc) in modules:
