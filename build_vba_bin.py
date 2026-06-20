@@ -374,10 +374,10 @@ def inject_vba(xlsx_path: str, xlsm_path: str, vba_bin: bytes):
 
             elif item.filename == 'xl/workbook.xml':
                 xml = data.decode('utf-8')
-                # Add codeName to <workbook> element
+                # codeName はルート<workbook>ではなく<workbookPr>の属性
                 if 'codeName' not in xml:
-                    xml = xml.replace('<workbook ', '<workbook codeName="ThisWorkbook" ', 1)
-                # Add codeName to first <sheet> element (意向確認シート = Sheet1 VBA module)
+                    xml = xml.replace('<workbookPr ', '<workbookPr codeName="ThisWorkbook" ', 1)
+                # 最初の<sheet>にcodeName="Sheet1"を追加
                 import re
                 def add_sheet_codename(m):
                     s = m.group(0)
@@ -388,10 +388,8 @@ def inject_vba(xlsx_path: str, xlsm_path: str, vba_bin: bytes):
                 data = xml.encode('utf-8')
 
             elif item.filename == 'xl/worksheets/sheet1.xml':
-                xml = data.decode('utf-8')
-                if 'codeName' not in xml:
-                    xml = xml.replace('<sheetPr', '<sheetPr codeName="Sheet1"', 1)
-                data = xml.encode('utf-8')
+                # sheetPrへのcodeName注入は不要（workbook.xmlのsheet要素で十分）
+                pass
 
             elif item.filename == 'xl/_rels/workbook.xml.rels':
                 rels = data.decode('utf-8')
