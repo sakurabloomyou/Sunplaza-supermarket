@@ -25,13 +25,11 @@ struct FamilyHomeView: View {
 struct TodayTab: View {
     @Environment(AppState.self) private var app
     @Environment(\.modelContext) private var ctx
-    @Environment(SubscriptionStore.self) private var store
     let household: Household
     @Query private var items: [DailyItem]
     @Query private var done: [DoneRecord]
     @Query private var pack: [PackItem]
     @State private var showPack = false
-    @State private var showPaywall = false
 
     init(household: Household) {
         self.household = household
@@ -53,22 +51,18 @@ struct TodayTab: View {
                 if !enabled.isEmpty {
                     Section("ご家庭に合わせてオンにした機能") {
                         ForEach(enabled) { f in
-                            HStack { Text(f.title); Spacer(); if f.requiresPlus && !store.isPlus { Text("プラス").font(.caption).foregroundStyle(Theme.warm) } }
-                                .contentShape(Rectangle())
-                                .onTapGesture { if f.requiresPlus && !store.isPlus { showPaywall = true } }
+                            HStack { Text(f.title); Spacer(); if f.isComingSoon { Text("準備中").font(.caption).foregroundStyle(Theme.muted) } }
                         }
                     }
                 }
                 Section {
                     NavigationLink("お知らせの設定") { NotificationSettingsView() }
-                    NavigationLink("みんなのきょう プラス") { PaywallView() }
                     Button("ご本人の画面を見る") { app.route = .selfBoard }
                     LabeledContent("招待コード", value: household.inviteCode)
                 }
                 Section { Disclaimer() }
             }
             .navigationTitle("きょう")
-            .sheet(isPresented: $showPaywall) { PaywallView() }
         }
     }
 

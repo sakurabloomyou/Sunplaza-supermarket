@@ -148,7 +148,7 @@ struct OnboardingFlow: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(on ? "★ オン" : "オフ").font(.caption.bold()).foregroundStyle(on ? Theme.warm : Theme.muted)
                         Text(item.feature.title).bold()
-                        if item.feature.requiresPlus { Text("プラスの機能").font(.caption).foregroundStyle(Theme.muted) }
+                        if item.feature.isComingSoon { Text("準備中").font(.caption).foregroundStyle(Theme.muted) }
                     }
                 }
                 .padding(12).background(on ? Theme.warmSoft : Theme.sunk, in: RoundedRectangle(cornerRadius: Theme.cardRadius))

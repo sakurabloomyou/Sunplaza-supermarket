@@ -4,14 +4,11 @@ import SwiftData
 @main
 struct MinnanoKyouApp: App {
     @State private var appState = AppState()
-    @State private var subscriptions = SubscriptionStore()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(appState)
-                .environment(subscriptions)
-                .task { await subscriptions.start() }
         }
         .modelContainer(HouseholdStore.container)
     }

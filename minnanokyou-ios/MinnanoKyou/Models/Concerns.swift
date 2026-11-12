@@ -82,8 +82,8 @@ enum Feature: String, CaseIterable, Codable, Identifiable {
         case .lifestyle: "生活習慣サポート"
         }
     }
-    /// 有料プラン「みんなのきょう プラス」で使える機能（docs/PRICING.md の案）
-    var requiresPlus: Bool {
+    /// v1（無料版）ではまだ作っていない機能。画面では「準備中」と表示する。
+    var isComingSoon: Bool {
         switch self {
         case .placeMemo, .photoCards, .voiceMessage, .visitReport, .shareScope: true
         default: false
