@@ -15,8 +15,8 @@
 1. 家族グループを作った人の端末：`PersistenceController` の**非公開の保存先**に家族グループ（Household）を作る。ごはん・済みの記録などは、すべて Household との関係（relationship）でつながっている。
 2. 「家族を招待する」→ `FamilySharing.makeInvite`
    - Household を `NSPersistentCloudKitContainer.share` で共有（CKShare）し、共有リンク（URL）を作る。`publicPermission = .readWrite`（リンクを知っている人が参加できる）。
-   - 6けたのコードを作り、公開データベースに `Invite`（レコード名 `invite-123456`、`url`、`expires`＝24時間後）を保存。
-3. 参加する人の端末：「招待コードを入力する」→ `FamilySharing.join`
+   - 8けたのコードを作り、公開データベースに `Invite`（レコード名 `invite-48291573`、`url`、`expires`＝24時間後）を保存。
+3. 参加する人の端末：「招待コードを入力する」（8けた）→ `FamilySharing.join`
    - `Invite` を読み、期限を確かめ、`CKContainer.shareMetadata(for:)` → `acceptShareInvitations(into: 共有の保存先)`。
    - iCloud から家族グループが届くまで「読み込んでいます」と表示。
 4. 共有リンクを直接開いた場合は `SceneDelegate.windowScene(_:userDidAcceptCloudKitShareWith:)` で受け入れる。
@@ -28,8 +28,8 @@
 - 集中モード中でも届く通知には、Time Sensitive Notifications の権限が必要。`project.yml` に追加済み。
 
 ## セキュリティ上の注意（法務・セキュリティの確認が必要）
-- 6けたのコードは 100万通りなので、当てずっぽうに入れて当たる可能性はゼロではない。対策として、有効期限を24時間にし、使用中のコードと重ならないようにし、作成者が参加者を確認・削除できる画面（Apple 標準の `UICloudSharingController`）を用意した。
-- より安全にするなら、コードを8けた以上にする、参加者を作成者が承認する（`publicPermission = .none` にして個別に招待する）などが考えられる。使いやすさとの兼ね合いで、当事者家族と相談して決める。
+- コードは8けた（1億通り。2026年11月12日決定）。それでも当てずっぽうに入れて当たる可能性はゼロではない。対策として、有効期限を24時間にし、使用中のコードと重ならないようにし、作成者が参加者を確認・削除できる画面（Apple 標準の `UICloudSharingController`）を用意した。
+- さらに安全にするなら、参加者を作成者が承認する（`publicPermission = .none` にして個別に招待する）などが考えられる。使いやすさとの兼ね合いで、当事者家族と相談して決める。
 - 公開データベースの `Invite` には共有リンクと期限しか入れない（名前や健康情報は入れない）。
 
 ## CloudKit Console で行う作業（公開前）

@@ -2,7 +2,7 @@ import SwiftUI
 import CloudKit
 import UIKit
 
-/// 家族を招待する画面。6けたのコード（24時間有効）を作り、参加している人を確認できる。
+/// 家族を招待する画面。8けたのコード（24時間有効）を作り、参加している人を確認できる。
 struct InviteFamilyView: View {
     @ObservedObject var household: Household
     @State private var invite: FamilySharing.Invite?
@@ -15,7 +15,8 @@ struct InviteFamilyView: View {
             Section {
                 if let invite {
                     VStack(spacing: 8) {
-                        Text(invite.code).font(.system(size: 44, weight: .bold, design: .rounded)).monospacedDigit()
+                        // 読み間違えないよう 4けたずつ区切って表示（入力は8けた続けて）
+                        Text("\(invite.code.prefix(4)) \(invite.code.suffix(4))").font(.system(size: 40, weight: .bold, design: .rounded)).monospacedDigit()
                             .accessibilityLabel(invite.code.map(String.init).joined(separator: " "))
                         Text("\(invite.expires.formatted(date: .abbreviated, time: .shortened)) まで使えます").font(.footnote).foregroundStyle(Theme.muted)
                     }.frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -23,7 +24,7 @@ struct InviteFamilyView: View {
                         Label("コードを送る", systemImage: "square.and.arrow.up")
                     }
                 } else {
-                    Text("ご家族やご本人のiPhoneで入力する、6けたのコードを作ります。コードは24時間だけ使えます。")
+                    Text("ご家族やご本人のiPhoneで入力する、8けたのコードを作ります。コードは24時間だけ使えます。")
                 }
                 Button(invite == nil ? "招待コードを作る" : "新しいコードを作る") { Task { await make() } }
                     .disabled(busy)

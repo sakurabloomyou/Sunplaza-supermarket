@@ -1,21 +1,22 @@
 import CoreData
 import CloudKit
 
-/// 家族グループの共有と、6けたの招待コード。
+/// 家族グループの共有と、8けたの招待コード。
 ///
 /// しくみ：
 /// 1. 家族グループ（Household）を CKShare で共有し、共有リンク（URL）を作る
-/// 2. 6けたのコード → 共有リンク の対応を、CloudKit の「公開」データベースに 24 時間だけ置く
+/// 2. 8けたのコード → 共有リンク の対応を、CloudKit の「公開」データベースに 24 時間だけ置く
 /// 3. 参加する人はコードを入れる → 共有リンクを取り出す → 共有を受け入れる
 ///
 /// 注意（法務・セキュリティの確認が必要）：
 /// - 共有リンクを知っている iCloud ユーザーは誰でも参加できる設定（publicPermission = .readWrite）にしている。
-///   6けたのコードは当てずっぽうで当たる可能性があるため、有効期限（24時間）を短くし、
+///   8けた（1億通り）でも当てずっぽうで当たる可能性はゼロではないため、有効期限（24時間）を短くし、
 ///   家族グループの作成者が参加者を確認・削除できる画面（CloudSharingView）を用意している。
 @MainActor
 final class FamilySharing {
     static let shared = FamilySharing()
     static let inviteLifetime: TimeInterval = 24 * 60 * 60
+    static let codeLength = 8
 
     struct Invite: Equatable { let code: String; let expires: Date; let url: URL }
     enum JoinError: LocalizedError {
@@ -62,7 +63,7 @@ final class FamilySharing {
         let db = ck.publicCloudDatabase
         let expires = Date().addingTimeInterval(Self.inviteLifetime)
         for _ in 0..<5 {
-            let code = String(format: "%06d", Int.random(in: 0...999_999))
+            let code = String(format: "%08d", Int.random(in: 0...99_999_999))
             let id = CKRecord.ID(recordName: "invite-\(code)")
             if let old = try? await db.record(for: id),
                let exp = old["expires"] as? Date, exp > Date() { continue }   // 使用中のコードは避ける
