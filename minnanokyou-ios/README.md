@@ -4,7 +4,7 @@
 ご家族が入れた予定を、ご本人の iPhone にもお知らせとボードで届けます。
 
 - 対応：iPhone、iOS 17 以降
-- 画面：SwiftUI　データ：SwiftData（iCloud / CloudKit と同期）
+- 画面：SwiftUI　データ：Core Data＋CloudKit（家族の間で共有）
 - ブラウザで動く試作：https://claude.ai/artifact/Bfc8nU9FkpNvNfcTuWDoFk
 - チーム共有用まとめ：https://claude.ai/artifact/FQBxLJgPEjKJa93mcrh2Mv
 
@@ -14,7 +14,7 @@
 |---|---|
 | 画面のコード（起動・初回設定・家族のホーム・ご本人・招待コード・お知らせ設定） | 書いた。**ビルド未確認**（作成した環境に Xcode がないため） |
 | 点数のしくみ・お知らせの計画のテスト | 書いた。**未実行** |
-| 家族間のデータ共有（CloudKit の共有） | 設計のみ。`docs/ARCHITECTURE.md` |
+| 家族間のデータ共有（CloudKit の共有、6けたの招待コード、「済み」の連絡） | 書いた。**ビルド・実機テスト未実施**。`docs/ARCHITECTURE.md` |
 | アイコン・説明画像・App Store の文言 | できている。`appstore/` |
 | ローンチに必要な手続き | `docs/LAUNCH_CHECKLIST.md` |
 

@@ -36,6 +36,7 @@ targets:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIBackgroundModes: [remote-notification]
+        CKSharingSupported: true
         ITSAppUsesNonExemptEncryption: false
         UISupportsAssistiveAccess: true   # Assistive Access 対応（実機で要確認）
     settings:

@@ -1,10 +1,9 @@
 import SwiftUI
-import SwiftData
+import CoreData
 
 /// 初回設定（基本情報 → カテゴリ → 具体的な悩み → 特に気になる3つ → 結果）。
 struct OnboardingFlow: View {
     @Environment(AppState.self) private var app
-    @Environment(\.modelContext) private var ctx
     @State private var step = 1
     @State private var answers = ConcernAnswers()
     @State private var categoryIndex = 0
@@ -180,11 +179,13 @@ struct OnboardingFlow: View {
         else { step -= 1 }
     }
     private func finish() {
-        let h = HouseholdStore.createHousehold(in: ctx, answers: answers, familyName: familyName, selfName: selfName)
-        _ = h
+        PersistenceController.shared.createHousehold(answers: answers, familyName: familyName, selfName: selfName)
         app.memberName = familyName
         app.role = .family
         app.route = .familyHome
-        Task { _ = await NotificationScheduler.shared.requestAuthorization() }
+        Task {
+            _ = await NotificationScheduler.shared.requestAuthorization()
+            await NotificationScheduler.shared.refresh(role: .family)
+        }
     }
 }

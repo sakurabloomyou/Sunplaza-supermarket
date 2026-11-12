@@ -1,11 +1,15 @@
 import SwiftUI
-import SwiftData
+import CoreData
 
 struct FamilyHomeView: View {
-    @Environment(AppState.self) private var app
-    @Query private var households: [Household]
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(key: "createdAt", ascending: true)]) private var households: FetchedResults<Household>
+
+    private var household: Household? {
+        households.first { $0.objectID.persistentStore == PersistenceController.shared.sharedStore } ?? households.first
+    }
+
     var body: some View {
-        if let h = households.first {
+        if let h = household {
             TabView {
                 NavigationStack { TodayTab(household: h) }
                     .tabItem { Label("きょう", systemImage: "calendar") }
@@ -16,27 +20,32 @@ struct FamilyHomeView: View {
             }
             .tint(Theme.accentHex)
         } else {
-            ContentUnavailableView("家族グループがまだありません", systemImage: "person.3",
-                description: Text("最初の設定を終えるか、招待コードで参加してください。"))
+            ContentUnavailableView {
+                Label("家族グループを読み込んでいます", systemImage: "icloud.and.arrow.down")
+            } description: {
+                Text("招待コードで参加した直後は、iCloud から届くまで少し時間がかかります。届かないときは、iCloud にサインインしているか確かめてください。")
+            }
         }
     }
 }
 
 struct TodayTab: View {
     @Environment(AppState.self) private var app
-    @Environment(\.modelContext) private var ctx
-    let household: Household
-    @Query private var items: [DailyItem]
-    @Query private var done: [DoneRecord]
-    @Query private var pack: [PackItem]
+    @ObservedObject var household: Household
+    @FetchRequest private var items: FetchedResults<DailyItem>
+    @FetchRequest private var done: FetchedResults<DoneRecord>
+    @FetchRequest private var pack: FetchedResults<PackItem>
     @State private var showPack = false
+    private let pc = PersistenceController.shared
 
     init(household: Household) {
         self.household = household
-        let id = household.id, day = Date().dayKey
-        _items = Query(filter: #Predicate<DailyItem> { $0.householdID == id }, sort: \.order)
-        _done = Query(filter: #Predicate<DoneRecord> { $0.householdID == id && $0.day == day })
-        _pack = Query(filter: #Predicate<PackItem> { $0.householdID == id }, sort: \.order)
+        _items = FetchRequest(sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)],
+                              predicate: NSPredicate(format: "household == %@", household))
+        _done = FetchRequest(sortDescriptors: [NSSortDescriptor(key: "at", ascending: true)],
+                             predicate: NSPredicate(format: "household == %@ AND day == %@", household, Date().dayKey))
+        _pack = FetchRequest(sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)],
+                             predicate: NSPredicate(format: "household == %@", household))
     }
 
     var body: some View {
@@ -56,9 +65,9 @@ struct TodayTab: View {
                     }
                 }
                 Section {
+                    NavigationLink("家族を招待する") { InviteFamilyView(household: household) }
                     NavigationLink("お知らせの設定") { NotificationSettingsView() }
                     Button("ご本人の画面を見る") { app.route = .selfBoard }
-                    LabeledContent("招待コード", value: household.inviteCode)
                 }
                 Section { Disclaimer() }
             }
@@ -67,7 +76,7 @@ struct TodayTab: View {
     }
 
     private func pickupSection(now: Int) -> some View {
-        let left = household.pickupMinutes - now
+        let left = Int(household.pickupMinutes) - now
         let day = Date().dayKey
         return Section {
             VStack(alignment: .leading, spacing: 6) {
@@ -81,8 +90,10 @@ struct TodayTab: View {
                 }
                 DisclosureGroup("お迎え前の持ち物（\(pack.filter { $0.checkedDay == day }.count) / \(pack.count)）", isExpanded: $showPack) {
                     ForEach(pack) { p in
-                        Button { p.checkedDay = p.checkedDay == day ? "" : day } label: {
-                            Label(p.title, systemImage: p.checkedDay == day ? "checkmark.square.fill" : "square")
+                        Button {
+                            p.checkedDay = p.checkedDay == day ? "" : day; pc.save()
+                        } label: {
+                            Label(p.title ?? "", systemImage: p.checkedDay == day ? "checkmark.square.fill" : "square")
                                 .frame(minHeight: Theme.minTap, alignment: .leading)
                         }.foregroundStyle(.primary)
                     }
@@ -94,37 +105,34 @@ struct TodayTab: View {
 
     private func doneRow(_ it: DailyItem, now: Int) -> some View {
         let rec = done.first { $0.itemKey == it.key }
-        let late = rec == nil && now > it.minutes + 30
+        let late = rec == nil && now > Int(it.minutes) + 30
         return HStack {
             VStack(alignment: .leading) {
-                Text(it.title).bold()
+                Text(it.title ?? "").bold()
                 Group {
-                    if let rec { Text("\(rec.by)・\(rec.at.minutesOfDay.hm)") }
+                    if let rec { Text("\(rec.by ?? "")・\((rec.at ?? Date()).minutesOfDay.hm)") }
                     else { Text("\(it.minutes.hm)ごろ") + (late ? Text("　まだです").foregroundColor(Theme.warm).bold() : Text("")) }
                 }.font(.footnote).foregroundStyle(Theme.muted)
             }
             Spacer()
-            Button(rec == nil ? "済みにする" : "済み") { toggle(it, rec) }
-                .buttonStyle(.borderedProminent).tint(rec == nil ? Theme.control : Theme.accentHex)
-                .frame(minHeight: Theme.minTap)
+            Button(rec == nil ? "済みにする" : "済み") {
+                if let rec { pc.viewContext.delete(rec); pc.save() }
+                else { pc.markDone(it, in: household, by: app.memberName.isEmpty ? "家族" : app.memberName) }
+                Task { await NotificationScheduler.shared.refresh(role: app.role) }
+            }
+            .buttonStyle(.borderedProminent).tint(rec == nil ? Theme.control : Theme.accentHex)
+            .frame(minHeight: Theme.minTap)
         }
-    }
-
-    private func toggle(_ it: DailyItem, _ rec: DoneRecord?) {
-        if let rec { ctx.delete(rec) }
-        else { ctx.insert(DoneRecord(householdID: household.id, itemKey: it.key, day: Date().dayKey, by: app.memberName.isEmpty ? "家族" : app.memberName)) }
     }
 }
 
 struct LogTab: View {
-    let household: Household
-    @Query private var done: [DoneRecord]
-    @Query private var items: [DailyItem]
+    @ObservedObject var household: Household
+    @FetchRequest private var done: FetchedResults<DoneRecord>
     init(household: Household) {
         self.household = household
-        let id = household.id, day = Date().dayKey
-        _done = Query(filter: #Predicate<DoneRecord> { $0.householdID == id && $0.day == day }, sort: \.at)
-        _items = Query(filter: #Predicate<DailyItem> { $0.householdID == id })
+        _done = FetchRequest(sortDescriptors: [NSSortDescriptor(key: "at", ascending: true)],
+                             predicate: NSPredicate(format: "household == %@ AND day == %@", household, Date().dayKey))
     }
     var body: some View {
         List {
@@ -133,8 +141,8 @@ struct LogTab: View {
             }
             ForEach(done) { r in
                 HStack(spacing: 12) {
-                    Text(r.at.minutesOfDay.hm).bold().monospacedDigit().foregroundStyle(Theme.accentHex)
-                    Text("\(r.by)　\(items.first { $0.key == r.itemKey }?.title ?? r.itemKey) 済み")
+                    Text((r.at ?? Date()).minutesOfDay.hm).bold().monospacedDigit().foregroundStyle(Theme.accentHex)
+                    Text("\(r.by ?? "")　\(household.itemList.first { $0.key == r.itemKey }?.title ?? (r.itemKey ?? "")) 済み")
                 }
             }
             Text("ご家族みんなが同じ記録を見ています。").font(.footnote).foregroundStyle(Theme.muted)
@@ -145,38 +153,41 @@ struct LogTab: View {
 
 struct DutyTab: View {
     @Environment(AppState.self) private var app
-    @Environment(\.modelContext) private var ctx
-    let household: Household
-    @Query private var duties: [Duty]
+    @ObservedObject var household: Household
+    @FetchRequest private var duties: FetchedResults<Duty>
     @State private var newWhen = ""
     @State private var newTitle = ""
+    private let pc = PersistenceController.shared
     init(household: Household) {
         self.household = household
-        let id = household.id
-        _duties = Query(filter: #Predicate<Duty> { $0.householdID == id })
+        _duties = FetchRequest(sortDescriptors: [NSSortDescriptor(key: "when", ascending: true)],
+                               predicate: NSPredicate(format: "household == %@", household))
     }
     var body: some View {
         List {
             ForEach(duties) { d in
                 HStack {
-                    Text(d.when).bold().foregroundStyle(Theme.accentHex).frame(minWidth: 44, alignment: .leading)
-                    VStack(alignment: .leading) { Text(d.title).bold(); if !d.detail.isEmpty { Text(d.detail).font(.footnote).foregroundStyle(Theme.muted) } }
+                    Text(d.when ?? "").bold().foregroundStyle(Theme.accentHex).frame(minWidth: 44, alignment: .leading)
+                    VStack(alignment: .leading) {
+                        Text(d.title ?? "").bold()
+                        if let detail = d.detail, !detail.isEmpty { Text(detail).font(.footnote).foregroundStyle(Theme.muted) }
+                    }
                     Spacer()
-                    if d.assignee.isEmpty {
-                        Button("引き受ける") { d.assignee = app.memberName }.buttonStyle(.bordered)
+                    if (d.assignee ?? "").isEmpty {
+                        Button("引き受ける") { d.assignee = app.memberName; pc.save() }.buttonStyle(.bordered)
                     } else {
-                        Text(d.assignee).bold()
+                        Text(d.assignee ?? "").bold()
                     }
                 }
-                .swipeActions { Button("担当を外す") { d.assignee = "" } }
+                .swipeActions { Button("担当を外す") { d.assignee = ""; pc.save() } }
             }
-            .onDelete { idx in idx.map { duties[$0] }.forEach(ctx.delete) }
+            .onDelete { idx in idx.map { duties[$0] }.forEach(pc.viewContext.delete); pc.save() }
             Section("予定を追加") {
                 TextField("いつ（例：火、11/12、毎晩）", text: $newWhen)
                 TextField("内容（例：通院の付きそい）", text: $newTitle)
                 Button("追加する") {
-                    ctx.insert(Duty(householdID: household.id, when: newWhen, title: newTitle, detail: ""))
-                    newWhen = ""; newTitle = ""
+                    let d = pc.insert(Duty.self, into: household); d.when = newWhen; d.title = newTitle
+                    pc.save(); newWhen = ""; newTitle = ""
                 }.disabled(newWhen.isEmpty || newTitle.isEmpty)
             }
         }

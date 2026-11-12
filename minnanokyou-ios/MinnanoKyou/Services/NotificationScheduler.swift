@@ -11,7 +11,22 @@ final class NotificationScheduler {
         (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
     }
 
-    /// 今日と明日の分を登録し直す。「済み」になった項目の「まだです」通知は外す。
+    /// 保存されている家族グループの内容から、今日と明日のお知らせを組み直す。
+    /// アプリが前面に来たとき、「済み」にしたとき、ほかの家族の変更を受け取ったときに呼ぶ。
+    func refresh(role: DeviceRole?) async {
+        guard let role, let h = PersistenceController.shared.currentHousehold() else { return }
+        let answers = h.answers
+        let today = Date().dayKey
+        let doneKeys = Set(((h.doneRecords as? Set<DoneRecord>) ?? []).filter { $0.day == today }.compactMap(\.itemKey))
+        let weekdaySymbol = ["日","月","火","水","木","金","土"][Calendar.current.component(.weekday, from: Date()) - 1]
+        let duty = h.dutyList.first { $0.when == weekdaySymbol && !($0.assignee ?? "").isEmpty }?.assignee
+        let items = h.itemList.map { (key: $0.key ?? "", title: $0.title ?? "", minutes: Int($0.minutes), isMedication: $0.isMedication) }
+        let plan = NotificationPlanner.plan(role: role, settings: RemoteChangeNotifier.loadSettings(), selfName: h.displaySelfName,
+                                            pickup: answers.usesDayService ? Int(h.pickupMinutes) : nil, dutyName: duty, items: items)
+        await reschedule(plan, doneKeys: doneKeys, pickupWeekdays: answers.dayServiceWeekdays)
+    }
+
+    /// 今日と明日の分を登録し直す。「済み」になった項目の「まだです」「おくすり」通知は外す。
     func reschedule(_ plan: [PlannedNotification], doneKeys: Set<String>, pickupWeekdays: Set<Int>) async {
         center.removeAllPendingNotificationRequests()
         let cal = Calendar.current

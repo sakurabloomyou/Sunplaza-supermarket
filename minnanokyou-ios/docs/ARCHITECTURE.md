@@ -1,32 +1,46 @@
 # 設計メモ
 
+更新：2026年11月12日（家族間の共有を実装）
+
 ## データの置き場所
 | データ | 置き場所 | 共有 |
 |---|---|---|
-| 家族グループ、メンバー、ごはん・おくすり、済みの記録、持ち物、分担 | SwiftData（`HouseholdModels.swift`） | 家族全員 |
+| 家族グループ、メンバー、ごはん・おくすり、済みの記録、持ち物、分担 | Core Data＋CloudKit（`CoreDataModel.swift`、`PersistenceController.swift`） | 家族全員 |
+| 招待コード → 共有リンクの対応（24時間） | CloudKit の公開データベース（レコード型 `Invite`） | コードを知っている人 |
 | この端末の役割（家族／ご本人）、名前、お知らせの設定 | UserDefaults | しない |
 
-開発者（私たち）のサーバーは使いません。データは各家族の iCloud に保存されます。
+開発者（私たち）のサーバーは使いません。データは家族グループを作った人の iCloud に保存され、参加した人の iCloud からは「共有」として見えます。
 
-## 家族間の共有（v1 までに作る必要あり・未実装）
-SwiftData の CloudKit 同期は**非公開データベースのみ**対応のため、別の Apple ID（家族の別の人）とは、そのままでは共有できません。
-v1 では次のどちらかが必要です。iOS エンジニアが試作して決めます。
-
-1. **Core Data + `NSPersistentCloudKitContainer` の共有データベース（CKShare）に置き換える**
-   - Apple 標準の共有のしくみ。招待は共有リンク（URL）で行う。
-   - 6けたの招待コードを使うなら、コード → 共有URL の対応表を CloudKit の公開データベースに置く（有効期限24時間など）。
-2. **自前のサーバー（例：Firebase）を使う**
-   - 招待コードを作りやすいが、健康に関わる情報を開発者側で預かることになる。プライバシーポリシーと App Store のプライバシー情報を大きく書き直す必要がある。
-
-推奨は 1（開発者が健康情報を預からずに済むため）。
+## 家族間の共有のしくみ
+1. 家族グループを作った人の端末：`PersistenceController` の**非公開の保存先**に家族グループ（Household）を作る。ごはん・済みの記録などは、すべて Household との関係（relationship）でつながっている。
+2. 「家族を招待する」→ `FamilySharing.makeInvite`
+   - Household を `NSPersistentCloudKitContainer.share` で共有（CKShare）し、共有リンク（URL）を作る。`publicPermission = .readWrite`（リンクを知っている人が参加できる）。
+   - 6けたのコードを作り、公開データベースに `Invite`（レコード名 `invite-123456`、`url`、`expires`＝24時間後）を保存。
+3. 参加する人の端末：「招待コードを入力する」→ `FamilySharing.join`
+   - `Invite` を読み、期限を確かめ、`CKContainer.shareMetadata(for:)` → `acceptShareInvitations(into: 共有の保存先)`。
+   - iCloud から家族グループが届くまで「読み込んでいます」と表示。
+4. 共有リンクを直接開いた場合は `SceneDelegate.windowScene(_:userDidAcceptCloudKitShareWith:)` で受け入れる。
+5. 参加した人が追加する「済み」なども、`PersistenceController.insert(_:into:)` で家族グループと同じ保存先（共有）に入るので、家族全員に届く。
 
 ## お知らせ
-- `NotificationPlanner`（純粋な関数）で「何時に・誰に・何を」を決め、`NotificationScheduler` がローカル通知として登録。
-- 「済み」の連絡（ほかの家族が済みにしたとき）は、相手の端末からの変更を受け取って出す必要がある。CloudKit のサブスクリプション（変更通知）で受け取り、ローカル通知を出す。**未実装**。
-- 集中モード中でも届く通知には、Time Sensitive Notifications の権限（entitlement）が必要。`project.yml` に追加済み。
+- `NotificationPlanner`（純粋な関数）で「何時に・誰に・何を」を決め、`NotificationScheduler.refresh` がローカル通知として登録する。アプリが前面に来たとき、「済み」にしたとき、ほかの家族の変更を受け取ったときに組み直す。
+- **「済み」の連絡**：`RemoteChangeNotifier` が CloudKit からの取り込み（`NSPersistentStoreRemoteChange`）を見て、ほかの人が作った `DoneRecord` があれば、家族の端末に「〇〇が『…済み』にしました」を出す。自分の操作（`transactionAuthor = "app"`）は除く。
+- 集中モード中でも届く通知には、Time Sensitive Notifications の権限が必要。`project.yml` に追加済み。
 
-## 未実装・要確認の一覧
-- 家族間の共有（上記）、「済み」の連絡通知
-- ご本人の「声メッセージ」の録音・再生、受診メモ PDF、写真つきカード、しまった場所メモ、共有範囲の設定（`Feature.isComingSoon`、画面では「準備中」）
-- ロック画面ウィジェット（WidgetKit）。悩み「同じことを何度も聞く」の対応機能
+## セキュリティ上の注意（法務・セキュリティの確認が必要）
+- 6けたのコードは 100万通りなので、当てずっぽうに入れて当たる可能性はゼロではない。対策として、有効期限を24時間にし、使用中のコードと重ならないようにし、作成者が参加者を確認・削除できる画面（Apple 標準の `UICloudSharingController`）を用意した。
+- より安全にするなら、コードを8けた以上にする、参加者を作成者が承認する（`publicPermission = .none` にして個別に招待する）などが考えられる。使いやすさとの兼ね合いで、当事者家族と相談して決める。
+- 公開データベースの `Invite` には共有リンクと期限しか入れない（名前や健康情報は入れない）。
+
+## CloudKit Console で行う作業（公開前）
+- コンテナ `iCloud.jp.minnanokyou.app` を作成
+- 開発環境で一度動かしてスキーマ（Household などと `Invite`）を作り、**本番環境に反映（Deploy Schema Changes）**
+- `Invite` のセキュリティロール：作成者だけが書き換えられ、全員が読めること（既定）を確認
+
+## 未実装・要確認
+- ご本人の「声メッセージ」、受診メモ PDF、写真つきカード、しまった場所メモ、共有範囲の設定（`Feature.isComingSoon`、画面では「準備中」）
+- ロック画面ウィジェット（WidgetKit）
+- 使い終わった `Invite` の削除（今は期限切れで使えなくなるだけ）
+- 家族グループの削除・共有の停止の画面（Apple 標準の管理画面から共有の停止は可能）
 - Assistive Access での表示確認
+- **すべて Xcode でのビルドと、2台の実機（別々の Apple ID）での共有テストが未実施**

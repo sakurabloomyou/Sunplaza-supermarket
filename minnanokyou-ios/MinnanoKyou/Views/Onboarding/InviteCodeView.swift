@@ -1,14 +1,13 @@
 import SwiftUI
-import SwiftData
 
-/// 招待コードの入力。家族グループへの参加は CloudKit の共有（CKShare）で行う想定。
-/// v1 では「コード → 共有URL」の対応表が必要（docs/ARCHITECTURE.md）。
+/// 招待コードの入力。コードから共有リンクを取り出し、家族グループの共有を受け入れる（FamilySharing）。
 struct InviteCodeView: View {
     @Environment(AppState.self) private var app
     @State private var code = ""
     @State private var role: DeviceRole?
     @State private var name = ""
     @State private var error: String?
+    @State private var busy = false
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -31,7 +30,8 @@ struct InviteCodeView: View {
             if role == .family { TextField("あなたのお名前", text: $name).textFieldStyle(.roundedBorder) }
             if let error { Text(error).foregroundStyle(Theme.warm).bold() }
             Spacer()
-            Button("参加する") { join() }.buttonStyle(PrimaryButtonStyle())
+            if busy { ProgressView("参加しています…").frame(maxWidth: .infinity) }
+            Button("参加する") { Task { await join() } }.buttonStyle(PrimaryButtonStyle()).disabled(busy)
         }
         .padding(20)
         .onAppear { focused = true }
@@ -45,13 +45,18 @@ struct InviteCodeView: View {
             .overlay(RoundedRectangle(cornerRadius: Theme.controlRadius).stroke(Theme.control, lineWidth: 1.5))
     }
 
-    private func join() {
+    private func join() async {
         guard code.count == 6 else { error = "6けたの数字をすべて入れてください。"; return }
         guard let role else { error = "「ご本人として」か「家族として」を選んでください。"; return }
-        // TODO(v1): HouseholdSync.join(code:) で共有を受け入れる。
+        if role == .family && name.trimmingCharacters(in: .whitespaces).isEmpty { error = "あなたのお名前を入れてください。"; return }
+        busy = true; error = nil
+        defer { busy = false }
+        do { try await FamilySharing.shared.join(code: code) }
+        catch { self.error = (error as? LocalizedError)?.errorDescription ?? "参加できませんでした。通信できる場所で、もう一度お試しください。"; return }
         app.role = role
         if role == .family { app.memberName = name }
         app.route = role == .family ? .familyHome : .selfBoard
-        Task { _ = await NotificationScheduler.shared.requestAuthorization() }
+        _ = await NotificationScheduler.shared.requestAuthorization()
+        await NotificationScheduler.shared.refresh(role: role)
     }
 }

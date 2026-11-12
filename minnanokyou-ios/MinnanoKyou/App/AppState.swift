@@ -5,7 +5,7 @@ enum Route: Equatable { case launch, onboarding, invite, familyHome, selfBoard }
 enum DeviceRole: String, Codable { case family, selfUser }
 
 /// 端末ごとの状態（どの画面から始めるか、この端末を誰が使うか）。
-/// 家族で共有するデータは SwiftData（HouseholdStore）に置く。
+/// 家族で共有するデータは Core Data＋CloudKit（PersistenceController）に置く。
 @Observable
 final class AppState {
     var route: Route
