@@ -67,6 +67,12 @@ class LocalStore {
   async addDuty(when, title) { this.data.duties.push({ id: String(Date.now()), when, title, detail: '', assignee: '' }); this._save(); }
   async setAssignee(id, name) { const d = this.data.duties.find(x => x.id === id); if (d) d.assignee = name; this._save(); }
   async removeDuty(id) { this.data.duties = this.data.duties.filter(x => x.id !== id); this._save(); }
+  async updateAnswers(answers, selfName) {
+    this.data.h.answers = answers;
+    if (selfName) this.data.h.selfName = selfName;
+    this.data.h.items = newHousehold({ answers }).items;
+    this._save();
+  }
   async leave() { this.data = null; try { localStorage.removeItem('mk-local'); } catch {} this._save(); }
 }
 
@@ -164,6 +170,12 @@ class FirebaseStore {
   async addDuty(when, title) { const F = this.F; await F.addDoc(F.collection(this.db, 'households', this.hid, 'duties'), { when, title, detail: '', assignee: '' }); }
   async setAssignee(id, name) { const F = this.F; await F.updateDoc(F.doc(this.db, 'households', this.hid, 'duties', id), { assignee: name }); }
   async removeDuty(id) { const F = this.F; await F.deleteDoc(F.doc(this.db, 'households', this.hid, 'duties', id)); }
+  /** 困りごとの選び直し。家族グループ・記録・分担はそのまま。薬の有無が変わったら、ごはん・おくすりの一覧も合わせる。 */
+  async updateAnswers(answers, selfName) {
+    const F = this.F;
+    const items = newHousehold({ answers }).items.map(i => ({ key: i[0], title: i[1], min: i[2], med: i[3] }));
+    await F.updateDoc(F.doc(this.db, 'households', this.hid), { answers, items, ...(selfName ? { selfName } : {}) });
+  }
   async leave() {
     const F = this.F;
     if (this.hid) await F.deleteDoc(F.doc(this.db, 'households', this.hid, 'members', this.uid)).catch(() => {});

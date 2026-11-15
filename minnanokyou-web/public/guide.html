@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>みんなのきょう 使い方</title>
+<meta name="theme-color" content="#1F5A4E">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: one readable column for families (large type, numbered steps only where order matters). */
+:root{
+  --bg:#FFFFFF; --sunk:#F2F6F4; --fg:#1D2A27; --muted:#44524E; --line:#D5DDD9; --accent:#1F5A4E; --accent-soft:#DCEBE6;
+  --warm:#8A4B00; --warm-soft:#FBEBCF;
+  --f-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","BIZ UDPGothic",sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#101614;--sunk:#18211F;--fg:#E4ECE8;--muted:#9AAAA4;--line:#2C3A36;--accent:#72BFAE;--accent-soft:#1F3A34;--warm:#F0B65A;--warm-soft:#3A2E17;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.8;
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:calc(16px + env(safe-area-inset-top,0px)) 48px}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:10px}
+.back{align-self:flex-start;color:var(--accent);font-weight:700;text-decoration:none;min-height:44px;display:flex;align-items:center}
+h1{margin:0;font-family:var(--f-display);font-size:1.8rem;line-height:1.35}
+.lead{margin:0;color:var(--muted)}
+nav.toc{background:var(--sunk);border-radius:16px;padding:14px 18px}
+nav.toc b{display:block;font-size:.95rem;margin-bottom:4px}
+nav.toc ol{margin:0;padding-left:1.4em;columns:2;column-gap:24px;font-size:.95rem}
+nav.toc a{color:var(--accent);text-decoration:none;line-height:2}
+section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+h2{margin:0;font-family:var(--f-display);font-size:1.35rem;line-height:1.4;padding-bottom:6px;border-bottom:2px solid var(--accent-soft)}
+h3{margin:6px 0 0;font-size:1.05rem}
+p{margin:0}
+ol.steps,ul.list{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.btnlike{display:inline-block;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:0 8px;white-space:nowrap}
+.note{background:var(--warm-soft);border-radius:14px;padding:12px 16px;font-size:.95rem}
+.note b{display:block;color:var(--warm)}
+.tip{background:var(--sunk);border-radius:14px;padding:12px 16px;font-size:.95rem}
+dl.faq{margin:0;display:flex;flex-direction:column;gap:14px}
+dl.faq dt{font-weight:700}
+dl.faq dd{margin:4px 0 0;color:var(--fg)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-size:.85rem;white-space:nowrap}
+.tbl{overflow-x:auto}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:420px){nav.toc ol{columns:1}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <a class="back" href="./">‹ アプリにもどる</a>
+  <h1>みんなのきょう 使い方</h1>
+  <p class="lead">もの忘れが気になり始めた方（軽度認知症・MCI）と、そのご家族のための予定共有アプリです。ご家族が入れた予定や「ごはん・おくすり済み」を、家族みんなとご本人で同じ画面で確かめられます。</p>
+</header>
+
+<nav class="toc" aria-label="目次"><b>目次</b><ol>
+  <li><a href="#start">はじめる前に</a></li>
+  <li><a href="#create">家族グループを作る</a></li>
+  <li><a href="#invite">家族・ご本人を招待する</a></li>
+  <li><a href="#join">招待コードで参加する</a></li>
+  <li><a href="#daily">毎日の使い方</a></li>
+  <li><a href="#self">ご本人の画面</a></li>
+  <li><a href="#redo">困りごとを選び直す</a></li>
+  <li><a href="#leave">この端末を外す</a></li>
+  <li><a href="#faq">困ったとき</a></li>
+  <li><a href="#notice">ご注意</a></li>
+</ol></nav>
+
+<section id="start">
+  <h2>1. はじめる前に（ホーム画面に追加）</h2>
+  <p>このアプリは、スマホの<b>ホーム画面に追加して</b>使います。ブラウザで開いたまま使うと、データが別々になり、家族グループに入れないことがあります。</p>
+  <h3>iPhone の場合</h3>
+  <ol class="steps">
+    <li><b>Safari</b> でアプリの住所を開きます。</li>
+    <li>画面下の共有ボタン（四角から上向きの矢印）を押します。</li>
+    <li>「<b>ホーム画面に追加</b>」→「追加」を押します。</li>
+    <li>ホーム画面にできた「みんなのきょう」のアイコンから開きます。</li>
+  </ol>
+  <h3>Android の場合</h3>
+  <ol class="steps">
+    <li><b>Chrome</b> でアプリの住所を開きます。</li>
+    <li>右上の「︙」→「<b>ホーム画面に追加</b>」または「アプリをインストール」を押します。</li>
+    <li>ホーム画面にできたアイコンから開きます。</li>
+  </ol>
+  <p class="tip">起動画面のいちばん下に「家族共有モード」と出ていれば準備OKです。</p>
+</section>
+
+<section id="create">
+  <h2>2. 家族グループを作る（最初の1人だけ）</h2>
+  <p>家族の中で最初に使う1人が行います。約3分かかります。</p>
+  <ol class="steps">
+    <li>起動画面で <span class="btnlike">家族として始める</span> を押します。</li>
+    <li><b>基本情報</b>：あなたの名前、ご本人の呼び名（例：お母さん）、デイサービスの利用と曜日、毎日飲む薬の有無などを選びます。</li>
+    <li><b>カテゴリ</b>：気になること（忘れる・見通し、家族の負担 など）を、いくつでも選びます。</li>
+    <li><b>具体的な悩み</b>：それぞれ「ない・たまに・よく・毎日」または「いいえ・少し・かなり・とても」で答えます。</li>
+    <li><b>特に気になる3つ</b>：とくに困っているものを3つまで選びます。</li>
+    <li><b>結果</b>：ご家庭に合わせた機能が「★ オン」になります。オン・オフはここで変えられます。</li>
+    <li><span class="btnlike">ホームへ進む</span> を押すと、家族グループができます。</li>
+  </ol>
+  <p class="tip">答えにくい質問はとばせます。あとから「困りごとを選び直す」で変えられます。</p>
+</section>
+
+<section id="invite">
+  <h2>3. 家族・ご本人を招待する</h2>
+  <ol class="steps">
+    <li>家族のホーム（「きょう」タブ）の下にある <span class="btnlike">家族を招待する</span> を押します。</li>
+    <li><span class="btnlike">招待コードを作る</span> を押すと、<b>8けたの数字</b>が出ます。</li>
+    <li><span class="btnlike">コードと説明をコピー</span> を押し、LINE やメールに貼り付けて送ります。</li>
+  </ol>
+  <div class="note"><b>コードは24時間だけ使えます</b>コードを知っている人は家族グループに参加できます。家族だけに送ってください。期限が切れたら、新しいコードを作ってください。</div>
+</section>
+
+<section id="join">
+  <h2>4. 招待コードで参加する（2人目から）</h2>
+  <ol class="steps">
+    <li>「1. はじめる前に」のとおり、ホーム画面に追加してアイコンから開きます。</li>
+    <li>起動画面で <span class="btnlike">招待コードを入力する</span> を押します。</li>
+    <li>届いた8けたの数字を入れます。</li>
+    <li><b>ご本人のスマホ</b>なら「ご本人として」、<b>ご家族のスマホ</b>なら「家族として」を選びます（家族はお名前も入れます）。</li>
+    <li><span class="btnlike">参加する</span> を押します。</li>
+  </ol>
+  <p class="tip">ご本人のスマホは、ご家族が設定してあげるのがおすすめです。</p>
+</section>
+
+<section id="daily">
+  <h2>5. 毎日の使い方（家族の画面）</h2>
+  <p>画面の下に3つのタブがあります。</p>
+  <div class="tbl"><table>
+    <tr><th>タブ</th><th>できること</th></tr>
+    <tr><td><b>きょう</b></td><td>デイサービスのお迎えまでの「あと〇分」、お迎え前の持ち物チェック、ごはん・おくすりの「済み」</td></tr>
+    <tr><td><b>記録</b></td><td>だれが・何時に・何を「済み」にしたか。家族みんなが同じ記録を見ています</td></tr>
+    <tr><td><b>分担</b></td><td>送迎や通院などの予定を追加し、担当を「引き受ける」</td></tr>
+  </table></div>
+  <h3>ごはん・おくすりの「済み」</h3>
+  <ul class="list">
+    <li>済んだら <span class="btnlike">済みにする</span> を押します。押した人の名前と時刻が残ります。</li>
+    <li>まちがえて押したときは、もう一度押すと元に戻ります。</li>
+    <li>予定の時刻を30分過ぎても済んでいないと「まだです」と表示されます。</li>
+  </ul>
+  <h3>デイサービスのお迎え</h3>
+  <ul class="list">
+    <li>基本情報で選んだ曜日だけ、お迎えまでの時間が出ます。ほかの日は「お休みの日」と出ます。</li>
+    <li><span class="btnlike">お迎え前の持ち物を見る</span> で、連絡帳・着がえなどにチェックを付けられます。</li>
+  </ul>
+</section>
+
+<section id="self">
+  <h2>6. ご本人の画面</h2>
+  <p>大きな文字で「<b>いま</b>」「<b>つぎ</b>」「<b>きょうのみんな</b>」を表示します。ボタンは1つだけです。</p>
+  <ul class="list">
+    <li>ごはんやおくすりの時間になると「いま」に出て、<span class="btnlike">〇〇を「済み」にする</span> ボタンが出ます。</li>
+    <li>ご本人が押した「済み」は、ご家族の画面と記録にすぐ反映されます。</li>
+    <li>ご家族のスマホでも、ホームの「ご本人の画面を見る」で同じ画面を確かめられます。</li>
+  </ul>
+</section>
+
+<section id="redo">
+  <h2>7. 困りごとを選び直す</h2>
+  <p>症状やくらしは変わっていきます。<b>3か月に1回ほど</b>選び直すのがおすすめです。</p>
+  <ol class="steps">
+    <li>家族のホーム（「きょう」タブ）の下にある <span class="btnlike">困りごとを選び直す</span> を押します。</li>
+    <li>前回の答えが入った状態で、基本情報から結果まで進みます。変えたいところだけ直します。</li>
+    <li><span class="btnlike">保存してホームへ</span> を押すと、家族全員のアプリに反映されます。</li>
+  </ol>
+  <p class="tip">記録・分担表・招待した家族は、そのまま残ります。途中でやめるときは、最初の画面の「‹ 戻る」でホームに戻れます。</p>
+</section>
+
+<section id="leave">
+  <h2>8. この端末を家族グループから外す</h2>
+  <p>スマホを変えるときや、まちがえて参加したときに使います。</p>
+  <ol class="steps">
+    <li>家族のホームの下にある「この端末を家族グループから外す」を押します。</li>
+    <li>確認の文字に変わったら、<b>もう一度</b>押します。</li>
+    <li>最初の起動画面に戻ります。</li>
+  </ol>
+  <p class="tip">外しても、家族グループと記録は残ります。もう一度参加するときは、家族に新しい招待コードを作ってもらってください。</p>
+</section>
+
+<section id="faq">
+  <h2>9. 困ったとき</h2>
+  <dl class="faq">
+    <dt>家族グループが消えてしまった</dt>
+    <dd>ホーム画面のアイコンを消した、ブラウザのデータを消した、またはブラウザで開いた可能性があります。家族に新しい招待コードを作ってもらい、もう一度参加してください。記録は家族グループに残っています。</dd>
+    <dt>「このコードは見つかりませんでした」と出る</dt>
+    <dd>数字をもう一度確かめてください。8けたすべて入っているかも確かめてください。</dd>
+    <dt>「有効期限が切れています」と出る</dt>
+    <dd>コードは24時間で使えなくなります。家族に新しいコードを作ってもらってください。</dd>
+    <dt>ほかの家族の「済み」が出てこない</dt>
+    <dd>通信できる場所か確かめて、アプリを開き直してください。</dd>
+    <dt>起動画面に「お試しモード」と出る</dt>
+    <dd>このスマホの中だけに保存される状態で、家族の共有はできません。アプリの管理者に連絡してください。</dd>
+    <dt>文字が小さい</dt>
+    <dd>スマホの設定で文字を大きくできます（iPhone：「設定」→「画面表示と明るさ」→「テキストサイズを変更」）。</dd>
+  </dl>
+</section>
+
+<section id="notice">
+  <h2>10. ご注意</h2>
+  <ul class="list">
+    <li>このアプリは、病気の診断・治療・予防をするものではありません。健康や治療について判断するときは、医師にご相談ください。</li>
+    <li><b>アプリを閉じているときは、お知らせ（通知）は届きません。</b>開いている間は、画面が1分ごとに新しくなります。おくすりや安全の確認を、このアプリだけにたよらないでください。</li>
+    <li>家族グループの情報（名前、予定、「済み」の記録、困りごとの答え）は、インターネット上のサーバー（Google の Firebase）に保存され、招待した家族の間で共有されます。</li>
+    <li>このアプリは試作版です。内容は予告なく変わることがあります。</li>
+  </ul>
+</section>
+
+<footer>みんなのきょう Web版（試作）　作成：2026年11月</footer>
+</main>
+</body>
+</html>

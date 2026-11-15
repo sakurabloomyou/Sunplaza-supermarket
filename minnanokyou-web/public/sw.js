@@ -1,6 +1,6 @@
 // 画面のファイルだけを保存しておき、電波が弱くても開けるようにする（データは保存しない）。
-const CACHE = 'mk-shell-v1';
-const SHELL = ['./', './index.html', './app.css', './app.js', './store.js', './firebase-config.js', './manifest.webmanifest', './icons/icon-192.png'];
+const CACHE = 'mk-shell-v2';
+const SHELL = ['./', './index.html', './app.css', './app.js', './store.js', './firebase-config.js', './manifest.webmanifest', './icons/icon-192.png', './guide.html'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {

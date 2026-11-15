@@ -130,7 +130,7 @@ const STEP_NAMES=['はじめに','基本情報','カテゴリ','具体的な悩�
 
 
 
-const blank=()=>({step:-1,sub:0,basic:{},days:[],cats:[],freq:{},top:[],free:'',ovr:{},tab:'today',role:'',myName:'',selfName:'',showPack:false});
+const blank=()=>({step:-1,sub:0,basic:{},days:[],cats:[],freq:{},top:[],free:'',ovr:{},tab:'today',role:'',myName:'',selfName:'',showPack:false,editing:false});
 const KEY='mk-device-v1';
 let S=blank();
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')S=Object.assign(blank(),s)}catch(e){}
@@ -252,7 +252,7 @@ function sLaunch(b,f){
   </div>
   ${installBanner()}
   <p class="disc">このアプリは診断や治療をするものではありません。健康や治療について判断するときは、医師にご相談ください。</p>
-  <p class="mode">${store.mode==='local'?'お試しモード（この端末の中だけに保存）':'家族共有モード'}</p>`;
+  <p class="mode">${store.mode==='local'?'お試しモード（この端末の中だけに保存）':'家族共有モード'}　<a href="guide.html">使い方（説明書）</a></p>`;
   f.innerHTML=`<p class="startnote">約3分の質問で、ご家庭に合う機能を選びます</p><button class="btn" type="button" id="n">家族として始める</button><button class="btn ghost" type="button" id="code">招待コードを入力する</button>`;
   $('n').onclick=()=>go(1);
   $('code').onclick=()=>go(7);
@@ -263,14 +263,17 @@ function s6(b,f){
   const fs=featureScores().filter(([k,v])=>isOn(k,v));
   const core=coreList().filter(([k])=>isOn(k));
   const order=[...core.map(c=>c[1]),...fs.map(([k])=>FEATURES[k][0])];
-  b.innerHTML=`<div class="hero"><b>設定が終わりました</b><span>「ホームへ進む」を押すと、家族グループを作ります。そのあと「家族を招待する」から、ご家族やご本人を招待できます。</span></div>
+  b.innerHTML=`<div class="hero"><b>${S.editing?'選び直しが終わりました':'設定が終わりました'}</b><span>${S.editing?'「保存してホームへ」を押すと、家族全員のアプリに反映されます。記録や分担表はそのまま残ります。':'「ホームへ進む」を押すと、家族グループを作ります。そのあと「家族を招待する」から、ご家族やご本人を招待できます。'}</span></div>
   <div class="sect">ホームに並ぶ機能</div><div class="home">${order.map((n,i)=>`<div class="tile"><i>${i+1}</i><span>${n}</span></div>`).join('')||'<div class="empty">オンの機能がありません。</div>'}</div>
   <p class="err" id="mkErr" hidden></p>`;
-  f.innerHTML=`<button class="btn" type="button" id="n">ホームへ進む</button><button class="btn ghost" type="button" id="re">設定を見直す</button>`;
+  f.innerHTML=`<button class="btn" type="button" id="n">${S.editing?'保存してホームへ':'ホームへ進む'}</button><button class="btn ghost" type="button" id="re">設定を見直す</button>`;
   $('re').onclick=()=>go(5);
   $('n').onclick=async()=>{
     $('n').disabled=true;
-    try{await store.createHousehold({answers:answersOf(),selfName:S.selfName||'ご本人',myName:S.myName});S.role='family';S.tab='today';go(8)}
+    try{
+      if(S.editing){await store.updateAnswers(answersOf(),S.selfName);S.editing=false}
+      else await store.createHousehold({answers:answersOf(),selfName:S.selfName||'ご本人',myName:S.myName});
+      S.role='family';S.tab='today';go(8)}
     catch(e){$('mkErr').textContent='家族グループを作れませんでした。通信できる場所で、もう一度お試しください。';$('mkErr').hidden=false;$('n').disabled=false}
   };
 }
@@ -328,6 +331,8 @@ function s8(b,f){
     <div class="banner"><b>お知らせについて</b>Web版では今のところ、アプリを閉じているときのお知らせは届きません。開いている間は、画面が1分ごとに新しくなります。</div>
     <div style="display:flex;flex-direction:column">
     <button class="linkbtn" type="button" id="toInv">家族を招待する ›</button>
+    <button class="linkbtn" type="button" id="redo">困りごとを選び直す ›</button>
+    <a class="linkbtn" href="guide.html" style="text-decoration:none;display:flex;align-items:center">使い方（説明書） ›</a>
     <button class="linkbtn" type="button" id="toSelf">ご本人の画面を見る ›</button>
     <button class="linkbtn" type="button" id="leave">この端末を家族グループから外す</button></div>
     <p class="mode">${store.mode==='local'?'お試しモード（この端末の中だけに保存）':'家族共有モード'}</p>`;
@@ -353,6 +358,7 @@ function s8(b,f){
   const pkT=$('pkT');if(pkT)pkT.onclick=()=>{S.showPack=!S.showPack;keep(()=>s8(b,f))};
   const ts=$('toSelf');if(ts)ts.onclick=()=>{S.role='self';go(9)};
   const ti=$('toInv');if(ti)ti.onclick=()=>go(12);
+  const rd=$('redo');if(rd)rd.onclick=()=>{loadAnswers(H.answers);S.selfName=H.selfName||S.selfName;S.editing=true;S.sub=0;go(1)};
   const lv=$('leave');if(lv)lv.onclick=async()=>{if(lv.dataset.sure){await store.leave();S=blank();save();render()}else{lv.dataset.sure='1';lv.textContent='もう一度押すと外します（記録は家族グループに残ります）'}};
 }
 
@@ -401,6 +407,7 @@ $('backBtn').onclick=()=>{
   if(S.step===3&&S.sub>0){S.sub--;render();return}
   if(S.step===4){if(S.cats.length){S.sub=selCats().length-1;go(3)}else go(2);return}
   if(S.step===5&&!S.cats.length){go(2);return}
+  if(S.step===1&&S.editing){S.editing=false;go(8);return}
   if(S.step===1||S.step===7){go(-1);return}
   if(S.step===12){go(8);return}
   go(Math.max(-1,S.step-1));
@@ -420,7 +427,7 @@ function splash(){
   try{store=await openStore()}catch(e){$('body').innerHTML=`<div class="empty">起動できませんでした。通信できる場所で開き直してください。</div>`;return}
   H=store.household;
   store.onChange(h=>{H=h;if(S.step===8||S.step===9||S.step===12){const b=$('body'),y=b.scrollTop;render();b.scrollTop=y}});
-  if(H&&S.role&&S.step<8)S.step=S.role==='self'?9:8;
+  if(H&&S.role&&S.step<8&&!S.editing)S.step=S.role==='self'?9:8;
   if(!H&&S.step>=8)S.step=-1;
   render();
   setInterval(()=>{if(S.step===8||S.step===9){const b=$('body'),y=b.scrollTop;render();b.scrollTop=y}},60000);
