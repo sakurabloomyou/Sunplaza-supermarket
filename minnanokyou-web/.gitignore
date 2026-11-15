@@ -1,0 +1,5 @@
+# Firebase のツールが作る動作ログ・作業用ファイル
+*-debug.log
+.firebase/
+.firebaserc
+node_modules/
