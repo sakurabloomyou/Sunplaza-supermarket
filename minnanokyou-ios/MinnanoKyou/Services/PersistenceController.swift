@@ -9,6 +9,13 @@ final class PersistenceController {
     static let shared = PersistenceController()
     static let localAuthor = "app"
 
+    /// 無料の Apple ID で作る試作版（project-free.yml。LOCAL_ONLY）では iCloud を使わず、端末の中だけに保存する。
+    #if LOCAL_ONLY
+    static let localOnly = true
+    #else
+    static let localOnly = false
+    #endif
+
     let container: NSPersistentCloudKitContainer
     private(set) var privateStore: NSPersistentStore!
     private(set) var sharedStore: NSPersistentStore!
@@ -21,12 +28,12 @@ final class PersistenceController {
         let priv = NSPersistentStoreDescription(url: inMemory ? URL(fileURLWithPath: "/dev/null") : dir.appendingPathComponent("private.sqlite"))
         let privOpts = NSPersistentCloudKitContainerOptions(containerIdentifier: Self.containerID)
         privOpts.databaseScope = .private
-        priv.cloudKitContainerOptions = inMemory ? nil : privOpts
+        priv.cloudKitContainerOptions = (inMemory || Self.localOnly) ? nil : privOpts
 
         let shr = NSPersistentStoreDescription(url: inMemory ? URL(fileURLWithPath: "/dev/null") : dir.appendingPathComponent("shared.sqlite"))
         let shrOpts = NSPersistentCloudKitContainerOptions(containerIdentifier: Self.containerID)
         shrOpts.databaseScope = .shared
-        shr.cloudKitContainerOptions = inMemory ? nil : shrOpts
+        shr.cloudKitContainerOptions = (inMemory || Self.localOnly) ? nil : shrOpts
 
         for d in [priv, shr] {
             d.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
@@ -36,9 +43,10 @@ final class PersistenceController {
 
         container.loadPersistentStores { desc, error in
             if let error { assertionFailure("保存先を開けませんでした: \(error)"); return }
-            guard let scope = desc.cloudKitContainerOptions?.databaseScope else { return }
-            let store = self.container.persistentStoreCoordinator.persistentStore(for: desc.url!)
-            if scope == .private { self.privateStore = store } else if scope == .shared { self.sharedStore = store }
+            // どちらの保存先かはファイル名で判断する（iCloud を使わない試作版でも同じ動きにするため）
+            guard let url = desc.url, let store = self.container.persistentStoreCoordinator.persistentStore(for: url) else { return }
+            if url.lastPathComponent == "private.sqlite" { self.privateStore = store }
+            else if url.lastPathComponent == "shared.sqlite" { self.sharedStore = store }
         }
         if inMemory { privateStore = container.persistentStoreCoordinator.persistentStores.first; sharedStore = privateStore }
 

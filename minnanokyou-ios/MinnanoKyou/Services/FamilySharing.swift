@@ -20,12 +20,13 @@ final class FamilySharing {
 
     struct Invite: Equatable { let code: String; let expires: Date; let url: URL }
     enum JoinError: LocalizedError {
-        case notFound, expired, noICloud
+        case notFound, expired, noICloud, notInFreeBuild
         var errorDescription: String? {
             switch self {
             case .notFound: "このコードは見つかりませんでした。数字をもう一度確かめてください。"
             case .expired: "このコードは有効期限（24時間）が切れています。ご家族に新しいコードを作ってもらってください。"
             case .noICloud: "iCloud にサインインしてください。iPhone の「設定」の一番上から行えます。"
+            case .notInFreeBuild: "この試作版では、家族の招待は使えません（iCloud の共有には Apple Developer Program への登録が必要です）。"
             }
         }
     }
@@ -38,6 +39,7 @@ final class FamilySharing {
     }
 
     func existingShare(for h: Household) -> CKShare? {
+        if PersistenceController.localOnly { return nil }
         (try? pc.container.fetchShares(matching: [h.objectID]))?[h.objectID]
     }
 
@@ -46,6 +48,7 @@ final class FamilySharing {
 
     /// 招待コードを作る（共有がまだなければ作る）。
     func makeInvite(for h: Household) async throws -> Invite {
+        if PersistenceController.localOnly { throw JoinError.notInFreeBuild }
         guard try await ck.accountStatus() == .available else { throw JoinError.noICloud }
         var share = existingShare(for: h)
         if share == nil {
@@ -78,6 +81,7 @@ final class FamilySharing {
 
     /// 招待コードで参加する。
     func join(code: String) async throws {
+        if PersistenceController.localOnly { throw JoinError.notInFreeBuild }
         guard try await ck.accountStatus() == .available else { throw JoinError.noICloud }
         let id = CKRecord.ID(recordName: "invite-\(code)")
         guard let rec = try? await ck.publicCloudDatabase.record(for: id),

@@ -47,7 +47,8 @@ final class NotificationScheduler {
                 content.title = "みんなのきょう"
                 content.body = n.body
                 content.sound = .default
-                content.interruptionLevel = n.timeSensitive ? .timeSensitive : .active
+                // 試作版は「時間指定通知」の権限がないので、通常のお知らせにする
+                content.interruptionLevel = (n.timeSensitive && !PersistenceController.localOnly) ? .timeSensitive : .active
                 let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
                 let req = UNNotificationRequest(identifier: "\(n.id).\(dayOffset)", content: content,
                                                 trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false))

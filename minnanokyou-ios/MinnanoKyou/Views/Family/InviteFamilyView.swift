@@ -12,6 +12,12 @@ struct InviteFamilyView: View {
 
     var body: some View {
         List {
+            if PersistenceController.localOnly {
+                Section {
+                    Text("この試作版では、家族の招待は使えません。家族の間での共有を試すには、Apple Developer Program（有料）に登録したうえで、通常版としてビルドしてください。")
+                        .foregroundStyle(Theme.muted)
+                }
+            }
             Section {
                 if let invite {
                     VStack(spacing: 8) {

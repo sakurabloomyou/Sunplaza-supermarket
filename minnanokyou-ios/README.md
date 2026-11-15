@@ -18,7 +18,10 @@
 | アイコン・説明画像・App Store の文言 | できている。`appstore/` |
 | ローンチに必要な手続き | `docs/LAUNCH_CHECKLIST.md` |
 
-## Mac での始め方
+## 無料の Apple ID で試作版を作る
+Apple Developer Program に登録していない場合は、**`docs/TRIAL_BUILD_GUIDE.md`** の手順で、`project-free.yml` を使って試作版を作ってください（家族の共有は使えません。7日ごとに入れ直し）。
+
+## Mac での始め方（通常版。Apple Developer Program 登録後）
 
 1. Xcode（最新版）と XcodeGen を入れる：`brew install xcodegen`
 2. このフォルダで `xcodegen generate` を実行すると `MinnanoKyou.xcodeproj` ができる
