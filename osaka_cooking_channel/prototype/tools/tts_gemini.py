@@ -3,14 +3,14 @@ APIキーは環境の Network secrets（host: generativelanguage.googleapis.com,
 header: x-goog-api-key）からプロキシが自動で付ける。コードにキーは書かない。
 使い方: python3 tts_gemini.py [--model MODEL] [--cvoice NAME] [--gvoice NAME] [--only C01,G02]
 """
-import argparse, base64, json, os, subprocess, sys, urllib.request, wave
+import argparse, base64, json, os, subprocess, sys, urllib.request, urllib.error, wave
 HERE=os.path.dirname(os.path.abspath(__file__))
 OUT=os.path.join(HERE,'..','audio'); os.makedirs(OUT,exist_ok=True)
 src=open(os.path.join(HERE,'make.py')).read()
 ns={'PINK':0,'TEAL':0}; exec(src[src.index("C='キャサリン'"):src.index("cache={}")],ns)
 STYLE={
- 'キャサリン':"大阪出身の30代前半の女性OLが、大阪弁（京阪式アクセント）で話します。テンポよく、明るく、ツッコミは勢いよく。次のセリフを読んでください：",
- 'ジョージ':"30代前半の爽やかで穏やかな男性が、標準語（東京式アクセント）で話します。次のセリフを読んでください：",
+ 'キャサリン':"# AUDIO PROFILE\nCheerful woman in her early 30s from Osaka, an office worker.\n# DIRECTOR'S NOTES\nKansai-ben (Keihan accent), lively and quick, punchy tsukkomi.\n# TRANSCRIPT\n",
+ 'ジョージ':"# AUDIO PROFILE\nGentle, refreshing man in his early 30s.\n# DIRECTOR'S NOTES\nStandard Tokyo Japanese accent, calm and warm. Sincere even when saying odd things.\n# TRANSCRIPT\n",
 }
 def lines():
     n={'キャサリン':0,'ジョージ':0}
@@ -23,7 +23,18 @@ def tts(model,voice,text):
             "speechConfig":{"voiceConfig":{"prebuiltVoiceConfig":{"voiceName":voice}}}}}
     req=urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         data=json.dumps(body).encode(),headers={"Content-Type":"application/json"})
-    r=json.load(urllib.request.urlopen(req,timeout=120))
+    import time
+    for attempt in range(8):
+        try:
+            r=json.load(urllib.request.urlopen(req,timeout=120)); break
+        except urllib.error.HTTPError as e:
+            if e.code not in (429,500,502,503): raise
+            msg=e.read().decode(errors='ignore'); wait=30*(attempt+1)
+            import re as _re; m=_re.search(r'"retryDelay":\s*"(\d+)',msg)
+            if m: wait=min(int(m.group(1))+2,65)
+            wait=min(wait,65)
+            print(f'  HTTP {e.code} -> {wait}s 待って再試行',flush=True); time.sleep(wait)
+    else: raise SystemExit('再試行の上限')
     part=r["candidates"][0]["content"]["parts"][0]["inlineData"]
     return base64.b64decode(part["data"]), part.get("mimeType","")
 def save_pcm(path,pcm,rate=24000):
@@ -34,6 +45,7 @@ if __name__=='__main__':
     a=ap.parse_args(); only=set(filter(None,a.only.split(',')))
     for fid,spk,s,e,line in lines():
         if only and fid not in only: continue
+        if os.path.exists(os.path.join(OUT,fid+'.wav')) and not only: continue
         data,mime=tts(a.model,a.cvoice if spk=='キャサリン' else a.gvoice,STYLE[spk]+line)
         rate=int(mime.split('rate=')[1].split(';')[0]) if 'rate=' in mime else 24000
         p=os.path.join(OUT,fid+'.wav'); save_pcm(p,data,rate)
