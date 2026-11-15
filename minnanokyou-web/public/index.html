@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>みんなのきょう</title>
+<meta name="description" content="もの忘れが気になり始めた方（軽度認知症・MCI）とご家族のための、予定共有アプリ">
+<meta name="theme-color" content="#1F5A4E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="みんなのきょう">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script type="importmap">
+{"imports":{
+  "firebase/app":"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+  "firebase/auth":"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+  "firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+}}
+</script>
+</head>
+<body>
+<div class="screen" id="screen">
+  <button class="splash" id="splash" type="button" hidden aria-label="スプラッシュ画面（タップでとばす）">
+        <span class="sp-glow" aria-hidden="true"></span>
+        <span class="sp-mark" aria-hidden="true"><svg viewBox="0 0 1024 1024" fill="none" stroke-linecap="round"><defs><radialGradient id="bgsp" cx="50%" cy="62%" r="75%"><stop offset="0" stop-color="#2F7666"/><stop offset=".58" stop-color="#1F5A4E"/><stop offset="1" stop-color="#184A40"/></radialGradient><radialGradient id="glsp" cx="512" cy="640" r="330" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F4C978" stop-opacity=".35"/><stop offset="1" stop-color="#F4C978" stop-opacity="0"/></radialGradient></defs><rect width="1024" height="1024" fill="url(#bgsp)"/><circle cx="512" cy="640" r="330" fill="url(#glsp)"/><path d="M322 640a190 190 0 0 1 380 0" stroke="#F4C978" stroke-width="58"/><path d="M512 330v-86M300 418l-60-60M724 418l60-60" stroke="#F4C978" stroke-width="54"/><path d="M200 640h624" stroke="#FFFFFF" stroke-width="58"/><path d="M330 748h364" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="40"/></svg></span>
+        <span class="sp-nm">みんなのきょう</span>
+        <span class="sp-tg">家族の予定を、ご本人にも。</span>
+        
+      </button>
+  <div class="topbar" id="topbar">
+    <button class="back" id="backBtn" type="button">‹ 戻る</button>
+    <div class="prog" id="prog"><small id="progText"></small><div class="bar"><i id="progBar"></i></div></div>
+  </div>
+  <div class="body" id="body"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

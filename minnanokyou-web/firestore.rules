@@ -1,0 +1,48 @@
+rules_version = '2';
+// みんなのきょう Web版のデータのルール。
+// 家族グループ（households/{hid}）は、members/{自分のuid} がある人だけが読み書きできる。
+// 参加は、有効期限内の招待コード（invites/{8けた}）を持つ人だけ。
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function memberPath(hid) { return /databases/$(db)/documents/households/$(hid)/members/$(request.auth.uid); }
+    function isMember(hid) { return signedIn() && exists(memberPath(hid)); }
+    function isOwner(hid) { return signedIn() && get(/databases/$(db)/documents/households/$(hid)).data.ownerUid == request.auth.uid; }
+    function inviteOk(hid, code) {
+      return code is string && code.matches('^[0-9]{8}$')
+        && exists(/databases/$(db)/documents/invites/$(code))
+        && get(/databases/$(db)/documents/invites/$(code)).data.householdId == hid
+        && get(/databases/$(db)/documents/invites/$(code)).data.expires > request.time;
+    }
+
+    match /households/{hid} {
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow get: if isMember(hid) || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow list: if false;
+      allow update: if isMember(hid) && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if isOwner(hid);
+
+      match /members/{uid} {
+        allow read: if isMember(hid);
+        allow create: if signedIn() && uid == request.auth.uid
+          && request.resource.data.role in ['family', 'self']
+          && (isOwner(hid) || inviteOk(hid, request.resource.data.code));
+        allow update: if signedIn() && uid == request.auth.uid && request.resource.data.code == resource.data.code
+          && request.resource.data.role == resource.data.role;
+        allow delete: if isOwner(hid) || (signedIn() && uid == request.auth.uid);
+      }
+      match /days/{day} { allow read, write: if isMember(hid); }
+      match /duties/{id} { allow read, write: if isMember(hid); }
+    }
+
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if code.matches('^[0-9]{8}$') && isMember(request.resource.data.householdId)
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isMember(request.resource.data.householdId) && resource.data.expires < request.time
+        && request.resource.data.createdBy == request.auth.uid;
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}
