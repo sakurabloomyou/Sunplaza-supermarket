@@ -118,6 +118,26 @@ async function icon(Comp, color, size = 256) {
     x: 0.6, y: 5.75, w: 12.1, h: 0.6, fontSize: 14, color: C.text1, isTextBox: true, margin: 0 });
   note(s, '出典の詳細は最後のスライド。ビジネスケアラーと経済損失は経済産業省の委託による推計です。');
 
+  // ---------- 3b. social issues ----------
+  s = content('市場と根拠', 'このアプリが解決する社会課題');
+  const ih = (t) => ({ text: t, options: { bold: true, color: C.background1, fill: { color: C.accent1 } } });
+  const issueRows = [
+    [ih('社会課題'), ih('アプリでの解決のしかた'), ih('期待する変化（Phase 0 で確かめる）')],
+    ['先の見通しが持てない', '今日のボードで、予定・お迎え・済みが一目で分かる', '「今日は大丈夫か」という不安が減る'],
+    ['同じことを何度も聞かれる', 'ご本人の画面に大きな文字で「いま」「つぎ」を表示', 'ご本人が自分で確かめ、聞き返しが減る'],
+    ['離れた親のご飯・薬が心配', '「済み」をワンタップで記録し、家族全員にすぐ反映', '確認の電話が減り、飲み忘れに早く気づける'],
+    ['介護が一人に偏る', '家族の分担表と記録で、だれが何をしたかが見える', '遠くの家族も役割を持てる'],
+    ['仕事と介護の両立が難しい', '職場からも様子が分かる。企業の福利厚生として導入', '休む・辞めることを減らす手助けになる'],
+    ['ご本人の自立と尊厳', 'ご本人が自分で「済み」を押せる。責めない言葉づかい', '自分で生活を回す人でいられる'],
+  ];
+  s.addTable(issueRows, { x: 0.6, y: 1.4, w: 12.1, colW: [3.0, 5.0, 4.1], fontSize: 13, color: C.text1, valign: 'middle',
+    border: { type: 'solid', pt: 0.75, color: 'D5DDD9' }, rowH: [0.42, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], objectName: 'social issue table' });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 5.95, w: 12.1, h: 0.5, rectRadius: 0.08, fill: { color: C.accent6 }, line: { type: 'none' }, objectName: 'scope callout' });
+  s.addText('解決しないこと：病気の診断・治療・予防（「進行を遅らせる」とは言わない）、緊急時の対応、位置の見守り', {
+    x: 0.8, y: 5.95, w: 11.8, h: 0.5, fontSize: 13, color: C.accent2, bold: true, valign: 'middle', isTextBox: true, margin: 0 });
+  note(s, '効果はまだ確かめていません。Phase 0 で継続率・「済み」の記録数・家族の満足度・聞き返しや確認の電話の回数の変化を測ります。');
+  s.addNotes('左が社会課題、中央がアプリの仕組み、右が期待する変化です。右の列はまだ仮説で、Phase 0 で確かめます。認知症基本法（2024年1月施行）がめざす共生の考え方にも沿っています。');
+
   // ---------- 4. where we are ----------
   s = content('市場と根拠', '現在地：Web版は公開済み、iPhoneアプリはコードまで');
   const now = [
@@ -190,7 +210,7 @@ async function icon(Comp, color, size = 256) {
     s.addText(items.map((t, j) => ({ text: t, options: { bullet: true, breakLine: j < items.length - 1 } })),
       { x: x + 0.2, y: 3.95, w: 2.5, h: 2.25, fontSize: 13, color: C.text1, valign: 'top', paraSpaceAfter: 6, isTextBox: true, margin: 0 });
   });
-  note(s, '時期は提案です。次のフェーズに進むかは、前のフェーズの指標（スライド12）で判断します。');
+  note(s, '時期は提案です。次のフェーズに進むかは、前のフェーズの指標（スライド13）で判断します。');
 
   // ---------- 8. revenue scenario ----------
   s = content('収益化の道筋', '収入の見込み（仮定の試算）：Phase 2 で月約19万円');
