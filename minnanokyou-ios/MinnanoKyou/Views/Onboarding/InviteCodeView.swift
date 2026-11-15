@@ -40,7 +40,7 @@ struct InviteCodeView: View {
     private func roleButton(_ title: String, _ r: DeviceRole) -> some View {
         Button(title) { role = r }
             .frame(maxWidth: .infinity, minHeight: Theme.minTap)
-            .background(role == r ? Theme.accentHex : .clear, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
+            .background(role == r ? Theme.accentHex : Theme.pickFill, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
             .foregroundStyle(role == r ? .white : .primary)
             .overlay(RoundedRectangle(cornerRadius: Theme.controlRadius).stroke(Theme.control, lineWidth: 1.5))
     }

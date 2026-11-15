@@ -53,7 +53,7 @@ struct OnboardingFlow: View {
                         let on = answers.dayServiceWeekdays.contains(i + 1)
                         Button(d) { if on { answers.dayServiceWeekdays.remove(i + 1) } else { answers.dayServiceWeekdays.insert(i + 1) } }
                             .frame(maxWidth: .infinity, minHeight: Theme.minTap)
-                            .background(on ? Theme.accentHex : .clear, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
+                            .background(on ? Theme.accentHex : Theme.pickFill, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
                             .foregroundStyle(on ? .white : .primary)
                             .overlay(RoundedRectangle(cornerRadius: Theme.controlRadius).stroke(Theme.control))
                             .accessibilityAddTraits(on ? .isSelected : [])
@@ -76,10 +76,10 @@ struct OnboardingFlow: View {
                             Text(c.title).multilineTextAlignment(.leading).bold(on)
                         }
                         .padding(12).frame(maxWidth: .infinity, minHeight: 88, alignment: .topLeading)
-                        .background(on ? Theme.accentSoft : .white, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
+                        .background(on ? Theme.accentHex : Theme.pickFill, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
                         .overlay(RoundedRectangle(cornerRadius: Theme.controlRadius).stroke(on ? Theme.accentHex : Theme.control, lineWidth: 1.5))
                     }
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(on ? .white : .primary)
                     .accessibilityAddTraits(on ? .isSelected : [])
                 }
             }
@@ -127,7 +127,7 @@ struct OnboardingFlow: View {
                         Text(c.scale.labels[answers.levels[c.id] ?? 0]).font(.footnote).foregroundStyle(Theme.muted)
                     }
                     .padding(12).frame(minHeight: 58)
-                    .background(rank == nil ? .white : Theme.warmSoft, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
+                    .background(rank == nil ? Theme.pickFill : Theme.warmSoft, in: RoundedRectangle(cornerRadius: Theme.controlRadius))
                     .overlay(RoundedRectangle(cornerRadius: Theme.controlRadius).stroke(rank == nil ? Theme.control : Theme.warm, lineWidth: 1.5))
                 }
                 .foregroundStyle(.primary).opacity(dim ? 0.45 : 1)
