@@ -1,5 +1,13 @@
 // みんなのきょう Web版。画面のしくみは試作（ブラウザ版）と同じ。データは store.js。
 import { openStore, StoreError, dayKey, nowMin, CODE_LENGTH } from './store.js';
+/* ステージ（ご本人の今の様子）。目安：日常生活自立度 ランクⅠ〜Ⅱa 程度まで。研究者の確認が必要 */
+const STAGES={
+  1:{name:'ステージ1　もの忘れが気になる',self:'ご本人が自分で見て、自分で「済み」を押す',feat:['お知らせで予定を思い出す','自分で「済み」を押して記録','生活のリズムづくり']},
+  2:{name:'ステージ2　予定を忘れることが増えた',self:'ご本人は見て、押せるときだけ押す。家族が見守って記録する',feat:['家族が予定を入れる','ご本人の画面で「いま」「つぎ」','まだのときは家族に知らせる']},
+  3:{name:'ステージ3　声かけがあれば過ごせる',self:'ご本人は操作しない。置き型ボードが声と画面で知らせ、家族が記録する',feat:['置き型ボード（見るだけ）','時間になると声と画面で知らせる','記録はすべて家族が行う']},
+};
+const STAGE_OPTS=['もの忘れが気になる程度','予定を忘れることが増えた','声かけがあれば過ごせる'];
+const stageOf=a=>Math.max(1,STAGE_OPTS.indexOf((a||S.basic||{}).stage)+1)||1;
 
 const ICONS={
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -98,6 +106,7 @@ const DEGREE_ITEMS=new Set(['B10','D18','D21','E22','E23','E24','E25','E26','F27
 const scale=it=>DEGREE_ITEMS.has(it.id)?DEG:FREQ;
 const ans=it=>scale(it)[S.freq[it.id]||0];
 const BASIC=[
+  ['stage','ご本人の今の様子',['もの忘れが気になる程度','予定を忘れることが増えた','声かけがあれば過ごせる']],
   ['relation','ご本人とのご関係',['子','配偶者','孫','その他']],
   ['living','一緒に住んでいますか',['同居','近くに住む','遠方']],
   ['iphone','ご本人はiPhoneを使いますか',['使う','渡せば使う','使わない']],
@@ -130,7 +139,7 @@ const STEP_NAMES=['はじめに','基本情報','カテゴリ','具体的な悩�
 
 
 
-const blank=()=>({step:-1,sub:0,basic:{},days:[],cats:[],freq:{},top:[],free:'',ovr:{},tab:'today',role:'',myName:'',selfName:'',showPack:false,editing:false});
+const blank=()=>({step:-1,sub:0,basic:{},days:[],cats:[],freq:{},top:[],free:'',ovr:{},tab:'today',role:'',myName:'',selfName:'',showPack:false,editing:false,sound:false,popShown:{},lastReport:''});
 const KEY='mk-device-v1';
 let S=blank();
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')S=Object.assign(blank(),s)}catch(e){}
@@ -211,6 +220,7 @@ function s5(b,f){
   const card=([k,v])=>{const on=isOn(k,v);return `<div class="feat ${on?'star':''}"><div class="t">${on?'<span class="onb">★ オン</span>':'<span class="offb">オフ</span>'}<b>${FEATURES[k][0]}</b><span>${FEATURES[k][1]}</span><em>${esc(whyText(k,v))}</em></div>${swi(k,on)}</div>`};
   const nOn=fs.filter(([k,v])=>isOn(k,v)).length;
   b.innerHTML=`<h2 class="h">${nOn?ph('ご家庭に合わせて、',`${nOn}つの機能を`,'オンにしました'):ph('ご家庭に合わせた機能は、','まだオフです')}</h2><p class="lead">ほかの機能も、必要になったらここでオンにできます。</p>`+
+  (()=>{const g=STAGES[stageOf()];return `<div class="stagecard"><span class="k">ご本人の使い方</span><b>${g.name}</b><span>${g.self}</span></div>`})()+
   `<div class="sect">特に気になることに合わせた機能</div>`+
   (rec.length?`<div class="feats">${rec.map(card).join('')}</div>`:`<div class="empty">特に気になるものが選ばれていないので、ここは空です。下の「ほかにおすすめ」から選べます。</div>`)+
   `<div class="sect">みなさん共通の基本機能</div><div class="feats">${coreList().map(([k,n,d])=>{const on=isOn(k);return `<div class="feat"><div class="t"><span class="${on?'onb':'offb'}">${on?'オン':'オフ'}</span><b>${n}</b><span>${d}${k==='pickup'&&S.days.length?`（${S.days.join('・')}）`:''}</span></div>${swi(k,on)}</div>`}).join('')}</div>`+
@@ -226,16 +236,18 @@ function s5(b,f){
 function render(){
   const st=S.step;
   $('backBtn').disabled=st===6;
-  $('topbar').hidden=st===-1||st===8||st===9;
+  $('topbar').hidden=st===-1||st===8||st===9||st===13;
+  $('screen').classList.toggle('is-board',st===13);
+  if(st!==13&&$('pop'))$('pop').hidden=true;
   $('screen').classList.toggle('is-launch',st===-1);
   const showProg=st>=1&&st<=5;
   $('prog').style.visibility=showProg?'visible':'hidden';
   if(showProg){$('progText').textContent=`${st} / 5　${STEP_NAMES[st]}`;$('progBar').style.width=(st/5*100)+'%'}
   const b=$('body'),f=$('foot');b.classList.remove('self');
-  ({'-1':sLaunch,1:s1,2:s2,3:s3,4:s4,5:s5,6:s6,7:s7,8:s8,9:s9,12:sInvite})[st](b,f);
+  ({'-1':sLaunch,1:s1,2:s2,3:s3,4:s4,5:s5,6:s6,7:s7,8:s8,9:s9,12:sInvite,13:sBoard,14:sReport})[st](b,f);
   b.scrollTop=0; save();
 }
-function go(n){S.step=n;if(n===3&&S.sub>=selCats().length)S.sub=0;render()}
+function go(n){S.step=n;if(n===3&&S.sub>=selCats().length)S.sub=0;if(n===14)repData=null;render()}
 
 function installBanner(){
   if(isStandalone()||!isIOS())return '';
@@ -304,7 +316,7 @@ function s7(b,f){
     if(!S.role){e.textContent='「ご本人として」か「家族として」を選んでください。';e.hidden=false;return}
     if(S.role==='family'&&!S.myName){e.textContent='あなたのお名前を入れてください。';e.hidden=false;return}
     $('n').disabled=true;$('n').textContent='参加しています…';
-    try{await store.join(code,{name:S.role==='family'?S.myName:'',role:S.role});S.tab='today';go(S.role==='self'?9:8)}
+    try{await store.join(code,{name:S.role==='family'?S.myName:'',role:S.role});S.tab='today';go(S.role==='self'?(stageOf(H?.answers?.basic)>=3?13:9):8)}
     catch(err){e.textContent=err instanceof StoreError?err.message:'参加できませんでした。通信できる場所で、もう一度お試しください。';e.hidden=false;$('n').disabled=false;$('n').textContent='参加する'}
   };
 }
@@ -329,7 +341,11 @@ function s8(b,f){
     <div class="dlist">${items().map(it=>{const d=done[it.key];const late=!d&&now>it.min+30;return `<div class="drow ${d?'done':''}"><div class="nm2"><b>${esc(it.title)}</b><span>${d?`${esc(d.by)}・${hm(d.at)}`:`${hm(it.min)}ごろ`}${late?'　<span class="late">まだです</span>':''}</span></div><button class="dbtn ${d?'on':''}" type="button" data-d="${it.key}" aria-pressed="${!!d}">${d?'済み':'済みにする'}</button></div>`}).join('')}</div>
     ${enabled.length?`<div class="sect">ご家庭に合わせてオンにした機能</div><div class="morefeat">${enabled.map(n=>`<span>${n}</span>`).join('')}</div>`:''}
     <div class="banner"><b>お知らせについて</b>Web版では今のところ、アプリを閉じているときのお知らせは届きません。開いている間は、画面が1分ごとに新しくなります。</div>
+    ${reportDue()?`<button class="banner rep" type="button" id="repBan"><b>今週のレポートができました</b>この1週間の「済み」の記録をまとめました。押すと開きます。</button>`:''}
+    <div class="stagecard"><span class="k">ご本人の使い方</span><b>${STAGES[stageOf(H.answers?.basic)].name}</b><span>${STAGES[stageOf(H.answers?.basic)].self}</span></div>
     <div style="display:flex;flex-direction:column">
+    <button class="linkbtn" type="button" id="toRep">記録のレポート（1週間・1か月） ›</button>
+    <button class="linkbtn" type="button" id="toBoard">この端末を「置き型ボード」にする（ご本人は見るだけ） ›</button>
     <button class="linkbtn" type="button" id="toInv">家族を招待する ›</button>
     <button class="linkbtn" type="button" id="redo">困りごとを選び直す ›</button>
     <a class="linkbtn" href="guide.html" style="text-decoration:none;display:flex;align-items:center">使い方（説明書） ›</a>
@@ -358,6 +374,9 @@ function s8(b,f){
   const pkT=$('pkT');if(pkT)pkT.onclick=()=>{S.showPack=!S.showPack;keep(()=>s8(b,f))};
   const ts=$('toSelf');if(ts)ts.onclick=()=>{S.role='self';go(9)};
   const ti=$('toInv');if(ti)ti.onclick=()=>go(12);
+  const tr=$('toRep');if(tr)tr.onclick=()=>go(14);
+  const rb=$('repBan');if(rb)rb.onclick=()=>go(14);
+  const tb=$('toBoard');if(tb)tb.onclick=()=>{unlockSound();go(13)};
   const rd=$('redo');if(rd)rd.onclick=()=>{loadAnswers(H.answers);S.selfName=H.selfName||S.selfName;S.editing=true;S.sub=0;go(1)};
   const lv=$('leave');if(lv)lv.onclick=async()=>{if(lv.dataset.sure){await store.leave();S=blank();save();render()}else{lv.dataset.sure='1';lv.textContent='もう一度押すと外します（記録は家族グループに残ります）'}};
 }
@@ -394,12 +413,109 @@ function s9(b,f){
   b.classList.add('self');
   b.innerHTML=`<div class="sd"><small>きょうは</small>${dateLabel()}</div>
   <div class="sblock now"><span class="k">いま</span><span class="v">${nowItem?ph(esc(nowItem.title)+'の','時間です'):'ゆっくり過ごしましょう'}</span></div>
-  ${nowItem?`<button class="sbig" type="button" id="sd">${ph(esc(nowItem.title)+'を','「済み」にする')}</button>`:''}
+  ${nowItem&&stageOf(H.answers?.basic)<3?`<button class="sbig" type="button" id="sd">${ph(esc(nowItem.title)+'を','「済み」にする')}</button>`:''}
+  ${nowItem&&stageOf(H.answers?.basic)>=3?`<p class="hint">記録はご家族がします</p>`:''}
   ${nextText?`<div class="sblock next"><span class="k">つぎ</span><span class="v">${nextText}</span></div>`:''}
   <div class="sblock"><span class="k">きょうのみんな</span><div class="smem">${fam.map(n=>`<div><b>${esc(n)}</b><span>家族</span></div>`).join('')||'<div><span>ご家族の予定はまだありません</span></div>'}</div></div>`;
   f.innerHTML=S.role==='self'&&(H.members||[]).some(m=>m.uid===store.uid&&m.role==='self')?'':`<button class="btn ghost" type="button" id="fam">家族の画面にもどる</button>`;
   const sd=$('sd');if(sd)sd.onclick=()=>store.toggleDone(nowItem.key,H.selfName||'ご本人');
   const fb=$('fam');if(fb)fb.onclick=()=>{S.role='family';S.tab='today';go(8)};
+}
+
+/* ---------- 13. 置き型ボード（ご本人は見るだけ） ---------- */
+let audioCtx=null, wakeLock=null;
+function unlockSound(){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();audioCtx.resume();S.sound=true;save()}catch(e){}}
+function chime(){if(!audioCtx||!S.sound)return;try{[0,0.35].forEach((t,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=i?660:880;o.connect(g);g.connect(audioCtx.destination);const st=audioCtx.currentTime+t;g.gain.setValueAtTime(0.0001,st);g.gain.exponentialRampToValueAtTime(0.3,st+0.03);g.gain.exponentialRampToValueAtTime(0.0001,st+0.3);o.start(st);o.stop(st+0.32)})}catch(e){}}
+function say(t){if(!S.sound||!('speechSynthesis' in window))return;try{const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=0.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+async function keepAwake(){try{if('wakeLock' in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>wakeLock=null)}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.step===13)keepAwake()});
+/** その日の「知らせる時刻」 */
+function boardEvents(){
+  // parts は改行してよい区切り。label は「つぎ」に出す短い名前
+  const ev=items().map(it=>({id:'i-'+it.key,min:it.min,parts:[it.title+'の','時間です'],label:[it.title],key:it.key}));
+  if(dayServiceToday()){ev.push({id:'p60',min:H.pickup-60,parts:['あと1時間で、','デイサービスの','お迎えです'],label:['お迎えの','1時間前']},
+    {id:'p0',min:H.pickup,parts:['デイサービスの','お迎えの','時間です'],label:['デイサービスの','お迎え']},
+    {id:'r0',min:H.returnAt,parts:['デイサービスから、','おうちに','帰る時間です'],label:['デイサービスから','帰る']})}
+  return ev.sort((a,b)=>a.min-b.min);
+}
+let popTimer=null;
+/** お知らせの画面は、1分ごとの書きかえで消えないよう body の外に1つだけ置く */
+function popEl(){let el=$('pop');if(!el){el=document.createElement('div');el.className='pop';el.id='pop';el.hidden=true;
+  el.innerHTML='<span class="pk">お知らせ</span><span class="ptext"></span><button class="ptap" type="button" id="popClose">わかりました</button>';
+  $('screen').appendChild(el);$('popClose').onclick=()=>{el.hidden=true}}return el}
+function checkPop(){
+  if(S.step!==13||!H)return;
+  const now=nowMin(),day=dayKey(),done=H.today.done;
+  const due=boardEvents().filter(e=>now>=e.min&&now<e.min+5&&!(e.key&&done[e.key])&&!S.popShown[day+e.id]);
+  if(!due.length)return;
+  const e=due[due.length-1];S.popShown[day+e.id]=1;save();
+  const el=popEl();
+  el.querySelector('.ptext').innerHTML=ph(...e.parts.map(esc));
+  el.hidden=false;chime();setTimeout(()=>say(e.parts.join('')),700);
+  clearTimeout(popTimer);popTimer=setTimeout(()=>{el.hidden=true},5*60*1000);
+}
+setInterval(checkPop,20000);
+function sBoard(b,f){
+  if(!H){b.innerHTML=`<div class="empty">ご家族の予定を読み込んでいます…</div>`;f.innerHTML='';return}
+  keepAwake();
+  const now=nowMin(),done=H.today.done,left=H.pickup-now;
+  const nowItem=items().find(it=>!done[it.key]&&it.min<=now+60&&it.min>=now-120)||null;
+  const nextEv=boardEvents().find(e=>e.min>now&&!(e.key&&done[e.key]));
+  const fam=(H.members||[]).filter(m=>m.role==='family').map(m=>m.name).filter(Boolean);
+  b.innerHTML=`<div class="bclock">${hm(now)}</div><div class="bdate">${dateLabel()}</div>
+  <div class="sblock now"><span class="k">いま</span><span class="v">${nowItem?ph(esc(nowItem.title)+'の','時間です'):dayServiceToday()&&left>0&&left<=60?ph('デイサービスの','お迎えが','来ます'):'ゆっくり過ごしましょう'}</span></div>
+  ${nextEv?`<div class="sblock next"><span class="k">つぎ</span><span class="v">${hm(nextEv.min)}　${ph(...nextEv.label.map(esc))}</span></div>`:''}
+  <div class="sblock"><span class="k">きょうのみんな</span><div class="smem">${fam.map(n=>`<div><b>${esc(n)}</b></div>`).join('')||'<div><span>ご家族</span></div>'}</div></div>
+`;
+  f.innerHTML=`<div class="bfoot">${S.sound&&audioCtx?'<span>音と声：オン</span>':'<button class="linkbtn" type="button" id="snd">音と声をオンにする（家族の方が一度押してください）</button>'}<button class="linkbtn" type="button" id="bClose">家族の画面へ</button></div>`;
+  popEl();
+  const sn=$('snd');if(sn)sn.onclick=()=>{unlockSound();chime();render()};
+  $('bClose').onclick=()=>{if($('bClose').dataset.sure){S.role=S.role==='self'?'self':'family';go(S.role==='self'?9:8)}else{$('bClose').dataset.sure='1';$('bClose').textContent='もう一度押すと閉じます'}};
+  checkPop();
+}
+
+/* ---------- 14. 記録のレポート ---------- */
+let repDays=7, repData=null;
+function reportDue(){if(!S.lastReport)return new Date().getDay()===1;return (Date.now()-Number(S.lastReport))>7*864e5}
+async function loadReport(){repData=null;render();try{repData=await store.getHistory(repDays)}catch(e){repData=[]}render()}
+function stats(){
+  const its=items(), days=repData||[], dsDays=(H.answers?.days||[]);
+  const per=its.map(it=>{let rec=0,late=0,delay=[];days.forEach(d=>{const r=d.done[it.key];if(r){rec++;delay.push(r.at-it.min);if(r.at>it.min+30)late++}else late++});
+    return {title:it.title,rate:days.length?rec/days.length:0,rec,late,avg:delay.length?Math.round(delay.reduce((a,b)=>a+b,0)/delay.length):null}});
+  const by={};days.forEach(d=>Object.values(d.done).forEach(r=>{by[r.by]=(by[r.by]||0)+1}));
+  const total=per.reduce((a,p)=>a+p.rec,0),slots=its.length*days.length;
+  const ds=days.filter(d=>{const w='日月火水木金土'[new Date(d.day.replace(/-/g,'/')).getDay()];return usesDay()&&(!dsDays.length||dsDays.includes(w))});
+  const pk=packs(); const packOk=ds.filter(d=>pk.every(p=>d.pack[p.key])).length;
+  return {per,by,total,slots,rate:slots?total/slots:0,late:per.reduce((a,p)=>a+p.late,0),dsCount:ds.length,packOk};
+}
+function reportText(t){
+  const L=[`「みんなのきょう」記録のレポート（直近${repDays}日）`,`記録の割合：${Math.round(t.rate*100)}%（${t.total} / ${t.slots}）`,`遅れ・未記録：${t.late}回`];
+  t.per.forEach(p=>L.push(`・${p.title}：${Math.round(p.rate*100)}%${p.avg!=null?`、予定より平均${p.avg>=0?p.avg+'分遅れ':(-p.avg)+'分早め'}`:''}`));
+  L.push('記録した人：'+(Object.entries(t.by).map(([k,v])=>`${k} ${v}回`).join('、')||'なし'));
+  if(t.dsCount)L.push(`デイサービスの日の持ち物がそろった日：${t.packOk} / ${t.dsCount}日`);
+  L.push('※この記録は家族の入力によるもので、診断や治療の判断に使うものではありません。');return L.join('\n');
+}
+function sReport(b,f){
+  if(!H){b.innerHTML='<div class="empty">読み込んでいます…</div>';f.innerHTML='';return}
+  if(!repData){b.innerHTML=`<h2 class="h">${ph('記録の','レポート')}</h2><div class="empty">記録を集めています…</div>`;f.innerHTML='';if(repData===null&&!sReport.loading){sReport.loading=1;loadReport().then(()=>sReport.loading=0)}return}
+  S.lastReport=String(Date.now());save();
+  const t=stats();
+  b.innerHTML=`<h2 class="h">${ph('記録の','レポート')}</h2>
+  <div class="chips">${[7,30].map(n=>`<button class="chip" type="button" data-rd="${n}" aria-pressed="${repDays===n}">${n===7?'1週間':'1か月（30日）'}</button>`).join('')}</div>
+  <div class="rgrid"><div class="rcard"><span class="k">記録の割合</span><b>${Math.round(t.rate*100)}%</b><span>${t.total} / ${t.slots}</span></div>
+  <div class="rcard warm"><span class="k">遅れ・未記録</span><b>${t.late}回</b><span>予定の30分後より遅い、または記録なし</span></div></div>
+  <div class="sect">ごはん・おくすり別</div>
+  <div class="rlist">${t.per.map(p=>`<div class="rrow"><div class="rhead"><b>${esc(p.title)}</b><span>${Math.round(p.rate*100)}%${p.avg!=null?`　平均${p.avg>=0?p.avg+'分遅れ':(-p.avg)+'分早め'}`:''}</span></div><div class="rbar"><i style="width:${Math.round(p.rate*100)}%"></i></div></div>`).join('')}</div>
+  <div class="sect">記録した人（分担のかたより）</div>
+  <div class="morefeat">${Object.entries(t.by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span>${esc(k)}　${v}回</span>`).join('')||'<span>記録なし</span>'}</div>
+  ${t.dsCount?`<div class="sect">デイサービスの日</div><p class="hint">持ち物がそろった日：${t.packOk} / ${t.dsCount}日</p>`:''}
+  <p class="hint">受診のときに医師へ見せるメモとしても使えます。診断や治療の判断に使うものではありません。</p>
+  ${store.mode==='local'?'<button class="linkbtn" type="button" id="demo">（お試しモード）例の記録を30日分入れる</button>':''}`;
+  f.innerHTML=`<button class="btn" type="button" id="cpRep">文字でコピー（LINE・メール用）</button><button class="btn ghost" type="button" id="prRep">印刷・PDFにする</button>`;
+  b.querySelectorAll('[data-rd]').forEach(el=>el.onclick=()=>{repDays=Number(el.dataset.rd);loadReport()});
+  $('cpRep').onclick=async()=>{try{await navigator.clipboard.writeText(reportText(t));$('cpRep').textContent='コピーしました'}catch(e){$('cpRep').textContent='コピーできませんでした'}};
+  $('prRep').onclick=()=>window.print();
+  const dm=$('demo');if(dm)dm.onclick=async()=>{await store.fillDemo(30);loadReport()};
 }
 
 /* 戻るボタン */
@@ -409,7 +525,7 @@ $('backBtn').onclick=()=>{
   if(S.step===5&&!S.cats.length){go(2);return}
   if(S.step===1&&S.editing){S.editing=false;go(8);return}
   if(S.step===1||S.step===7){go(-1);return}
-  if(S.step===12){go(8);return}
+  if(S.step===12||S.step===14){go(8);return}
   go(Math.max(-1,S.step-1));
 };
 
@@ -426,10 +542,10 @@ function splash(){
   splash();
   try{store=await openStore()}catch(e){$('body').innerHTML=`<div class="empty">起動できませんでした。通信できる場所で開き直してください。</div>`;return}
   H=store.household;
-  store.onChange(h=>{H=h;if(S.step===8||S.step===9||S.step===12){const b=$('body'),y=b.scrollTop;render();b.scrollTop=y}});
+  store.onChange(h=>{H=h;if(S.step===8||S.step===9||S.step===12||S.step===13){const b=$('body'),y=b.scrollTop;render();b.scrollTop=y}});
   if(H&&S.role&&S.step<8&&!S.editing)S.step=S.role==='self'?9:8;
   if(!H&&S.step>=8)S.step=-1;
   render();
-  setInterval(()=>{if(S.step===8||S.step===9){const b=$('body'),y=b.scrollTop;render();b.scrollTop=y}},60000);
+  setInterval(()=>{if(S.step===8||S.step===9||S.step===13){const b=$('body'),y=b.scrollTop;render();b.scrollTop=y}},60000);
   if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();

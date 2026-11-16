@@ -12,6 +12,13 @@ const INVITE_HOURS = 24;
 
 export class StoreError extends Error {}
 
+/** 今日を含む直近 n 日の dayKey（古い順） */
+export function lastDays(n, from = new Date()) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) { const d = new Date(from); d.setDate(d.getDate() - i); out.push(dayKey(d)); }
+  return out;
+}
+
 export async function openStore() {
   if (firebaseConfig && firebaseConfig.apiKey) {
     const s = new FirebaseStore(firebaseConfig);
@@ -42,7 +49,11 @@ class LocalStore {
   get household() {
     if (!this.data) return null;
     const d = this.data, today = dayKey();
-    if (d.dayKey !== today) { d.dayKey = today; d.today = { done: {}, pack: {} }; this._save(false); }
+    if (d.dayKey !== today) {
+      d.history = d.history || {};
+      if (d.dayKey && d.today) d.history[d.dayKey] = d.today;   // 前の日の記録を残す（レポート用）
+      d.dayKey = today; d.today = { done: {}, pack: {} }; this._save(false);
+    }
     return { ...d.h, id: 'local', members: d.members, today: d.today, duties: d.duties };
   }
   onChange(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
@@ -64,6 +75,22 @@ class LocalStore {
     this._save();
   }
   async togglePack(key) { const p = this.data.today.pack; p[key] = !p[key]; this._save(); }
+  /** 直近 n 日の記録（古い順）。今日を含む。 */
+  async getHistory(n) {
+    this.household; const h = { ...(this.data.history || {}), [dayKey()]: this.data.today };
+    return lastDays(n).map(k => ({ day: k, done: h[k]?.done || {}, pack: h[k]?.pack || {} }));
+  }
+  /** お試しモード専用：レポートを見るための例の記録を入れる */
+  async fillDemo(n = 30) {
+    const items = this.data.h.items, names = [this.data.members[0]?.name || '家族', this.data.h.selfName || 'ご本人'];
+    this.data.history = this.data.history || {};
+    lastDays(n).slice(0, -1).forEach((k, i) => {
+      const done = {};
+      items.forEach(it => { if (Math.random() < (it[3] ? 0.82 : 0.9)) done[it[0]] = { by: names[(i + it[0].length) % 2], at: it[2] + Math.round(Math.random() * 50 - 10) }; });
+      this.data.history[k] = { done, pack: { a: true, b: true, c: Math.random() < .8, d: Math.random() < .7, e: true } };
+    });
+    this._save();
+  }
   async addDuty(when, title) { this.data.duties.push({ id: String(Date.now()), when, title, detail: '', assignee: '' }); this._save(); }
   async setAssignee(id, name) { const d = this.data.duties.find(x => x.id === id); if (d) d.assignee = name; this._save(); }
   async removeDuty(id) { this.data.duties = this.data.duties.filter(x => x.id !== id); this._save(); }
@@ -166,6 +193,12 @@ class FirebaseStore {
   async togglePack(key) {
     const F = this.F, cur = !!this.state?.today?.pack?.[key];
     await F.setDoc(this._day(), { pack: { [key]: !cur } }, { merge: true });
+  }
+  async getHistory(n) {
+    const F = this.F, want = new Set(lastDays(n));
+    const q = await F.getDocs(F.collection(this.db, 'households', this.hid, 'days'));
+    const m = {}; q.forEach(d => { if (want.has(d.id)) m[d.id] = d.data(); });
+    return lastDays(n).map(k => ({ day: k, done: m[k]?.done || {}, pack: m[k]?.pack || {} }));
   }
   async addDuty(when, title) { const F = this.F; await F.addDoc(F.collection(this.db, 'households', this.hid, 'duties'), { when, title, detail: '', assignee: '' }); }
   async setAssignee(id, name) { const F = this.F; await F.updateDoc(F.doc(this.db, 'households', this.hid, 'duties', id), { assignee: name }); }
