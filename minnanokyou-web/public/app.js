@@ -394,7 +394,7 @@ function s9(b,f){
   b.classList.add('self');
   b.innerHTML=`<div class="sd"><small>きょうは</small>${dateLabel()}</div>
   <div class="sblock now"><span class="k">いま</span><span class="v">${nowItem?ph(esc(nowItem.title)+'の','時間です'):'ゆっくり過ごしましょう'}</span></div>
-  ${nowItem?`<button class="sbig" type="button" id="sd">${esc(nowItem.title)}を「済み」にする</button>`:''}
+  ${nowItem?`<button class="sbig" type="button" id="sd">${ph(esc(nowItem.title)+'を','「済み」にする')}</button>`:''}
   ${nextText?`<div class="sblock next"><span class="k">つぎ</span><span class="v">${nextText}</span></div>`:''}
   <div class="sblock"><span class="k">きょうのみんな</span><div class="smem">${fam.map(n=>`<div><b>${esc(n)}</b><span>家族</span></div>`).join('')||'<div><span>ご家族の予定はまだありません</span></div>'}</div></div>`;
   f.innerHTML=S.role==='self'&&(H.members||[]).some(m=>m.uid===store.uid&&m.role==='self')?'':`<button class="btn ghost" type="button" id="fam">家族の画面にもどる</button>`;

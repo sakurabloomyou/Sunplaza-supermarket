@@ -84,6 +84,30 @@ async function icon(Comp, color, size = 256) {
   s.addText('無料の実証から、企業の福利厚生として収入を得るまで。2026年11月　制作チーム', { placeholder: 'body' });
   s.addNotes('結論は「見守りに必要な機能はずっと無料。収入は企業の福利厚生（社員の仕事と介護の両立支援）から得る」です。金額はすべて仮定で、Phase 0〜1 で確かめます。');
 
+  // ===== 1b. アプリの紹介 =====
+  s = content('はじめに', 'みんなのきょう：家族の予定を、ご本人のスマホにも');
+  [
+    ['困りごとを選ぶと、機能が決まる', '30項目から選ぶだけ（約3分）。ご家庭に合う機能だけがオンになる', ic.check],
+    ['今日のボードと「済み」', 'ごはん・おくすり・お迎えを、家族全員がすぐ確かめられる', ic.users],
+    ['ご本人の画面', '大きな文字で「いま」「つぎ」。ボタンは1つだけ', ic.phone],
+    ['8けたの招待コード', '離れた家族も参加。分担表で役割を分け合える', ic.hands],
+  ].forEach(([h, b, icn], i) => {
+    const y = 1.5 + i * 1.15;
+    circleIcon(s, icn, 0.6, y, 0.75, C.accent1, `feature ${i + 1}`);
+    tx(s, h, { x: 1.55, y: y - 0.02, w: 3.9, h: 0.4, fontSize: 16, bold: true });
+    tx(s, b, { x: 1.55, y: y + 0.4, w: 3.9, h: 0.7, fontSize: 13, color: C.accent5 });
+  });
+  [['f-result.png', '悩みに合わせた機能'], ['f-home.png', '家族のホーム'], ['f-self.png', 'ご本人の画面']].forEach(([f, cap], i) => {
+    const x = 5.85 + i * 2.35, y = 1.4, w = 2.1, h = 4.2;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x - 0.08, y: y - 0.08, w: w + 0.16, h: h + 0.16, rectRadius: 0.22, fill: { color: C.text1 }, line: { type: 'none' }, objectName: `phone frame ${i + 1}` });
+    s.addImage({ path: 'screens/' + f, x, y, w, h, objectName: `screen ${i + 1}`, altText: cap + 'の画面' });
+    tx(s, cap, { x: x - 0.1, y: y + h + 0.2, w: w + 0.2, h: 0.35, fontSize: 13, bold: true, align: 'center' });
+  });
+  card(s, 0.6, 6.05, 4.85, 0.45, C.accent6, 'status band');
+  tx(s, '無料のWeb版は公開済み／iPhoneアプリは準備中', { x: 0.8, y: 6.05, w: 4.6, h: 0.45, fontSize: 12, bold: true, color: C.accent2, valign: 'middle' });
+  note(s, '画面は公開中のWeb版（2026年11月16日に撮影）。病気の診断・治療・予防はしない。アプリを閉じているときのお知らせはWeb版では未対応。');
+  s.addNotes('まずアプリの紹介です。左が4つの主な機能、右が実際の画面です。家族が最初に困りごとを選ぶと、その家庭に合う機能だけが表示されます。');
+
   // ===== 2. 結論 =====
   s = content('はじめに', '結論：収入は企業の「介護両立支援」から得る');
   tx(s, '毎日の見守りに必要な機能はずっと無料。お金は、社員の介護を支えたい企業からいただく', { x: 0.6, y: 1.35, w: 12.1, h: 0.6, fontSize: 18, color: C.accent1, bold: true });
