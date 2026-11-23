@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>忘年会2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1b1038; --bg2:#2a1758; --card:#ffffff; --ink:#2b2140; --sub:#6b5f86;
+  --pink:#ff6fae; --gold:#ffcf4d; --mint:#5fe0c2; --sky:#6fc3ff; --lav:#b79bff;
+  --line:rgba(255,255,255,.14); --ok:#16a36a; --ng:#e0446a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Zen Maru Gothic",sans-serif;color:#fff;background:var(--bg);
+  background-image:radial-gradient(circle at 20% 10%,#4b2a8f 0,transparent 40%),radial-gradient(circle at 85% 30%,#7a2a6e 0,transparent 35%),radial-gradient(circle at 50% 90%,#20306e 0,transparent 45%);
+  background-attachment:fixed;line-height:1.7;overflow-x:hidden}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+h1,h2,.pop{font-family:"Mochiy Pop One",sans-serif;font-weight:400}
+section{padding:64px 0}
+.sec-title{text-align:center;margin:0 0 8px;font-size:clamp(24px,5vw,34px);letter-spacing:.04em}
+.sec-sub{text-align:center;color:#d9cdfc;margin:0 0 32px;font-size:14px}
+.sec-title .num{display:block;font-size:13px;color:var(--gold);letter-spacing:.3em}
+
+/* stars */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.7;animation:tw 3s infinite ease-in-out}
+@keyframes tw{50%{opacity:.1;transform:scale(.6)}}
+main{position:relative;z-index:1}
+
+/* hero */
+.hero{min-height:92vh;display:flex;align-items:center;text-align:center;padding:48px 0}
+.hero .tag{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:4px 16px;border-radius:999px;font-size:13px;letter-spacing:.2em}
+.hero h1{font-size:clamp(40px,11vw,96px);line-height:1.1;margin:16px 0 8px;
+  background:linear-gradient(90deg,#ffd1e8,#fff 30%,#ffe9a8 60%,#c9b6ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 24px rgba(255,111,174,.45))}
+.hero .lead{font-size:clamp(15px,3.6vw,19px);color:#efe8ff;margin:0 0 28px}
+.datebox{display:inline-grid;gap:4px;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:20px;padding:18px 28px;backdrop-filter:blur(6px)}
+.datebox .d{font-family:"Mochiy Pop One";font-size:clamp(22px,6vw,34px);color:var(--gold)}
+.datebox .p{font-size:15px}
+.count{display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.count div{min-width:70px;background:rgba(255,255,255,.1);border-radius:14px;padding:8px 10px}
+.count b{display:block;font-family:"Mochiy Pop One";font-size:26px;font-weight:400}
+.count span{font-size:11px;color:#d9cdfc}
+.scroll{margin-top:32px;font-size:12px;color:#cbbdf5;letter-spacing:.2em}
+
+/* info */
+.info{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.panel{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:20px;padding:22px}
+.panel h3{margin:0 0 8px;font-size:15px;color:var(--gold);letter-spacing:.1em}
+.panel .big{font-size:20px;font-weight:900}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:10px 20px;font:700 15px "Zen Maru Gothic";cursor:pointer;text-decoration:none;
+  background:linear-gradient(90deg,var(--pink),#ff9a6f);color:#fff;box-shadow:0 6px 18px rgba(255,111,174,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:transparent;border:1.5px solid #fff;box-shadow:none}
+.btn.sm{padding:6px 14px;font-size:13px}
+.taxi{margin-top:16px;background:linear-gradient(90deg,rgba(255,207,77,.18),rgba(255,111,174,.18));border:1px dashed var(--gold);border-radius:16px;padding:14px 18px;font-size:15px}
+
+/* members */
+.group-label{display:flex;align-items:center;gap:12px;margin:28px 0 14px;font-family:"Mochiy Pop One";font-size:17px}
+.group-label::after{content:"";flex:1;height:1px;background:var(--line)}
+.members{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.mcard{background:#fff;color:var(--ink);border-radius:22px;padding:12px 10px 14px;text-align:center;position:relative;overflow:hidden;transition:transform .2s}
+.mcard:hover{transform:translateY(-4px) rotate(-1deg)}
+.mcard svg{width:100%;height:auto;display:block}
+.mcard .nm{font-weight:900;font-size:17px;margin-top:4px}
+.mcard .nk{font-size:12px;color:var(--sub);min-height:18px}
+.mcard .ttl{font-size:11px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:999px;display:inline-block;color:#fff}
+
+/* quiz */
+.how{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:28px}
+.how div{background:rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;font-size:14px}
+.how b{color:var(--gold);font-family:"Mochiy Pop One";font-weight:400;margin-right:6px}
+.whoami{background:#fff;color:var(--ink);border-radius:20px;padding:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px}
+.whoami select{font:700 16px "Zen Maru Gothic";padding:8px 12px;border-radius:12px;border:2px solid #d8cdf7;min-width:180px}
+.qlist{display:grid;gap:18px}
+.q{background:#fff;color:var(--ink);border-radius:24px;padding:22px;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.q.open{outline:3px solid var(--gold)}
+.q .qno{font-family:"Mochiy Pop One";color:var(--pink);font-size:14px;letter-spacing:.1em}
+.q .badge{position:absolute;top:18px;right:18px;font-size:11px;font-weight:900;padding:3px 10px;border-radius:999px;background:#efeaff;color:var(--sub)}
+.q.open .badge{background:var(--gold);color:#3d2a00}
+.q .news{font-size:clamp(17px,4vw,21px);font-weight:900;margin:8px 0 14px;line-height:1.55}
+.q .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.q select{font:700 15px "Zen Maru Gothic";padding:8px 10px;border-radius:12px;border:2px solid #d8cdf7;flex:1;min-width:160px}
+.q .locked{background:#f5f1ff;border-radius:14px;padding:10px 14px;font-weight:700}
+.q .result{margin-top:12px;display:flex;gap:14px;align-items:center;border-top:1px dashed #ddd;padding-top:12px}
+.q .result svg{width:64px;height:64px;flex:none}
+.q .mark{font-family:"Mochiy Pop One";font-size:34px;line-height:1}
+.q .mark.o{color:var(--ok)} .q .mark.x{color:var(--ng)}
+.q .meta{font-size:12px;color:var(--sub);margin-top:8px}
+.empty{text-align:center;color:#d9cdfc;padding:36px;border:1px dashed var(--line);border-radius:20px}
+
+/* ranking & prize */
+.rank{background:#fff;color:var(--ink);border-radius:24px;padding:20px;max-width:560px;margin:0 auto}
+.rank li{display:flex;align-items:center;gap:12px;padding:8px 4px;border-bottom:1px solid #f0ecfa}
+.rank ol{list-style:none;margin:0;padding:0}
+.rank .pos{width:34px;font-family:"Mochiy Pop One";color:var(--sub)}
+.rank li.top .pos{color:#e0a800}
+.rank svg{width:40px;height:40px;flex:none}
+.rank .sc{margin-left:auto;font-family:"Mochiy Pop One"}
+.rank .bar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--pink),var(--gold));margin-top:2px}
+.prize{text-align:center;margin-top:36px}
+.prize .box{display:inline-block;background:linear-gradient(135deg,rgba(255,207,77,.22),rgba(255,111,174,.22));border:1px solid var(--gold);border-radius:24px;padding:24px 28px;max-width:560px}
+.prize .yen{font-family:"Mochiy Pop One";font-size:clamp(28px,8vw,44px);color:var(--gold)}
+.prize .gift{font-size:56px;line-height:1;animation:bob 2s infinite ease-in-out}
+@keyframes bob{50%{transform:translateY(-8px) rotate(6deg)}}
+
+/* admin */
+.admin{background:#0e0822;border-top:3px solid var(--gold);padding:28px 0 80px}
+.admin h2{color:var(--gold);font-size:20px;margin:0 0 12px}
+.admin input{font:700 16px "Zen Maru Gothic";padding:8px 12px;border-radius:10px;border:0;width:120px}
+.aq{background:#1d1440;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.aq .own{color:var(--gold);font-weight:900}
+.aq .epi{font-size:13px;color:#cbbdf5;margin-top:4px}
+.aq .ctl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.st{font-size:11px;padding:2px 8px;border-radius:999px;background:#3a2c70;margin-left:6px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:#fff;color:var(--ink);padding:12px 20px;border-radius:14px;font-weight:700;z-index:99;transition:transform .3s;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.demo{background:var(--gold);color:#3d2a00;text-align:center;font-size:12px;font-weight:700;padding:6px 12px;position:relative;z-index:2}
+footer{text-align:center;color:#a99bd6;font-size:12px;padding:32px 0 48px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="demoBar" class="demo" hidden>デモ表示中（サンプルデータ・このブラウザ内だけで動作）— 本番は Apps Script で公開したURLを使います</div>
+<div class="stars" id="stars"></div>
+<main>
+
+<!-- HERO -->
+<header class="hero"><div class="wrap" style="width:100%">
+  <span class="tag">YEAR END PARTY 2026</span>
+  <h1>忘年会<br>2026</h1>
+  <p class="lead">今年もやります！高校仲良し７人＋ご主人ズ５人、<br>合計１２人の年忘れ✨</p>
+  <div class="datebox">
+    <div class="d">2026.12.30（水）18:00〜</div>
+    <div class="p">蘭香園（ダイワロイネットホテル和歌山 3F）</div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="scroll">▼ SCROLL</div>
+</div></header>
+
+<!-- INFO -->
+<section id="info"><div class="wrap">
+  <h2 class="sec-title"><span class="num">01</span>開催のご案内</h2>
+  <p class="sec-sub">年末の慌ただしい時期ですが、ぜひ予定をあけておいてね</p>
+  <div class="info">
+    <div class="panel">
+      <h3>日時</h3>
+      <div class="big">2026年12月30日（水）</div>
+      <div>18:00 スタート</div>
+    </div>
+    <div class="panel">
+      <h3>会場</h3>
+      <div class="big">蘭香園</div>
+      <div>和歌山市七番丁26-1<br>ダイワロイネットホテル和歌山 モンティグレ 3F</div>
+      <p style="margin:12px 0 0"><a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E5%92%8C%E6%AD%8C%E5%B1%B1%E5%B8%82%E4%B8%83%E7%95%AA%E4%B8%8126-1">📍 地図をひらく</a></p>
+    </div>
+    <div class="panel">
+      <h3>会費（1人あたり）</h3>
+      <div class="big">4,000円<small style="font-size:13px;font-weight:700">（税込）</small></div>
+      <div style="margin-top:6px">＋ 飲み放題 <b>2,500円</b><br><small style="color:#cbbdf5">※飲み放題をつけるかは当日相談しよう</small></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)">＋ 景品代 <b>500円</b><br><small style="color:#cbbdf5">クイズ優勝者へのプレゼント代です</small></div>
+    </div>
+  </div>
+  <div class="taxi">🚕 <b>アクセス：</b>JR和歌山駅・南海和歌山市駅から<b>タクシーで10分弱</b>。<br>駅で待ち合わせて、<b>みんなで乗り合わせて</b>来てね！</div>
+</div></section>
+
+<!-- MEMBERS -->
+<section id="members"><div class="wrap">
+  <h2 class="sec-title"><span class="num">02</span>メンバー紹介</h2>
+  <p class="sec-sub">はじめましての人も、久しぶりの人も。今夜の12人はこちら！</p>
+  <div class="group-label">🎀 高校仲良しチーム</div>
+  <div class="members" id="mGirls"></div>
+  <div class="group-label">🛡️ ご主人チーム</div>
+  <div class="members" id="mBoys"></div>
+</div></section>
+
+<!-- QUIZ -->
+<section id="quiz"><div class="wrap">
+  <h2 class="sec-title"><span class="num">03</span>2026年 個人的大ニュース<br>これ誰の？クイズ</h2>
+  <p class="sec-sub">事前アンケートで集めた12人の大ニュース。名前は伏せてあります。</p>
+  <div class="how">
+    <div><b>1</b>下で自分の名前を選ぶ</div>
+    <div><b>2</b>出題されたニュースが「誰のか」を選んで決定<br><small>※一度決定したら変更できません</small></div>
+    <div><b>3</b>正解発表！本人にくわしく聞いてみよう</div>
+    <div><b>4</b>12問で一番当てた人が景品ゲット🎁</div>
+  </div>
+  <div class="whoami">
+    <span style="font-weight:900">あなたは？</span>
+    <select id="me"><option value="">― 名前を選んでください ―</option></select>
+    <span id="meNote" style="font-size:13px;color:var(--sub)"></span>
+  </div>
+  <div class="qlist" id="qlist"><div class="empty">読み込み中…</div></div>
+</div></section>
+
+<!-- RANKING -->
+<section id="ranking"><div class="wrap">
+  <h2 class="sec-title"><span class="num">04</span>正解数ランキング & プレゼント</h2>
+  <p class="sec-sub">正解発表のたびに更新されます</p>
+  <div class="rank"><ol id="rank"></ol></div>
+  <div class="prize"><div class="box">
+    <div class="gift">🎁</div>
+    <p style="margin:8px 0 0">一番多く正解した人に</p>
+    <div class="yen">500円 × 12人 = 6,000円</div>
+    <p style="margin:0">の会費で用意した<b>豪華景品</b>をプレゼント！</p>
+    <p style="font-size:12px;color:#d9cdfc;margin:10px 0 0">※同点の場合はじゃんけんで決定</p>
+  </div></div>
+</div></section>
+
+<footer>忘年会2026 実行委員会（幹事）</footer>
+</main>
+
+<!-- ADMIN -->
+<section class="admin" id="admin" hidden><div class="wrap">
+  <h2>🔧 幹事パネル</h2>
+  <div id="adminLogin">
+    PIN：<input id="pin" type="password" inputmode="numeric"> <button class="btn sm" id="pinBtn">ログイン</button>
+  </div>
+  <div id="adminBody" hidden>
+    <p style="font-size:13px;color:#cbbdf5">① アンケート締切後に「問題を作成」→ ② 当日、1問ずつ「出題」→ 回答が揃ったら「正解発表」。<br>※「問題を作成」をやり直すと回答はすべて消えます。</p>
+    <button class="btn sm" id="buildBtn">フォームの回答から問題を作成（シャッフル）</button>
+    <div id="adminList"></div>
+  </div>
+</div></section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== メンバー定義 ===================== */
+// title・色はLP用の遊び要素です。自由に書き換えてください。
+const MEMBERS = [
+  {name:'さわこ', nick:'', g:'f', hair:'#ff8fc4', hair2:'#e0549a', eye:'#e0407f', cloth:'#ff6fae', acc:'heart',  style:'long',  title:'マジカル・ハート'},
+  {name:'まゆ', nick:'', g:'f', hair:'#b79bff', hair2:'#7c5ad9', eye:'#6b46d1', cloth:'#9d7bff', acc:'moon',   style:'twin',  title:'マジカル・ムーン'},
+  {name:'ちさ', nick:'', g:'f', hair:'#7fd0ff', hair2:'#3d97d6', eye:'#2b7fc2', cloth:'#5bb6ff', acc:'star',   style:'pony',  title:'マジカル・スカイ'},
+  {name:'みも', nick:'', g:'f', hair:'#7fe8c8', hair2:'#2fb592', eye:'#1f9a7a', cloth:'#4fd8b0', acc:'flower', style:'buns',  title:'マジカル・ミント'},
+  {name:'まいける', nick:'', g:'f', hair:'#ffc84d', hair2:'#e3962a', eye:'#d97a10', cloth:'#ffad3b', acc:'star',   style:'side',  title:'マジカル・サニー'},
+  {name:'ちゃむ', nick:'', g:'f', hair:'#ff8a7a', hair2:'#d9534a', eye:'#c83c3c', cloth:'#ff6b6b', acc:'ribbon', style:'bob',   title:'マジカル・ルージュ'},
+  {name:'さくら', nick:'', g:'f', hair:'#3a2f4a', hair2:'#1c1626', eye:'#d6447f', cloth:'#ffb3cf', acc:'sakura', style:'wave',  title:'マジカル・ブロッサム'},
+  {name:'大ちゃん', nick:'', g:'m', hair:'#3b4a7a', hair2:'#222c4d', eye:'#2a4fa8', cloth:'#3f5bd6', acc:'shield', style:'short', title:'ナイト・ブルー'},
+  {name:'こーすけ', nick:'', g:'m', hair:'#7a5a3a', hair2:'#4d3720', eye:'#2f8a4f', cloth:'#3fb36a', acc:'leaf',   style:'short2',title:'ナイト・グリーン'},
+  {name:'じゅんぺ', nick:'', g:'m', hair:'#2b2b2b', hair2:'#111',    eye:'#c8323c', cloth:'#e2474f', acc:'bolt',   style:'spike', title:'ナイト・フレイム'},
+  {name:'にいくん', nick:'', g:'m', hair:'#b98a2f', hair2:'#7d5a14', eye:'#b77d00', cloth:'#e0b23a', acc:'crown',  style:'short', title:'ナイト・ゴールド'},
+  {name:'ゆうと氏', nick:'', g:'m', hair:'#8aa3b8', hair2:'#55697a', eye:'#2b8a9a', cloth:'#3fb6c6', acc:'star',   style:'short2',title:'ナイト・シルバー'},
+];
+// サーバー側（Code.gs）の名前と一致させる表示名
+MEMBERS.forEach(m=>{ m.key = m.nick ? `${m.name}（${m.nick}）` : m.name; });
+const byKey = Object.fromEntries(MEMBERS.map(m=>[m.key,m]));
+
+/* ===================== オリジナル魔法少女風アバター（SVG） ===================== */
+let uid=0;
+function avatar(m){
+  const id='a'+(uid++), f=m.g==='f', skin='#ffe3d3', skinS='#f6c7b2';
+  const bg=`<defs><radialGradient id="${id}bg" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${m.cloth}" stop-opacity=".45"/></radialGradient>
+    <linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m.hair}"/><stop offset="1" stop-color="${m.hair2}"/></linearGradient>
+    <linearGradient id="${id}e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a3a"/><stop offset=".45" stop-color="${m.eye}"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient>
+    <clipPath id="${id}c"><circle cx="60" cy="60" r="58"/></clipPath></defs>
+    <circle cx="60" cy="60" r="58" fill="url(#${id}bg)"/>`;
+  const H=`url(#${id}h)`;
+  let back='';
+  switch(m.style){
+    case 'long': back=`<path d="M28,52 Q24,16 60,14 Q96,16 92,52 L100,118 Q60,126 20,118 Z" fill="${H}"/>`;break;
+    case 'wave': back=`<path d="M28,52 Q24,16 60,14 Q96,16 92,52 Q104,70 94,86 Q106,100 96,118 L24,118 Q14,100 26,86 Q16,70 28,52 Z" fill="${H}"/>`;break;
+    case 'twin': back=`<path d="M30,50 Q28,18 60,16 Q92,18 90,50 L90,80 L30,80 Z" fill="${H}"/>
+      <path d="M30,34 Q4,44 10,80 Q12,104 22,116 Q30,90 34,60 Z" fill="${H}"/><path d="M90,34 Q116,44 110,80 Q108,104 98,116 Q90,90 86,60 Z" fill="${H}"/>`;break;
+    case 'pony': back=`<path d="M30,50 Q28,18 60,16 Q92,18 90,50 L90,78 L30,78 Z" fill="${H}"/><path d="M78,20 Q112,22 108,64 Q106,96 92,112 Q96,80 86,40 Z" fill="${H}"/>`;break;
+    case 'side': back=`<path d="M30,50 Q28,18 60,16 Q92,18 90,50 L90,78 L30,78 Z" fill="${H}"/><path d="M34,30 Q4,40 10,78 Q14,104 28,114 Q24,84 36,52 Z" fill="${H}"/>`;break;
+    case 'buns': back=`<circle cx="32" cy="24" r="14" fill="${H}"/><circle cx="88" cy="24" r="14" fill="${H}"/><path d="M30,50 Q28,18 60,16 Q92,18 90,50 L92,84 Q60,92 28,84 Z" fill="${H}"/>`;break;
+    case 'bob':  back=`<path d="M28,52 Q24,16 60,14 Q96,16 92,52 L96,88 Q86,96 76,90 L44,90 Q34,96 24,88 Z" fill="${H}"/>`;break;
+    default:     back=`<path d="M32,56 Q28,18 60,16 Q92,18 88,56 Z" fill="${H}"/>`;
+  }
+  // 体・衣装
+  let body=`<rect x="53" y="78" width="14" height="14" fill="${skinS}"/>
+    <path d="M18,124 Q20,96 46,90 L74,90 Q100,96 102,124 Z" fill="${m.cloth}"/>`;
+  if(f){
+    body+=`<path d="M46,90 L60,106 L74,90 Q60,96 46,90 Z" fill="#fff"/>
+      <path d="M18,124 Q22,104 36,96 L40,124 Z M102,124 Q98,104 84,96 L80,124 Z" fill="#fff" opacity=".55"/>
+      <path d="M60,102 L44,94 L46,110 Z M60,102 L76,94 L74,110 Z" fill="${m.hair2}"/>
+      <circle cx="60" cy="102" r="5.5" fill="#fff"/><circle cx="60" cy="102" r="3.5" fill="${m.eye}"/>`;
+  }else{
+    body+=`<path d="M14,124 Q14,100 34,92 L44,124 Z M106,124 Q106,100 86,92 L76,124 Z" fill="#fff" opacity=".9"/>
+      <path d="M46,90 L60,110 L74,90 L68,90 L60,100 L52,90 Z" fill="#fff"/>
+      <path d="M60,104 l3,6 6,1 -4.5,4 1.2,6 -5.7,-3 -5.7,3 1.2,-6 -4.5,-4 6,-1 Z" fill="${m.hair==='#2b2b2b'?'#ffcf4d':'#ffcf4d'}"/>`;
+  }
+  // 顔
+  const ey=f?62:63, ery=f?8:6.5, erx=f?6:5.5;
+  const eye=(x)=>`<ellipse cx="${x}" cy="${ey}" rx="${erx}" ry="${ery}" fill="url(#${id}e)"/>
+    <ellipse cx="${x}" cy="${ey+1}" rx="${erx*.45}" ry="${ery*.5}" fill="#1a0f26" opacity=".7"/>
+    <circle cx="${x-2}" cy="${ey-3}" r="2.2" fill="#fff"/><circle cx="${x+2}" cy="${ey+3}" r="1" fill="#fff"/>
+    <path d="M${x-erx-1.5},${ey-ery+2} Q${x},${ey-ery-3} ${x+erx+1.5},${ey-ery+1}" stroke="#2a1a3a" stroke-width="${f?2.8:2.2}" fill="none" stroke-linecap="round"/>
+    ${f?`<path d="M${x+erx+1},${ey-ery+1} l3,-2" stroke="#2a1a3a" stroke-width="1.8" stroke-linecap="round"/>`:''}`;
+  const face=`<ellipse cx="60" cy="58" rx="27" ry="28" fill="${skin}"/>
+    ${eye(49)}${eye(71)}
+    <ellipse cx="41" cy="72" rx="5" ry="2.6" fill="#ff8fb0" opacity=".55"/><ellipse cx="79" cy="72" rx="5" ry="2.6" fill="#ff8fb0" opacity=".55"/>
+    <path d="M55,75 Q60,${f?81:80} 65,75 Q60,77 55,75 Z" fill="#d9475f"/>`;
+  // 前髪
+  let bang;
+  if(m.style==='spike') bang=`<path d="M30,60 Q24,22 60,18 Q98,20 90,60 L86,44 L80,52 L76,38 L68,48 L62,34 L54,48 L48,36 L42,52 L36,42 Z" fill="${H}"/>`;
+  else if(!f) bang=`<path d="M31,60 Q26,20 60,18 Q94,20 89,60 Q86,42 78,38 Q72,45 62,37 Q54,45 44,39 Q36,44 31,60 Z" fill="${H}"/>`;
+  else bang=`<path d="M31,64 Q26,18 60,16 Q94,18 89,64 Q87,46 80,40 L75,44 L70,36 Q62,46 56,36 L51,44 L46,38 Q38,46 31,64 Z" fill="${H}"/>
+      <path d="M31,64 Q30,78 34,86 Q36,72 38,60 Z M89,64 Q90,78 86,86 Q84,72 82,60 Z" fill="${H}"/>`;
+  const shine=`<path d="M44,28 Q60,22 76,28" stroke="#fff" stroke-opacity=".55" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  // アクセサリ
+  const A={
+    heart:`<path d="M60,14 c-4,-7 -14,-3 -10,5 l10,9 10,-9 c4,-8 -6,-12 -10,-5z" fill="#ff3d8b" stroke="#fff" stroke-width="1.5"/><path d="M38,22 Q60,6 82,22" stroke="#ffd34d" stroke-width="3" fill="none"/>`,
+    moon:`<path d="M84,18 a10,10 0 1,0 8,16 a8,8 0 1,1 -8,-16z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
+    star:`<path d="M86,14 l3.5,7 7.5,1 -5.5,5 1.4,7.5 -6.9,-3.6 -6.9,3.6 1.4,-7.5 -5.5,-5 7.5,-1z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
+    flower:`<g transform="translate(86,22)" fill="#fff">${[0,72,144,216,288].map(a=>`<ellipse rx="4" ry="7" transform="rotate(${a}) translate(0,-6)"/>`).join('')}<circle r="4" fill="#ffd34d"/></g>`,
+    sakura:`<g transform="translate(84,24)">${[0,72,144,216,288].map(a=>`<path d="M0,0 C-6,-6 -4,-12 0,-11 C4,-12 6,-6 0,0z" fill="#ffc2d9" stroke="#ff7fb0" stroke-width=".8" transform="rotate(${a})"/>`).join('')}<circle r="2.2" fill="#ff5c9a"/></g>`,
+    ribbon:`<path d="M60,18 L44,8 L44,28 Z M60,18 L76,8 L76,28 Z" fill="#ff4d6d" stroke="#fff" stroke-width="1.2"/><circle cx="60" cy="18" r="4" fill="#fff"/>`,
+    shield:`<path d="M88,14 l10,4 v8 q0,8 -10,12 q-10,-4 -10,-12 v-8z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
+    leaf:`<path d="M80,30 Q84,10 100,12 Q98,30 80,30z" fill="#7be08a" stroke="#fff" stroke-width="1.2"/>`,
+    bolt:`<path d="M92,8 L82,26 L90,26 L84,40 L98,20 L90,20 Z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
+    crown:`<path d="M44,22 L48,8 L54,18 L60,6 L66,18 L72,8 L76,22 Z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
+  };
+  const sp=`<g fill="#fff" opacity=".9"><path d="M16,40 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z"/><path d="M104,62 l1.5,3.5 3.5,1.5 -3.5,1.5 -1.5,3.5 -1.5,-3.5 -3.5,-1.5 3.5,-1.5z"/><circle cx="22" cy="92" r="1.8"/><circle cx="100" cy="36" r="1.4"/></g>`;
+  return `<svg viewBox="0 0 120 120" role="img" aria-label="${m.key}のイラスト">${bg}<g clip-path="url(#${id}c)">${back}${body}${face}${bang}${shine}${A[m.acc]||''}${sp}</g></svg>`;
+}
+
+/* ===================== 画面描画 ===================== */
+const $=s=>document.querySelector(s);
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600)}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+// 星
+(()=>{const s=$('#stars');for(let i=0;i<60;i++){const e=document.createElement('i');e.style.left=Math.random()*100+'%';e.style.top=Math.random()*100+'%';e.style.animationDelay=(Math.random()*3)+'s';if(Math.random()<.2){e.style.width=e.style.height='4px';e.style.background='#ffe9a8'}s.appendChild(e)}})();
+
+// カウントダウン
+(function tick(){
+  const diff=new Date('2026-12-30T18:00:00+09:00')-new Date();
+  const el=$('#count');
+  if(diff<=0){el.innerHTML='<div style="min-width:auto;padding:10px 20px"><b>🎉 開催中！</b></div>';return}
+  const d=Math.floor(diff/864e5),h=Math.floor(diff/36e5)%24,mi=Math.floor(diff/6e4)%60,se=Math.floor(diff/1e3)%60;
+  el.innerHTML=[[d,'DAYS'],[h,'HOURS'],[mi,'MIN'],[se,'SEC']].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('');
+  setTimeout(tick,1000);
+})();
+
+// メンバー
+function memberCard(m){
+  return `<div class="mcard">${avatar(m)}<div class="nm">${esc(m.name)}</div><div class="nk">${m.nick?`（${esc(m.nick)}）`:''}</div><span class="ttl" style="background:${m.cloth}">${esc(m.title)}</span></div>`;
+}
+$('#mGirls').innerHTML=MEMBERS.filter(m=>m.g==='f').map(memberCard).join('');
+$('#mBoys').innerHTML=MEMBERS.filter(m=>m.g==='m').map(memberCard).join('');
+
+// 名前選択
+const meSel=$('#me');
+MEMBERS.forEach(m=>meSel.insertAdjacentHTML('beforeend',`<option value="${esc(m.key)}">${esc(m.key)}</option>`));
+let me=lsGet('bonenkai_me')||'';
+if(me && byKey[me]) meSel.value=me; else me='';
+meSel.addEventListener('change',()=>{
+  if(me && !confirm('名前を変更しますか？（回答済みの問題はそのまま残ります）')){meSel.value=me;return}
+  me=meSel.value; lsSet('bonenkai_me',me); refresh();
+});
+
+/* ===================== API（本番：Apps Script / デモ：ローカル） ===================== */
+const LIVE = typeof google!=='undefined' && google.script && google.script.run;
+function gas(fn,...args){return new Promise((res,rej)=>google.script.run.withSuccessHandler(res).withFailureHandler(e=>rej(new Error(e.message||e)))[fn](...args))}
+
+const Demo=(()=>{
+  const SAMPLE=['人生初のフルマラソンに挑戦して、制限時間ギリギリで完走した','ついにマイホームを購入！ローンは35年…','職場で表彰されて、社長と握手した','推しのライブで最前列を引き当てた','家族で初めての海外旅行（ハワイ）に行った','40歳にして逆上がりができるようになった','宝くじで1万円当たった（人生最高額）','ペットの犬を家族に迎えた','10kgのダイエットに成功した','資格試験に一発合格した','車をぶつけた…（自損事故でケガなし）','念願のキャンプ道具をフルセットそろえた'];
+  const K='bonenkai_demo';
+  const load=()=>{try{return JSON.parse(lsGet(K))}catch(e){return null}};
+  const save=s=>lsSet(K,JSON.stringify(s));
+  function init(){const keys=MEMBERS.map(m=>m.key).sort(()=>Math.random()-.5);
+    const s={qs:keys.map((k,i)=>({no:i+1,owner:k,news:SAMPLE[i],status:i===0?'open':'hidden',episode:'（デモ）本人に聞いてみよう'})),as:[]};save(s);return s}
+  const st=()=>load()||init();
+  function ranking(s){const sc={};MEMBERS.forEach(m=>sc[m.key]=0);
+    s.as.forEach(a=>{const q=s.qs.find(q=>q.no===a.no);if(q&&q.status==='revealed'&&q.owner===a.guess)sc[a.player]++});
+    return MEMBERS.map(m=>({name:m.key,score:sc[m.key]})).sort((a,b)=>b.score-a.score)}
+  return{
+    getState(player){const s=st();return{questions:s.qs.map(q=>{const mine=s.as.find(a=>a.player===player&&a.no===q.no);
+      return{no:q.no,news:q.status==='hidden'?null:q.news,status:q.status,owner:q.status==='revealed'?q.owner:null,isMine:q.owner===player,myGuess:mine?mine.guess:null,answered:s.as.filter(a=>a.no===q.no).length}}),ranking:ranking(s)}},
+    submitAnswer(player,no,guess){const s=st();const q=s.qs.find(q=>q.no===no);
+      if(!q||q.status!=='open')throw new Error('この問題は回答受付中ではありません');
+      if(q.owner===player)throw new Error('自分のニュースには回答できません');
+      if(s.as.some(a=>a.player===player&&a.no===no))throw new Error('この問題はすでに回答済みです（変更できません）');
+      s.as.push({player,no,guess});save(s);return this.getState(player)},
+    adminGetState(pin){if(pin!=='1230')throw new Error('PINが違います（デモは1230）');const s=st();
+      return{questions:s.qs.map(q=>({...q,answered:s.as.filter(a=>a.no===q.no).length,correct:s.as.filter(a=>a.no===q.no&&a.guess===q.owner).length})),ranking:ranking(s)}},
+    adminSetStatus(pin,no,status){const s=st();s.qs.find(q=>q.no===no).status=status;save(s);return this.adminGetState(pin)},
+    adminBuildQuestions(pin){this.adminGetState(pin);init();return{count:12,missing:[]}},
+  };
+})();
+async function api(fn,...args){
+  if(LIVE) return gas(fn,...args);
+  await new Promise(r=>setTimeout(r,150)); return Demo[fn](...args);
+}
+if(!LIVE) $('#demoBar').hidden=false;
+
+/* ===================== クイズ ===================== */
+let state=null, busy=false;
+async function refresh(){
+  if(busy) return;
+  try{ state=await api('getState',me); render(); }catch(e){ console.error(e); }
+}
+function render(){
+  $('#meNote').textContent = me ? '' : '※名前を選ぶと回答できます';
+  const qs=(state?.questions||[]).filter(q=>q.status!=='hidden');
+  const total=(state?.questions||[]).length;
+  if(!qs.length){ $('#qlist').innerHTML=`<div class="empty">${total?'当日、幹事が1問ずつ出題します。お楽しみに！':'アンケート集計中…当日をお楽しみに！'}</div>`; }
+  else{
+    const opt=MEMBERS.map(m=>`<option value="${esc(m.key)}">${esc(m.key)}</option>`).join('');
+    $('#qlist').innerHTML=qs.slice().sort((a,b)=>(b.status==='open')-(a.status==='open')||a.no-b.no).map(q=>{
+      let body='';
+      if(q.status==='open'){
+        if(q.isMine) body=`<div class="locked">🤫 これは<b>あなた</b>のニュース！みんなの推理を見守ってね</div>`;
+        else if(q.myGuess) body=`<div class="locked">🔒 あなたの回答：<b>${esc(q.myGuess)}</b>　<small>（変更不可）</small></div>`;
+        else body=`<div class="row"><select id="g${q.no}" ${me?'':'disabled'}><option value="">誰のニュース？</option>${opt.replace(`value="${esc(me)}"`,`value="${esc(me)}" disabled`)}</select>
+          <button class="btn" data-no="${q.no}" ${me?'':'disabled'}>決定！</button></div>`;
+      }else{ // revealed
+        const o=byKey[q.owner]; const hit=q.myGuess&&q.myGuess===q.owner;
+        body=(q.isMine?`<div class="locked">🤫 あなたのニュースでした</div>`:`<div class="locked">あなたの回答：<b>${esc(q.myGuess||'未回答')}</b></div>`)+
+          `<div class="result">${o?avatar(o):''}<div><div style="font-size:12px;color:var(--sub)">正解は…</div><div style="font-size:22px;font-weight:900">${esc(q.owner)}</div></div>
+          ${q.isMine?'':`<div class="mark ${hit?'o':'x'}" style="margin-left:auto">${hit?'◯':'✕'}</div>`}</div>`;
+      }
+      return `<article class="q ${q.status}" id="q${q.no}"><span class="badge">${q.status==='open'?'回答受付中':'正解発表済み'}</span>
+        <div class="qno">Q.${q.no} / ${total}</div><div class="news">「${esc(q.news)}」</div>${body}
+        <div class="meta">回答済み ${q.answered}人</div></article>`;
+    }).join('');
+  }
+  // ranking
+  const rk=state?.ranking||[]; const max=Math.max(1,...rk.map(r=>r.score)); const topScore=rk[0]?.score||0;
+  let pos=0,prev=null;
+  $('#rank').innerHTML=rk.map((r,i)=>{ if(r.score!==prev){pos=i+1;prev=r.score}
+    const m=byKey[r.name]; return `<li class="${r.score===topScore&&topScore>0?'top':''}"><span class="pos">${r.score===topScore&&topScore>0?'👑':pos}</span>${m?avatar(m):''}
+    <div style="flex:1"><div style="font-weight:700">${esc(r.name)}${r.name===me?' <small style="color:var(--pink)">（あなた）</small>':''}</div><div class="bar" style="width:${r.score/max*100}%"></div></div>
+    <span class="sc">${r.score}問</span></li>` }).join('');
+}
+$('#qlist').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-no]'); if(!b) return;
+  const no=Number(b.dataset.no), g=$('#g'+no).value;
+  if(!g){toast('誰のニュースか選んでね');return}
+  if(!confirm(`Q.${no} の回答を「${g}」で決定します。\n一度決定すると変更できません。よろしいですか？`)) return;
+  busy=true; b.disabled=true;
+  try{ state=await api('submitAnswer',me,no,g); toast('回答しました🔒'); }
+  catch(err){ toast(err.message); }
+  finally{ busy=false; render(); }
+});
+refresh(); setInterval(refresh,4000);
+window.addEventListener('storage',()=>{ if(!LIVE) refresh(); });
+
+/* ===================== 幹事パネル（URL に ?admin を付けると表示） ===================== */
+let pin='';
+function getParams(){ return new Promise(res=>{ if(LIVE&&google.script.url) google.script.url.getLocation(l=>res(l.parameter||{})); else res(Object.fromEntries(new URLSearchParams(location.search))); }); }
+getParams().then(p=>{ if('admin' in p) $('#admin').hidden=false; });
+async function adminLoad(){
+  try{ const s=await api('adminGetState',pin); $('#adminLogin').hidden=true; $('#adminBody').hidden=false; adminRender(s); }
+  catch(e){ toast(e.message); }
+}
+function adminRender(s){
+  const label={hidden:'未出題',open:'回答受付中',revealed:'正解発表済み'};
+  $('#adminList').innerHTML=s.questions.length?s.questions.map(q=>`<div class="aq">
+    <b>Q.${q.no}</b><span class="st">${label[q.status]}</span> 回答 ${q.answered}/11人・正解 ${q.correct}人
+    <div style="margin-top:6px">「${esc(q.news)}」</div>
+    <div class="own">→ ${esc(q.owner)}</div>${q.episode?`<div class="epi">💬 ${esc(q.episode)}</div>`:''}
+    <div class="ctl"><button class="btn sm" data-s="open" data-n="${q.no}" ${q.status==='open'?'disabled':''}>出題</button>
+    <button class="btn sm" data-s="revealed" data-n="${q.no}" ${q.status==='revealed'?'disabled':''}>正解発表</button>
+    <button class="btn sm ghost" data-s="hidden" data-n="${q.no}" ${q.status==='hidden'?'disabled':''}>隠す</button></div></div>`).join('')
+    :'<p>まだ問題がありません。「問題を作成」を押してください。</p>';
+}
+$('#pinBtn').addEventListener('click',()=>{ pin=$('#pin').value; adminLoad(); });
+$('#adminList').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-s]'); if(!b) return;
+  if(b.dataset.s==='revealed' && !confirm('正解発表します。以降この問題には回答できません。')) return;
+  try{ adminRender(await api('adminSetStatus',pin,Number(b.dataset.n),b.dataset.s)); refresh(); }catch(err){ toast(err.message); }
+});
+$('#buildBtn').addEventListener('click',async()=>{
+  if(!confirm('フォームの回答から問題を作り直します。これまでの回答はすべて消えます。よろしいですか？')) return;
+  try{ const r=await api('adminBuildQuestions',pin); toast(`${r.count}問を作成しました`+(r.missing.length?`（未回答：${r.missing.join('、')}）`:'')); adminLoad(); refresh(); }
+  catch(err){ toast(err.message); }
+});
+</script>
+</body>
+</html>
