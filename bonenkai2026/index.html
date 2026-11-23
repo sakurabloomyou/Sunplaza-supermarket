@@ -396,12 +396,15 @@ const LIVE = typeof google!=='undefined' && google.script && google.script.run;
 function gas(fn,...args){return new Promise((res,rej)=>google.script.run.withSuccessHandler(res).withFailureHandler(e=>rej(new Error(e.message||e)))[fn](...args))}
 
 const Demo=(()=>{
-  const SAMPLE=['人生初のフルマラソンに挑戦して、制限時間ギリギリで完走した','ついにマイホームを購入！ローンは35年…','職場で表彰されて、社長と握手した','推しのライブで最前列を引き当てた','家族で初めての海外旅行（ハワイ）に行った','40歳にして逆上がりができるようになった','宝くじで1万円当たった（人生最高額）','ペットの犬を家族に迎えた','10kgのダイエットに成功した','資格試験に一発合格した','車をぶつけた…（自損事故でケガなし）','念願のキャンプ道具をフルセットそろえた'];
-  const K='bonenkai_demo2';
+  // テスト用エピソード（本番は Googleフォームの回答を使います）
+  const SAMPLE={'さわこ':'韓国でスマホをなくして爆泣き、１日騒いだのにカバンから出てきた','まゆ':'ダイエット中にインフルにかかる一気に３キロやせた','ちさ':'難しい資格に合格した！',
+    'みも':'新しいカメラを買ったら貯金の半分が飛んだ','まいける':'てんぷら油と間違えてお酢で揚げ物をしようとした','ちゃむ':'大いに酔っ払った','さくら':'PCのウイルス感染',
+    '大ちゃん':'海外旅行で体調不良','こーすけ':'海外旅行で大熱','じゅんぺ':'職場でインフル大発生、自分は生き残った','にいくん':'久しぶりにサッカーをしたら肉離れした','ゆうと氏':'運動会で全力疾走して三日間筋肉痛'};
+  const K='bonenkai_demo3';
   const load=()=>{try{return JSON.parse(lsGet(K))}catch(e){return null}};
   const save=s=>lsSet(K,JSON.stringify(s));
   function init(){const keys=MEMBERS.map(m=>m.key).sort(()=>Math.random()-.5);
-    const s={qs:keys.map((k,i)=>({no:i+1,owner:k,news:SAMPLE[i],status:i===0?'open':'hidden',episode:'（デモ）本人に聞いてみよう'})),as:[]};save(s);return s}
+    const s={qs:keys.map((k,i)=>({no:i+1,owner:k,news:SAMPLE[k],status:'hidden',episode:'（デモ）本人に聞いてみよう'})),as:[]};save(s);return s}
   const st=()=>load()||init();
   function ranking(s){const sc={};MEMBERS.forEach(m=>sc[m.key]=0);
     s.as.forEach(a=>{const q=s.qs.find(q=>q.no===a.no);if(q&&q.status==='revealed'&&q.owner===a.guess)sc[a.player]++});
@@ -416,8 +419,6 @@ const Demo=(()=>{
       if(q.owner===player)throw new Error('自分のニュースには回答できません');
       if(s.as.some(a=>a.player===player&&a.no===no))throw new Error('この問題はすでに回答済みです（変更できません）');
       s.as.push({player,no,guess});
-      // デモ用：ほかの人の回答もランダムに入れる
-      MEMBERS.forEach(m=>{if(m.key!==player&&m.key!==q.owner&&!s.as.some(a=>a.player===m.key&&a.no===no)&&Math.random()<.8){const c=MEMBERS.filter(x=>x.key!==m.key);s.as.push({player:m.key,no,guess:Math.random()<.4?q.owner:c[Math.floor(Math.random()*c.length)].key})}});
       save(s);return this.getState(player)},
     adminGetState(pin){if(pin!=='1230')throw new Error('PINが違います（デモは1230）');const s=st();
       return{questions:s.qs.map(q=>({...q,answered:s.as.filter(a=>a.no===q.no).length,correct:s.as.filter(a=>a.no===q.no&&a.guess===q.owner).length})),ranking:ranking(s)}},
@@ -507,9 +508,10 @@ function renderRank(show){
   const top=rows[0]?.score||0;
   const li=r=>{const m=byKey[r.name];return `<li class="${r.pos===1&&top>0?'top':''} ${r.name===me?'me':''}"><span class="pos">${r.pos}位</span>${m?avatar(m):''}<span style="font-weight:700">${esc(r.name)}</span><span class="sc">${r.score}問</span></li>`};
   const head=rows.filter(r=>r.pos<=3), mine=rows.find(r=>r.name===me&&r.pos>3);
+  const rest=rows.filter(r=>!head.includes(r)&&r!==mine);
   const keepOpen=box.querySelector('details')?.open;
   box.innerHTML=`<div class="rank"><ol>${head.map(li).join('')}${mine?li(mine):''}</ol>
-    ${rows.length>head.length?`<details ${keepOpen?'open':''}><summary>全員の順位を見る</summary><ol>${rows.map(li).join('')}</ol></details>`:''}</div>`;
+    ${rest.length?`<details ${keepOpen?'open':''}><summary>残り${rest.length}人の順位を見る</summary><ol>${rest.map(li).join('')}</ol></details>`:''}</div>`;
 }
 function renderBar(open){
   const q=open[0], bar=$('#bar');
