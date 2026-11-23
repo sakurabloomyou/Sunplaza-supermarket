@@ -232,14 +232,13 @@ footer .ground{margin-bottom:18px}
   <dl class="facts">
     <div class="fact"><dt>日時</dt><dd><div class="big">2026年12月30日（水）</div>18:00から</dd></div>
     <div class="fact"><dt>会場</dt><dd><div class="big">蘭香園</div>和歌山市七番丁26-1<br>ダイワロイネットホテル和歌山 モンティグレ 3F
+      <div style="margin-top:4px">🚕 和駅・市駅からタクシー10分</div>
       <div class="map"><a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E5%92%8C%E6%AD%8C%E5%B1%B1%E5%B8%82%E4%B8%83%E7%95%AA%E4%B8%8126-1">地図をひらく</a></div></dd></div>
     <div class="fact"><dt>会費</dt><dd>
       <div class="yen"><span>会費（税込・景品代込み）</span><span>4,000円</span><span>飲み放題（つけるなら）</span><span>+2,500円</span></div>
       <div class="note" style="margin-top:6px">飲み放題は、当日みんなの飲みたい度で決めよ</div>
-      <div class="wallet">当日のお財布目安：4,000円（飲み放題なし）〜 6,500円（あり）</div>
     </dd></div>
   </dl>
-  <p class="taxi">駅からはタクシーで10分弱（JR和歌山駅・南海和歌山市駅どちらからでも）。<br>何人かで乗り合わせると安いし、着く前からしゃべれるよ。<br><span id="meetText">待ち合わせはLINEで決めよう。</span></p>
 </div></section>
 
 <!-- MEMBERS -->
@@ -470,7 +469,7 @@ function jstDate(d){return new Date(d.getTime()+9*36e5).toISOString().slice(0,10
       ? `<p class="hand" style="margin:0;font-size:17px">アンケートは<a href="${esc(FORM_URL)}" target="_blank" rel="noopener" style="font-weight:700">こちら</a>から答えてね</p>`
       : `<p class="hand" style="margin:0;font-size:17px">LINEで送ったフォームから答えてね</p>`;
   }
-  if(MEET) $('#meetText').textContent=MEET;
+  if(MEET && $('#meetText')) $('#meetText').textContent=MEET;
   const f=$('#footer'); f.textContent=(KANJI?`幹事：${KANJI}`:'幹事より')+'（わからないことはLINEで）';
 })();
 
