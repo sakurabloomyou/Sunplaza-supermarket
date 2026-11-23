@@ -361,7 +361,7 @@ function jstDate(d){return new Date(d.getTime()+9*36e5).toISOString().slice(0,10
   if(now < new Date('2026-12-28T00:00:00+09:00')){
     $('#askWrap').hidden=false;
     $('#askAction').innerHTML = FORM_URL
-      ? `<p class="hand" style="margin:0;font-size:17px">アンケートは<a href="${esc(FORM_URL)}" target="_blank" rel="noopener" style="font-weight:700">こちら</a>から答えてね</p>`
+      ? `<p class="hand" style="margin:0;font-size:17px"><a href="${esc(FORM_URL)}" target="_blank" rel="noopener" style="font-weight:700">こちら</a>から答えてね</p>`
       : `<p class="hand" style="margin:0;font-size:17px">LINEで送ったフォームから答えてね</p>`;
   }
   if(MEET && $('#meetText')) $('#meetText').textContent=MEET;
