@@ -210,7 +210,15 @@ function adminSetStatus(pin, no, status) {
   var sh = qSheet_();
   var v = sh.getDataRange().getValues();
   for (var i = 1; i < v.length; i++) {
-    if (String(v[i][0]) === String(no)) { sh.getRange(i + 1, 4).setValue(status); break; }
+    if (String(v[i][0]) === String(no)) {
+      var cur = v[i][3];
+      if (status === 'revealed' && cur !== 'open') throw new Error('出題中の問題だけ正解発表できます');
+      if (status === 'open') {
+        for (var j = 1; j < v.length; j++) if (j !== i && v[j][3] === 'open') throw new Error('Q.' + v[j][0] + ' がまだ出題中です。先に正解発表してください');
+      }
+      sh.getRange(i + 1, 4).setValue(status);
+      break;
+    }
   }
   return adminGetState(pin);
 }

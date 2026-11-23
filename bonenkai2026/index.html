@@ -13,6 +13,7 @@
   --font:"Kiwi Maru",serif;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:var(--font);color:#fff;line-height:1.85;word-break:auto-phrase;-webkit-text-size-adjust:100%;letter-spacing:.04em;
   background-color:var(--aka);
@@ -175,6 +176,30 @@ body.has-bar footer{padding-bottom:96px}
 .aq .epi{font-size:14px;color:#dcc6bd;margin-top:4px}
 .aq .ctl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .st{font-size:12px;padding:2px 8px;border-radius:999px;background:#5e3a33;margin-left:6px}
+body.admin-mode main,body.admin-mode header,body.admin-mode footer,body.admin-mode .bar{display:none!important}
+body.admin-mode .admin{min-height:100vh;padding-top:20px}
+.ahead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.ahead h2{margin:0}
+.now{background:var(--shiro);color:var(--ink);border-radius:14px;padding:18px 16px;margin-bottom:14px}
+.now .lbl{font-size:13px;color:var(--sub)}
+.now .qn{font-size:22px;font-weight:500;color:var(--aka)}
+.now .nw{font-size:clamp(19px,5vw,23px);font-weight:500;line-height:1.6;margin:6px 0 12px}
+.prog{height:12px;border-radius:6px;background:var(--pale);overflow:hidden;margin:6px 0 4px}
+.prog i{display:block;height:100%;background:var(--aka);transition:width .3s}
+.now .cnt{font-size:15px}
+.now .cnt b{font-size:24px;color:var(--aka)}
+.peek{margin-top:10px;font-size:14px}
+.peek summary{cursor:pointer;color:var(--sub)}
+.now .owner{font-size:26px;font-weight:500;color:var(--aka)}
+.now .epi{background:var(--pale);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:15px}
+.now .big{margin-top:14px}
+.now .big .btn{width:100%;padding:16px;font-size:18px}
+.now .hint{font-size:13px;color:var(--sub);text-align:center;margin-top:6px}
+.adet{background:#3d231f;border-radius:10px;padding:10px 12px;margin-top:10px}
+.adet summary{cursor:pointer;font-weight:500}
+.arank{background:#3d231f;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:15px}
+.arank ol{margin:6px 0 0;padding:0;list-style:none}
+.toadmin{position:fixed;right:12px;top:12px;z-index:30;background:#2b1714!important;color:#fff!important}
 
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;z-index:60;
   max-width:calc(100% - 32px);visibility:hidden;opacity:0;transition:opacity .2s}
@@ -255,19 +280,21 @@ footer .ground{margin-bottom:18px}
 
 <!-- ADMIN -->
 <section class="admin" id="admin" hidden><div class="wrap">
-  <h2>幹事パネル</h2>
+  <div class="ahead"><h2>幹事パネル</h2><button class="btn sm sub" id="toPlayer" hidden>参加者画面へ</button></div>
   <div id="adminLogin">
     PIN：<input id="pin" type="password" inputmode="numeric"> <button class="btn sm" id="pinBtn">ログイン</button>
   </div>
   <div id="adminBody" hidden>
-    <p style="font-size:14px;color:#dcc6bd">① アンケート締切後に「問題を作成」→ ② 当日は「次の問題を出題」→ 回答が揃ったら「正解発表」。<br>※「問題を作成」をやり直すと回答はすべて消えます。</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" id="nextBtn">次の問題を出題</button>
+    <div id="now"></div>
+    <div id="aRank"></div>
+    <details class="adet"><summary>問題一覧</summary><div id="adminList"></div></details>
+    <details class="adet"><summary>準備（アンケート締切後に1回だけ）</summary>
+      <p style="font-size:14px;color:#dcc6bd;margin:8px 0">フォームの回答から12問を作ります（順番はシャッフル）。<br>※やり直すと、それまでの回答はすべて消えます。</p>
       <button class="btn sm sub" id="buildBtn">フォームの回答から問題を作成</button>
-    </div>
-    <div id="adminList"></div>
+    </details>
   </div>
 </div></section>
+<button class="btn sm toadmin" id="toAdmin" hidden>幹事画面へ</button>
 
 <div class="bar" id="bar"><div class="t" id="barText"></div><button class="btn sm" id="barBtn">答える</button></div>
 
@@ -415,7 +442,10 @@ const Demo=(()=>{
       save(s);return this.getState(player)},
     adminGetState(pin){if(pin!=='1230')throw new Error('PINが違います（デモは1230）');const s=st();
       return{questions:s.qs.map(q=>({...q,answered:s.as.filter(a=>a.no===q.no).length,correct:s.as.filter(a=>a.no===q.no&&a.guess===q.owner).length})),ranking:ranking(s)}},
-    adminSetStatus(pin,no,status){const s=st();s.qs.find(q=>q.no===no).status=status;save(s);return this.adminGetState(pin)},
+    adminSetStatus(pin,no,status){const s=st();const q=s.qs.find(q=>q.no===no);
+      if(status==='revealed'&&q.status!=='open')throw new Error('出題中の問題だけ正解発表できます');
+      if(status==='open'){const o=s.qs.find(x=>x.status==='open'&&x.no!==no);if(o)throw new Error(`Q.${o.no} がまだ出題中です。先に正解発表してください`);}
+      q.status=status;save(s);return this.adminGetState(pin)},
     adminBuildQuestions(pin){this.adminGetState(pin);init();return{count:12,missing:[]}},
   };
 })();
@@ -546,39 +576,68 @@ let pin='', adminState=null;
 function getParams(){ return new Promise(res=>{
   if(LIVE&&google.script.url) google.script.url.getLocation(l=>res(Object.assign({},l.parameters||{},l.parameter||{},(l.hash||'').indexOf('admin')>=0?{admin:'1'}:{})));
   else res(Object.assign(Object.fromEntries(new URLSearchParams(location.search)),location.hash.indexOf('admin')>=0?{admin:'1'}:{})); }); }
-function showAdmin(){ const a=$('#admin'); a.hidden=false; a.scrollIntoView({behavior:'smooth'}); setTimeout(()=>$('#pin').focus(),400); }
+function showAdmin(){ document.body.classList.add('admin-mode'); $('#admin').hidden=false; $('#toAdmin').hidden=true; window.scrollTo(0,0); if(!pin) setTimeout(()=>$('#pin').focus(),300); }
+function showPlayer(){ document.body.classList.remove('admin-mode'); $('#toAdmin').hidden=false; window.scrollTo(0,0); refresh(); }
 getParams().then(p=>{ if(p.admin!==undefined) showAdmin(); });
 (()=>{ let n=0,t; $('#footer').addEventListener('click',()=>{ n++; clearTimeout(t); t=setTimeout(()=>n=0,1500); if(n>=5){ n=0; showAdmin(); } }); })();
+$('#toPlayer').addEventListener('click',showPlayer);
+$('#toAdmin').addEventListener('click',showAdmin);
 async function adminLoad(){
-  try{ adminState=await api('adminGetState',pin); $('#adminLogin').hidden=true; $('#adminBody').hidden=false; adminRender(adminState); }
+  try{ adminRender(await api('adminGetState',pin)); $('#adminLogin').hidden=true; $('#adminBody').hidden=false; $('#toPlayer').hidden=false; }
   catch(e){ toast(e.message); }
 }
+setInterval(()=>{ if(pin && !$('#adminBody').hidden && document.body.classList.contains('admin-mode')) api('adminGetState',pin).then(adminRender).catch(()=>{}); },4000);
+const peekOpen={};
 function adminRender(s){
   adminState=s;
-  const label={hidden:'未出題',open:'回答受付中',revealed:'正解発表済み'};
-  $('#adminList').innerHTML=s.questions.length?s.questions.map(q=>`<div class="aq">
-    <b>Q.${q.no}</b><span class="st">${label[q.status]}</span> 回答 ${q.answered}/11人・正解 ${q.correct}人
-    <div style="margin-top:6px">「${esc(q.news)}」</div>
-    <div class="own">→ ${esc(q.owner)}</div>${q.episode?`<div class="epi">💬 ${esc(q.episode)}</div>`:''}
-    <div class="ctl"><button class="btn sm" data-s="open" data-n="${q.no}" ${q.status==='open'?'disabled':''}>出題</button>
-    <button class="btn sm" data-s="revealed" data-n="${q.no}" ${q.status==='revealed'?'disabled':''}>正解発表</button>
-    <button class="btn sm sub" data-s="hidden" data-n="${q.no}" ${q.status==='hidden'?'disabled':''}>隠す</button></div></div>`).join('')
-    :'<p>まだ問題がありません。「フォームの回答から問題を作成」を押してください。</p>';
+  const qs=s.questions||[], label={hidden:'未出題',open:'回答受付中',revealed:'正解発表済み'};
+  const open=qs.find(q=>q.status==='open');
+  const lastRev=qs.filter(q=>q.status==='revealed').sort((a,b)=>b.no-a.no)[0];
+  const next=qs.filter(q=>q.status==='hidden').sort((a,b)=>a.no-b.no)[0];
+  const done=qs.filter(q=>q.status==='revealed').length;
+  let h='';
+  if(!qs.length){
+    h=`<div class="now"><div class="nw">まだ問題がありません</div><div class="hint">下の「準備」から、フォームの回答で問題を作成してください</div></div>`;
+  }else if(open){
+    const pct=Math.round(open.answered/11*100);
+    h=`<div class="now"><div class="lbl">いまの問題（${done+1}問目 / 全${qs.length}問）</div><div class="qn">Q.${open.no} 回答受付中</div>
+      <div class="nw">「${esc(open.news)}」</div>
+      <div class="cnt">回答 <b>${open.answered}</b> / 11人</div><div class="prog"><i style="width:${pct}%"></i></div>
+      <details class="peek" ${peekOpen[open.no]?'open':''} data-peek="${open.no}"><summary>こっそり答えを見る（幹事だけ）</summary><div class="owner">→ ${esc(open.owner)}</div>${open.episode?`<div class="epi">💬 ${esc(open.episode)}</div>`:''}</details>
+      <div class="big"><button class="btn" data-act="reveal" data-n="${open.no}">正解発表する</button></div>
+      <div class="hint">${open.answered<11?`まだ ${11-open.answered}人 が回答していません`:'全員そろいました！'}</div></div>`;
+  }else if(lastRev||next){
+    const r=lastRev;
+    h=`<div class="now">${r?`<div class="lbl">さっきの問題：Q.${r.no}（正解発表ずみ）</div><div class="nw">「${esc(r.news)}」</div>
+      <div class="owner">→ ${esc(r.owner)}</div><div class="cnt">11人中 <b>${r.correct}</b>人が正解</div>
+      ${r.episode?`<div class="epi">💬 ${esc(r.episode)}</div>`:''}${next?`<div class="hint" style="text-align:left">本人に解説してもらったら、次の問題へ</div>`:''}`:`<div class="nw">準備OK！</div>`}
+      <div class="big">${next?`<button class="btn" data-act="open" data-n="${next.no}">次の問題を出題（Q.${next.no}）</button>`:`<div class="nw" style="text-align:center;margin:0">全${qs.length}問おわり！ランキングを発表しよう</div>`}</div></div>`;
+  }
+  $('#now').innerHTML=h;
+  // ランキング（発表済みがあるとき）
+  if(done){ const rk=s.ranking||[]; let pos=0,prev=null; const rows=rk.map((r,i)=>{if(r.score!==prev){pos=i+1;prev=r.score}return{...r,pos}}).filter(r=>r.pos<=3);
+    $('#aRank').innerHTML=`<div class="arank"><b>いまの上位</b>（${done}問発表ずみ）<ol>${rows.map(r=>`<li>${r.pos}位 ${esc(r.name)}（${r.score}問）</li>`).join('')}</ol></div>`; }
+  else $('#aRank').innerHTML='';
+  // 一覧（答えは正解発表ずみのものだけ表示）
+  $('#adminList').innerHTML=qs.map(q=>`<div class="aq">
+    <b>Q.${q.no}</b><span class="st">${label[q.status]}</span> 回答 ${q.answered}/11人${q.status==='revealed'?`・正解 ${q.correct}人`:''}
+    ${q.status==='hidden'?'':`<div style="margin-top:6px">「${esc(q.news)}」</div>`}
+    ${q.status==='revealed'?`<div class="own">→ ${esc(q.owner)}</div>`:''}
+    <div class="ctl">${q.status==='hidden'?`<button class="btn sm" data-act="open" data-n="${q.no}">この問題を出題</button>`:''}
+      ${q.status==='open'?`<button class="btn sm" data-act="reveal" data-n="${q.no}">正解発表</button>`:''}
+      ${q.status!=='hidden'?`<button class="btn sm sub" data-act="hide" data-n="${q.no}">未出題に戻す</button>`:''}</div></div>`).join('');
 }
 async function setStatus(no,status){ adminRender(await api('adminSetStatus',pin,no,status)); refresh(); }
 $('#pinBtn').addEventListener('click',()=>{ pin=$('#pin').value; adminLoad(); });
-$('#adminList').addEventListener('click',async e=>{
-  const b=e.target.closest('button[data-s]'); if(!b) return;
-  if(b.dataset.s==='revealed' && !confirm('正解発表します。以降この問題には回答できません。')) return;
-  try{ await setStatus(Number(b.dataset.n),b.dataset.s); }catch(err){ toast(err.message); }
-});
-$('#nextBtn').addEventListener('click',async()=>{
-  const qs=adminState?.questions||[];
-  const open=qs.find(q=>q.status==='open');
-  if(open && !confirm(`Q.${open.no} がまだ受付中です。正解発表せずに次へ進みますか？`)) return;
-  const next=qs.filter(q=>q.status==='hidden').sort((a,b)=>a.no-b.no)[0];
-  if(!next){ toast('もう出題していない問題はありません'); return; }
-  try{ await setStatus(next.no,'open'); toast(`Q.${next.no} を出題しました`); }catch(err){ toast(err.message); }
+$('#adminBody').addEventListener('toggle',e=>{ const d=e.target; if(d.dataset&&d.dataset.peek) peekOpen[d.dataset.peek]=d.open; },true);
+$('#adminBody').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-act]'); if(!b) return;
+  const no=Number(b.dataset.n), act=b.dataset.act, qs=adminState?.questions||[];
+  try{
+    if(act==='reveal'){ if(!confirm(`Q.${no} の正解を発表します。以降この問題には回答できません。`)) return; await setStatus(no,'revealed'); toast('正解発表しました'); }
+    if(act==='open'){ const o=qs.find(q=>q.status==='open'); if(o){ toast(`先に Q.${o.no} の正解発表をしてください`); return; } await setStatus(no,'open'); toast(`Q.${no} を出題しました`); }
+    if(act==='hide'){ if(!confirm(`Q.${no} を未出題に戻します。参加者の画面から消えます（回答は残ります）。`)) return; await setStatus(no,'hidden'); }
+  }catch(err){ toast(err.message); }
 });
 $('#buildBtn').addEventListener('click',async()=>{
   if(!confirm('フォームの回答から問題を作り直します。これまでの回答はすべて消えます。よろしいですか？')) return;
