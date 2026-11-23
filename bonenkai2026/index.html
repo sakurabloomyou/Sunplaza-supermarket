@@ -275,7 +275,7 @@ footer{text-align:center;color:var(--sub);font-size:14px;padding:28px 16px 40px;
 <script>
 /* ===================== ここを幹事が書き換える ===================== */
 // 事前アンケート（Googleフォーム）の回答用URL。空なら「LINEで送ったフォームから」と表示
-const FORM_URL = '';
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd4h9_FoS00Eg80M9VD_qgcq22-ndqe9OxsTLgCFF6kGu2KJw/viewform';
 // 幹事の名前（フッターに表示）。空なら「幹事より」
 const KANJI = '';
 // 待ち合わせ。決まったら例：'JR和歌山駅 中央口に17:40集合！'（空なら「LINEで決めよう」）
@@ -403,7 +403,7 @@ function jstDate(d){return new Date(d.getTime()+9*36e5).toISOString().slice(0,10
   if(now < new Date('2026-12-28T00:00:00+09:00')){
     $('#askWrap').hidden=false;
     $('#askAction').innerHTML = FORM_URL
-      ? `<a class="btn wide" href="${esc(FORM_URL)}" target="_blank" rel="noopener">アンケートに答える</a>`
+      ? `<p class="hand" style="margin:0;font-size:17px">アンケートは<a href="${esc(FORM_URL)}" target="_blank" rel="noopener" style="font-weight:700">こちら</a>から答えてね</p>`
       : `<p class="hand" style="margin:0;font-size:17px">LINEで送ったフォームから答えてね</p>`;
   }
   if(MEET) $('#meetText').textContent=MEET;
