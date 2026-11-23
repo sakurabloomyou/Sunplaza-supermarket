@@ -437,7 +437,7 @@ let pickingMe=!me;
 function renderWho(){
   const w=$('#who');
   if(me && !pickingMe){
-    w.innerHTML=`<div class="row">${avatar(byKey[me])}<div style="flex:1"><div class="note">あなた</div><div style="font-weight:900;font-size:19px">${esc(me)}</div></div><button class="linkbtn" id="changeMe">ちがう</button></div>`;
+    w.innerHTML=`<div class="row">${avatar(byKey[me])}<div style="flex:1"><div class="note">あなた</div><div style="font-weight:900;font-size:19px">${esc(me)}</div></div><button class="linkbtn" id="changeMe">選びなおす</button></div>`;
   }else{
     w.innerHTML=`<div style="font-weight:900">あなたはだれ？ 自分の名前をタップ</div><div class="faces">${MEMBERS.map(m=>`<button class="face" data-me="${esc(m.key)}" aria-pressed="${m.key===me}">${avatar(m)}${esc(m.name)}</button>`).join('')}</div>`;
   }
