@@ -86,16 +86,15 @@ section{padding:8px 0 48px}
 /* ---- メンバー ---- */
 .grp{text-align:center;font-weight:500;margin:26px 0 12px;font-size:17px;letter-spacing:.2em}
 .grp:first-child{margin-top:0}
-.grid{display:grid;gap:16px 10px;grid-template-columns:repeat(3,1fr)}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
 @media(min-width:620px){.grid{grid-template-columns:repeat(4,1fr)}}
 .pairs{display:grid;gap:14px}
 @media(min-width:620px){.pairs{grid-template-columns:repeat(2,1fr)}}
 .pair{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border:2px solid rgba(255,255,255,.6);border-radius:12px;padding:12px 8px}
 .pair .amp{font-size:20px;padding:0 2px}
-.mem{text-align:center}
-.mem svg{width:100%;max-width:110px;height:auto;display:block;margin:0 auto;border-radius:50%;background:var(--shiro);padding:4px;box-shadow:0 3px 0 rgba(0,0,0,.18)}
-.mem .nm{font-weight:500;font-size:16px;margin-top:6px}
-.mem .hito{font-size:13px;line-height:1.5;color:#fde3dc}
+.mem{text-align:center;background:var(--shiro);color:var(--aka);border-radius:8px;padding:12px 6px;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.mem .nm{font-weight:500;font-size:18px}
+.mem .hito{font-size:13px;line-height:1.5;color:var(--sub)}
 
 /* ---- クイズ ---- */
 .rules{margin:0 auto 26px;padding:0;list-style:none;counter-reset:r;max-width:520px}
@@ -104,11 +103,9 @@ section{padding:8px 0 48px}
 .rules small{color:var(--gold)}
 .who{padding:14px;margin-bottom:20px}
 .who .row{display:flex;align-items:center;gap:10px}
-.who .row svg{width:48px;height:48px}
-.faces{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
-.face{background:none;border:2px solid transparent;border-radius:12px;padding:4px 2px;cursor:pointer;font:500 13px var(--font);color:var(--ink)}
-.face svg{width:100%;height:auto;display:block}
-.face[aria-pressed=true]{border-color:var(--aka);background:var(--pale)}
+.faces{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.face{background:var(--shiro);border:2px solid var(--rule);border-radius:10px;padding:10px 4px;cursor:pointer;font:500 15px var(--font);color:var(--ink)}
+.face[aria-pressed=true]{border-color:var(--aka);background:var(--aka);color:#fff}
 .face:disabled{opacity:.3;cursor:not-allowed}
 .q{padding:18px 16px;margin-bottom:16px}
 .q.open{outline:3px solid var(--gold);outline-offset:-3px}
@@ -120,8 +117,7 @@ section{padding:8px 0 48px}
 .q .decide{margin-top:12px}
 .q .decide .warn{text-align:center;font-size:14px;color:var(--aka);margin-top:6px}
 .q .meta{font-size:13px;color:var(--sub);margin-top:10px}
-.ans{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;margin-top:12px}
-.ans svg{width:96px;height:96px}
+.ans{margin-top:12px}
 .ans .lbl{font-size:13px;color:var(--sub)}
 .ans .who2{font-size:24px;font-weight:500;line-height:1.3}
 .verdict{font-size:22px;font-weight:500;margin-top:2px}
@@ -147,7 +143,6 @@ details.past summary{cursor:pointer;padding:8px 0;text-align:center}
 .rank .pos{width:2.4em;font-weight:500;color:var(--sub)}
 .rank li.top .pos{color:var(--aka)}
 .rank li.me{background:#fff3c4;margin:0 -14px;padding:8px 14px}
-.rank svg{width:38px;height:38px;flex:none}
 .rank .sc{margin-left:auto;font-weight:500}
 .rank details summary{cursor:pointer;color:var(--sub);padding:8px 0}
 .prize{margin-top:24px;text-align:center;border:2px solid var(--shiro);border-radius:12px;padding:18px}
@@ -165,8 +160,7 @@ body.has-bar footer{padding-bottom:96px}
 .sheet-bg{position:fixed;inset:0;background:rgba(40,15,12,.5);z-index:40;display:none;align-items:flex-end;justify-content:center}
 .sheet-bg.show{display:flex}
 .sheet{background:var(--shiro);color:var(--ink);width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));text-align:center}
-.sheet svg{width:120px;height:120px}
-.sheet .nm{font-size:24px;font-weight:500}
+.sheet .nm{font-size:30px;font-weight:500;margin:6px 0}
 .sheet .warn{color:var(--aka);font-size:14px;margin:6px 0 14px}
 .sheet .btns{display:grid;grid-template-columns:1fr 2fr;gap:10px}
 
@@ -239,8 +233,8 @@ footer .ground{margin-bottom:18px}
   <h2 class="tiles" data-t="誰の大ニュース？"></h2>
   <p class="lead">みんなに聞いた「今年いちばんの大ニュース」。<br>名前は伏せてあるので、誰のか当ててね</p>
   <ol class="rules">
-    <li>まず、自分の顔を選ぶ</li>
-    <li>幹事が1問ずつ出すので、「この人だ！」と思う顔をタップして決定<br><small>決定ボタンを押したら、もう変えられないよ</small></li>
+    <li>まず、自分の名前を選ぶ</li>
+    <li>幹事が1問ずつ出すので、「この人だ！」と思う名前をタップして決定<br><small>決定ボタンを押したら、もう変えられないよ</small></li>
     <li>正解発表のあと、本人にくわしく聞いてみよう</li>
     <li>12問終わって、いちばん当てた人の勝ち。同点ならじゃんけん</li>
   </ol>
@@ -334,79 +328,26 @@ const PAIRS = [
 ];
 // メンバー。hito＝カードに出す「ひとこと」（空なら非表示）
 const MEMBERS = [
-  // ※さくら以外は特徴を聞くまでの仮の顔（一重・黒髪の控えめな似顔絵）
-  {name:'さわこ',   g:'f', hito:'', bg:'#ffd9e6', hair:'#3a2a22', style:'long',     eyes:'single'},
-  {name:'まゆ',     g:'f', hito:'', bg:'#e2dcff', hair:'#3a2a22', style:'bob',      eyes:'single'},
-  {name:'ちさ',     g:'f', hito:'', bg:'#d4eeff', hair:'#3a2a22', style:'pony',     eyes:'single'},
-  {name:'みも',     g:'f', hito:'', bg:'#d6f5e3', hair:'#3a2a22', style:'buns',     eyes:'single'},
-  {name:'まいける', g:'f', hito:'', bg:'#fff1bf', hair:'#3a2a22', style:'long',     eyes:'single'},
-  {name:'ちゃむ',   g:'f', hito:'', bg:'#ffe0d4', hair:'#3a2a22', style:'bob',      eyes:'single'},
-  {name:'さくら',   g:'f', hito:'', bg:'#f9c6f0', hair:'#d98a1c', style:'longwave', eyes:'double'},
-  {name:'大ちゃん', g:'m', hito:'', bg:'#d6e0ff', hair:'#2b2b2b', style:'short',    eyes:'single'},
-  {name:'こーすけ', g:'m', hito:'', bg:'#dcf3d2', hair:'#2b2b2b', style:'shortpart',eyes:'single'},
-  {name:'じゅんぺ', g:'m', hito:'', bg:'#ffd9d9', hair:'#2b2b2b', style:'spike',    eyes:'single'},
-  {name:'にいくん', g:'m', hito:'', bg:'#ffeccc', hair:'#2b2b2b', style:'short',    eyes:'single'},
-  {name:'ゆうと氏', g:'m', hito:'', bg:'#d3ecf1', hair:'#2b2b2b', style:'shortpart',eyes:'single'},
+  {name:'さわこ', g:'f', hito:''},
+  {name:'まゆ', g:'f', hito:''},
+  {name:'ちさ', g:'f', hito:''},
+  {name:'みも', g:'f', hito:''},
+  {name:'まいける', g:'f', hito:''},
+  {name:'ちゃむ', g:'f', hito:''},
+  {name:'さくら', g:'f', hito:''},
+  {name:'大ちゃん', g:'m', hito:''},
+  {name:'こーすけ', g:'m', hito:''},
+  {name:'じゅんぺ', g:'m', hito:''},
+  {name:'にいくん', g:'m', hito:''},
+  {name:'ゆうと氏', g:'m', hito:''},
 ];
 /* ================================================================ */
 MEMBERS.forEach(m=>{ m.key=m.name; });   // Code.gs の MEMBERS と同じ表記
 const byKey=Object.fromEntries(MEMBERS.map(m=>[m.key,m]));
 
 /* ===================== オリジナルのイラスト（SVG） ===================== */
-let uid=0;
-/* 似顔絵（青い線・平塗り）。特徴は MEMBERS の各項目で指定：
-   hair=髪色 / style=髪型(longwave,long,bob,short,shortpart,spike,pony,buns) / eyes=目(double=二重＋まつげ, single=一重, smile=笑い目)
-   glasses=めがね / beard=ひげ / bg=背景色 */
-function avatar(m){
-  const id='a'+(uid++), L='#2a56a8', SK='#fdeb9c', W=2.4, f=m.g==='f';
-  const st=`stroke="${L}" stroke-width="${W}" stroke-linejoin="round" stroke-linecap="round"`;
-  const H=m.hair||'#3a2a22';
-  // 後ろ髪
-  const BACK={
-    longwave:`<path d="M30,58 Q22,22 60,18 Q96,20 94,56 Q92,74 100,90 Q106,104 98,118 L22,118 Q14,104 22,92 Q30,78 30,58 Z" fill="${H}" ${st}/>
-      <path d="M90,70 Q96,88 92,104 M28,74 Q22,90 28,106 M96,60 Q102,76 100,86" fill="none" ${st} stroke-width="1.6"/>`,
-    long:`<path d="M30,58 Q24,20 60,18 Q96,20 90,58 L94,118 L26,118 Z" fill="${H}" ${st}/>`,
-    bob:`<path d="M28,60 Q24,20 60,18 Q96,20 92,60 L94,86 Q88,92 80,88 L40,88 Q32,92 26,86 Z" fill="${H}" ${st}/>`,
-    pony:`<path d="M84,34 Q108,40 104,72 Q102,90 94,100 Q96,76 88,56 Z" fill="${H}" ${st}/><path d="M32,58 Q28,22 60,20 Q92,22 88,58 Z" fill="${H}" ${st}/>`,
-    buns:`<circle cx="36" cy="24" r="11" fill="${H}" ${st}/><circle cx="84" cy="24" r="11" fill="${H}" ${st}/><path d="M32,58 Q28,22 60,20 Q92,22 88,58 Z" fill="${H}" ${st}/>`,
-    short:`<path d="M33,58 Q30,22 60,20 Q90,22 87,58 Z" fill="${H}" ${st}/>`,
-  };
-  const back=BACK[m.style]||BACK.short;
-  const body=`<path d="M24,124 Q24,92 60,90 Q96,92 96,124 Z" fill="${SK}" ${st}/>`;
-  const ears=`<path d="M35,58 Q27,56 28,66 Q29,74 36,72" fill="${SK}" ${st}/><path d="M85,58 Q93,56 92,66 Q91,74 84,72" fill="${SK}" ${st}/>`;
-  const face=`<ellipse cx="60" cy="60" rx="25" ry="29" fill="${SK}" ${st}/>`;
-  // 前髪
-  const BANG={
-    longwave:`<path d="M74,23 Q52,20 40,33 Q31,44 33,60 Q37,46 47,39 Q60,32 74,23 Z" fill="${H}" ${st}/>
-      <path d="M74,23 Q89,27 88,50 Q87,66 92,82 Q83,72 82,56 Q81,36 74,23 Z" fill="${H}" ${st}/>
-      <path d="M60,26 Q48,30 42,40" fill="none" ${st} stroke-width="1.4"/>`,
-    long:`<path d="M34,52 Q34,24 60,22 Q86,24 86,52 Q76,38 60,36 Q44,38 34,52 Z" fill="${H}" ${st}/>`,
-    bob:`<path d="M34,50 Q34,22 60,22 Q86,22 86,50 Q86,44 76,44 L44,44 Q34,44 34,50 Z" fill="${H}" ${st}/>`,
-    pony:`<path d="M35,50 Q36,24 60,23 Q84,24 85,50 Q74,36 60,36 Q46,36 35,50 Z" fill="${H}" ${st}/>`,
-    buns:`<path d="M35,50 Q36,24 60,23 Q84,24 85,50 Q74,36 60,36 Q46,36 35,50 Z" fill="${H}" ${st}/>`,
-    short:`<path d="M35,52 Q34,24 60,22 Q86,24 85,52 Q80,40 70,38 Q58,42 46,38 Q38,42 35,52 Z" fill="${H}" ${st}/>`,
-    shortpart:`<path d="M35,52 Q34,24 60,22 Q86,24 85,52 Q80,38 66,34 Q52,34 40,42 Q36,46 35,52 Z" fill="${H}" ${st}/>`,
-    spike:`<path d="M35,52 Q32,26 46,22 L48,14 L56,21 L62,12 L68,21 L76,15 L76,24 Q88,28 85,52 Q80,40 70,38 Q58,42 46,38 Q38,42 35,52 Z" fill="${H}" ${st}/>`,
-  };
-  const bang=BANG[m.style]||BANG.short;
-  // 目
-  const ey=62, EYE={
-    double:x=>`<circle cx="${x}" cy="${ey}" r="6" fill="#fff" ${st} stroke-width="2"/><circle cx="${x}" cy="${ey}" r="3.8" fill="#5b80d8"/><circle cx="${x}" cy="${ey}" r="2" fill="#1d2f6b"/>
-      <path d="M${x-7},${ey-5} Q${x},${ey-10} ${x+7},${ey-5}" fill="none" ${st} stroke-width="1.8"/>
-      <path d="M${x+(x<60?-5:5)},${ey-8} l${x<60?-2:2},-3 M${x+(x<60?-1:1)},${ey-9} l${x<60?-1:1},-3.5" fill="none" ${st} stroke-width="1.6"/>`,
-    single:x=>`<path d="M${x-5},${ey} Q${x},${ey-4} ${x+5},${ey}" fill="none" ${st} stroke-width="2"/><circle cx="${x}" cy="${ey+1}" r="2.2" fill="${L}"/>`,
-    smile:x=>`<path d="M${x-5},${ey+1} Q${x},${ey-5} ${x+5},${ey+1}" fill="none" ${st} stroke-width="2.2"/>`,
-  };
-  const eyeF=EYE[m.eyes]||EYE.single;
-  const brows=`<path d="M43,47 Q49,44 55,46" fill="none" ${st} stroke-width="1.8"/><path d="M65,46 Q71,44 77,47" fill="none" ${st} stroke-width="1.8"/>`;
-  const nose=`<path d="M61,64 L56,71 L61,72.5" fill="none" ${st} stroke-width="1.8"/>`;
-  const mouth=f?`<path d="M54,80 Q57,77.5 60,78.5 Q63,77.5 66,80 Q60,84 54,80 Z" fill="#f4a09c" stroke="#e48582" stroke-width="1"/>`
-               :`<path d="M54,79 Q60,83 66,79" fill="none" ${st} stroke-width="2"/>`;
-  const glasses=m.glasses?`<circle cx="49" cy="${ey}" r="8.5" fill="none" ${st} stroke-width="1.8"/><circle cx="71" cy="${ey}" r="8.5" fill="none" ${st} stroke-width="1.8"/><path d="M57.5,${ey} H62.5 M40.5,${ey-1} L36,${ey-3} M79.5,${ey-1} L84,${ey-3}" ${st} stroke-width="1.8"/>`:'';
-  const beard=m.beard?`<path d="M40,74 Q44,90 60,91 Q76,90 80,74 Q74,86 60,86 Q46,86 40,74 Z" fill="${H}" opacity=".85" ${st} stroke-width="1.6"/>`:'';
-  return `<svg viewBox="0 0 120 120" role="img" aria-label="${m.key}のイラスト"><defs><clipPath id="${id}c"><circle cx="60" cy="60" r="58"/></clipPath></defs>
-    <g clip-path="url(#${id}c)"><rect width="120" height="120" fill="${m.bg||'#f3e9d8'}"/>${back}${body}${ears}${face}${bang}${brows}${eyeF(49)}${eyeF(71)}${glasses}${nose}${beard}${mouth}</g></svg>`;
-}
+// イラストはなし（名前のみ表示）
+function avatar(){ return ''; }
 
 /* ===================== 共通 ===================== */
 const $=s=>document.querySelector(s);
@@ -500,7 +441,7 @@ function renderWho(){
   if(me && !pickingMe){
     w.innerHTML=`<div class="row">${avatar(byKey[me])}<div style="flex:1"><div class="note">あなた</div><div style="font-weight:900;font-size:19px">${esc(me)}</div></div><button class="linkbtn" id="changeMe">ちがう</button></div>`;
   }else{
-    w.innerHTML=`<div style="font-weight:900">あなたはだれ？ 自分の顔をタップ</div><div class="faces">${MEMBERS.map(m=>`<button class="face" data-me="${esc(m.key)}" aria-pressed="${m.key===me}">${avatar(m)}${esc(m.name)}</button>`).join('')}</div>`;
+    w.innerHTML=`<div style="font-weight:900">あなたはだれ？ 自分の名前をタップ</div><div class="faces">${MEMBERS.map(m=>`<button class="face" data-me="${esc(m.key)}" aria-pressed="${m.key===me}">${avatar(m)}${esc(m.name)}</button>`).join('')}</div>`;
   }
 }
 $('#who').addEventListener('click',e=>{
@@ -523,11 +464,11 @@ function qCard(q,total,anim){
   if(q.status==='open'){
     if(q.isMine) body=`<div class="msg">これ、あなたのニュース。顔に出さないように…</div>`;
     else if(q.myGuess) body=`<div class="msg">あなたの予想：${esc(q.myGuess)}｜正解発表を待ってね</div>`;
-    else if(!me) body=`<div class="msg">上で自分の顔を選ぶと答えられます</div>`;
+    else if(!me) body=`<div class="msg">上で自分の名前を選ぶと答えられます</div>`;
     else{
       const p=pick[q.no];
       body=`<div class="faces">${MEMBERS.map(m=>`<button class="face" data-q="${q.no}" data-g="${esc(m.key)}" aria-pressed="${p===m.key}" ${m.key===me?'disabled':''}>${avatar(m)}${esc(m.name)}</button>`).join('')}</div>
-        <div class="decide">${p?`<button class="btn wide" data-decide="${q.no}">${esc(p)}で決定する</button><div class="warn">決定したら、あとから変えられません</div>`:`<div class="note" style="text-align:center">「この人だ！」と思う顔をタップ</div>`}</div>`;
+        <div class="decide">${p?`<button class="btn wide" data-decide="${q.no}">${esc(p)}で決定する</button><div class="warn">決定したら、あとから変えられません</div>`:`<div class="note" style="text-align:center">「この人だ！」と思う名前をタップ</div>`}</div>`;
     }
     body+=`<div class="meta">いま ${q.answered}人が回答ずみ</div>`;
   }else{
@@ -576,7 +517,7 @@ function renderBar(open){
   const q=open[0], bar=$('#bar');
   if(!q){bar.classList.remove('show');document.body.classList.remove('has-bar');return}
   let t,btn='答える';
-  if(!me){t=`Q.${q.no} 受付中｜まず自分の顔を選んでね`;btn='選ぶ'}
+  if(!me){t=`Q.${q.no} 受付中｜まず自分の名前を選んでね`;btn='選ぶ'}
   else if(q.isMine){t=`Q.${q.no} はあなたのニュース。見守ってね`;btn='見る'}
   else if(q.myGuess){t=`Q.${q.no} 回答ずみ（${q.myGuess}）｜発表待ち`;btn='見る'}
   else t=`Q.${q.no} 受付中｜あなた：${me}`;
