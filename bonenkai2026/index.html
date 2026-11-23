@@ -49,10 +49,11 @@ section{padding:8px 0 48px}
 .days b{font-size:26px;font-weight:500;color:var(--gold)}
 
 /* ---- アンケート ---- */
-.ask{border:2px solid var(--shiro);border-radius:12px;padding:16px 18px;margin:0 0 28px;text-align:center}
-.ask .ttl{font-weight:500;font-size:18px;margin:0 0 6px}
+.ask-ttl{margin:26px 0 10px;font-size:clamp(20px,6vw,24px);font-weight:500;color:var(--gold);letter-spacing:.08em}
+.ask{position:relative;background:var(--shiro);color:var(--ink);border:4px solid var(--gold);border-radius:12px;padding:18px 18px 16px;margin:0 0 30px;text-align:center;
+  box-shadow:0 0 0 4px var(--aka),0 0 0 6px rgba(255,214,107,.55),0 8px 0 rgba(0,0,0,.18)}
 .ask p{margin:0 0 8px;font-size:15px}
-.ask a{font-weight:500;color:var(--gold);text-underline-offset:4px}
+.ask a{font-weight:500;color:var(--aka);text-underline-offset:4px;text-decoration-thickness:2px}
 
 /* ---- ボタン（白いピル） ---- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:999px;padding:11px 26px;font:500 16px var(--font);letter-spacing:.06em;cursor:pointer;text-decoration:none;
@@ -191,11 +192,10 @@ footer .ground{margin-bottom:18px}
   <div class="banner">2026 ガールズ</div>
   <h1 class="big-tiles" aria-label="2026 ガールズ忘年会 with ボーイズ"><span>忘</span><span>年</span><span>会</span></h1>
   <p class="with">with ボーイズ</p>
-  <p class="hero-info"><b>12月30日（水）18:00〜</b><br>蘭香園<br><span style="font-size:14px">ダイワロイネットホテル和歌山 モンティグレ 3F</span></p>
-  <p class="days" id="days"></p>
+  <p class="hero-info"><b>12月30日（水）18:00〜</b></p>
   <div id="askWrap" hidden>
+    <p class="ask-ttl">まずはこれだけ、お願い！</p>
     <div class="ask">
-      <p class="ttl">まずはこれだけ、お願い！</p>
       <p>「2026個人的大ニュース」を1つ教えてね。当日のクイズに使います。<br>締切：12月27日（日）</p>
       <div id="askAction"></div>
     </div>
@@ -207,7 +207,6 @@ footer .ground{margin-bottom:18px}
 <section id="info"><div class="wrap">
   <div class="ground" data-ground="1"></div>
   <h2 class="tiles" data-t="開催概要"></h2>
-  <p class="lead">年末のバタバタ中だけど、30日の夜だけはあけといてね</p>
   <dl class="facts">
     <div class="fact"><dt>日時</dt><dd><div class="big">2026年12月30日（水）</div>18:00から</dd></div>
     <div class="fact"><dt>会場</dt><dd><div class="big">蘭香園</div>和歌山市七番丁26-1<br>ダイワロイネットホテル和歌山 モンティグレ 3F
@@ -360,11 +359,6 @@ function jstDate(d){return new Date(d.getTime()+9*36e5).toISOString().slice(0,10
 (function(){
   const now=new Date(), today=jstDate(now), PARTY='2026-12-30';
   const daysLeft=Math.round((Date.parse(PARTY)-Date.parse(today))/864e5);
-  const el=$('#days');
-  if(daysLeft>1) el.innerHTML=`あと <b>${daysLeft}</b> 日`;
-  else if(daysLeft===1) el.innerHTML='<b>いよいよ明日！</b>';
-  else if(daysLeft===0) el.innerHTML='<b>今日だよ！</b> 18時に蘭香園で';
-  else el.hidden=true;
   if(now < new Date('2026-12-28T00:00:00+09:00')){
     $('#askWrap').hidden=false;
     $('#askAction').innerHTML = FORM_URL
