@@ -334,18 +334,19 @@ const PAIRS = [
 ];
 // メンバー。hito＝カードに出す「ひとこと」（空なら非表示）
 const MEMBERS = [
-  {name:'さわこ',   g:'f', hito:'', hair:'#ff8fc4', hair2:'#e0549a', eye:'#e0407f', cloth:'#ff6fae', acc:'heart',  style:'long',  mouth:'smile'},
-  {name:'まゆ',     g:'f', hito:'', hair:'#b79bff', hair2:'#7c5ad9', eye:'#6b46d1', cloth:'#9d7bff', acc:'moon',   style:'twin',  mouth:'cat'},
-  {name:'ちさ',     g:'f', hito:'', hair:'#7fd0ff', hair2:'#3d97d6', eye:'#2b7fc2', cloth:'#5bb6ff', acc:'star',   style:'pony',  mouth:'open'},
-  {name:'みも',     g:'f', hito:'', hair:'#7fe8c8', hair2:'#2fb592', eye:'#1f9a7a', cloth:'#4fd8b0', acc:'flower', style:'buns',  mouth:'smile', eyes:'smile'},
-  {name:'まいける', g:'f', hito:'', hair:'#ffc84d', hair2:'#e3962a', eye:'#d97a10', cloth:'#ffad3b', acc:'star',   style:'side',  mouth:'grin'},
-  {name:'ちゃむ',   g:'f', hito:'', hair:'#ff8a7a', hair2:'#d9534a', eye:'#c83c3c', cloth:'#ff6b6b', acc:'ribbon', style:'bob',   mouth:'open'},
-  {name:'さくら',   g:'f', hito:'', hair:'#3a2f4a', hair2:'#1c1626', eye:'#d6447f', cloth:'#ffb3cf', acc:'sakura', style:'wave',  mouth:'smile'},
-  {name:'大ちゃん', g:'m', hito:'', hair:'#3b4a7a', hair2:'#222c4d', eye:'#2a4fa8', cloth:'#3f5bd6', acc:'shield', style:'short', mouth:'grin'},
-  {name:'こーすけ', g:'m', hito:'', hair:'#7a5a3a', hair2:'#4d3720', eye:'#2f8a4f', cloth:'#3fb36a', acc:'leaf',   style:'short2',mouth:'smile', eyes:'smile'},
-  {name:'じゅんぺ', g:'m', hito:'', hair:'#2b2b2b', hair2:'#111',    eye:'#c8323c', cloth:'#e2474f', acc:'bolt',   style:'spike', mouth:'open'},
-  {name:'にいくん', g:'m', hito:'', hair:'#b98a2f', hair2:'#7d5a14', eye:'#b77d00', cloth:'#e0b23a', acc:'crown',  style:'short', mouth:'cat'},
-  {name:'ゆうと氏', g:'m', hito:'', hair:'#8aa3b8', hair2:'#55697a', eye:'#2b8a9a', cloth:'#3fb6c6', acc:'star',   style:'short2',mouth:'smile'},
+  // ※さくら以外は特徴を聞くまでの仮の顔（一重・黒髪の控えめな似顔絵）
+  {name:'さわこ',   g:'f', hito:'', bg:'#ffd9e6', hair:'#3a2a22', style:'long',     eyes:'single'},
+  {name:'まゆ',     g:'f', hito:'', bg:'#e2dcff', hair:'#3a2a22', style:'bob',      eyes:'single'},
+  {name:'ちさ',     g:'f', hito:'', bg:'#d4eeff', hair:'#3a2a22', style:'pony',     eyes:'single'},
+  {name:'みも',     g:'f', hito:'', bg:'#d6f5e3', hair:'#3a2a22', style:'buns',     eyes:'single'},
+  {name:'まいける', g:'f', hito:'', bg:'#fff1bf', hair:'#3a2a22', style:'long',     eyes:'single'},
+  {name:'ちゃむ',   g:'f', hito:'', bg:'#ffe0d4', hair:'#3a2a22', style:'bob',      eyes:'single'},
+  {name:'さくら',   g:'f', hito:'', bg:'#f9c6f0', hair:'#d98a1c', style:'longwave', eyes:'double'},
+  {name:'大ちゃん', g:'m', hito:'', bg:'#d6e0ff', hair:'#2b2b2b', style:'short',    eyes:'single'},
+  {name:'こーすけ', g:'m', hito:'', bg:'#dcf3d2', hair:'#2b2b2b', style:'shortpart',eyes:'single'},
+  {name:'じゅんぺ', g:'m', hito:'', bg:'#ffd9d9', hair:'#2b2b2b', style:'spike',    eyes:'single'},
+  {name:'にいくん', g:'m', hito:'', bg:'#ffeccc', hair:'#2b2b2b', style:'short',    eyes:'single'},
+  {name:'ゆうと氏', g:'m', hito:'', bg:'#d3ecf1', hair:'#2b2b2b', style:'shortpart',eyes:'single'},
 ];
 /* ================================================================ */
 MEMBERS.forEach(m=>{ m.key=m.name; });   // Code.gs の MEMBERS と同じ表記
@@ -353,81 +354,58 @@ const byKey=Object.fromEntries(MEMBERS.map(m=>[m.key,m]));
 
 /* ===================== オリジナルのイラスト（SVG） ===================== */
 let uid=0;
+/* 似顔絵（青い線・平塗り）。特徴は MEMBERS の各項目で指定：
+   hair=髪色 / style=髪型(longwave,long,bob,short,shortpart,spike,pony,buns) / eyes=目(double=二重＋まつげ, single=一重, smile=笑い目)
+   glasses=めがね / beard=ひげ / bg=背景色 */
 function avatar(m){
-  const id='a'+(uid++), f=m.g==='f', skin='#ffe3d3', skinS='#f6c7b2';
-  const bg=`<defs><radialGradient id="${id}bg" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${m.cloth}" stop-opacity=".45"/></radialGradient>
-    <linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m.hair}"/><stop offset="1" stop-color="${m.hair2}"/></linearGradient>
-    <linearGradient id="${id}e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a3a"/><stop offset=".45" stop-color="${m.eye}"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient>
-    <clipPath id="${id}c"><circle cx="60" cy="60" r="58"/></clipPath></defs>
-    <circle cx="60" cy="60" r="58" fill="url(#${id}bg)"/>`;
-  const H=`url(#${id}h)`;
-  let back='';
-  switch(m.style){
-    case 'long': back=`<path d="M28,52 Q24,16 60,14 Q96,16 92,52 L100,118 Q60,126 20,118 Z" fill="${H}"/>`;break;
-    case 'wave': back=`<path d="M28,52 Q24,16 60,14 Q96,16 92,52 Q104,70 94,86 Q106,100 96,118 L24,118 Q14,100 26,86 Q16,70 28,52 Z" fill="${H}"/>`;break;
-    case 'twin': back=`<path d="M30,50 Q28,18 60,16 Q92,18 90,50 L90,80 L30,80 Z" fill="${H}"/>
-      <path d="M30,34 Q4,44 10,80 Q12,104 22,116 Q30,90 34,60 Z" fill="${H}"/><path d="M90,34 Q116,44 110,80 Q108,104 98,116 Q90,90 86,60 Z" fill="${H}"/>`;break;
-    case 'pony': back=`<path d="M30,50 Q28,18 60,16 Q92,18 90,50 L90,78 L30,78 Z" fill="${H}"/><path d="M78,20 Q112,22 108,64 Q106,96 92,112 Q96,80 86,40 Z" fill="${H}"/>`;break;
-    case 'side': back=`<path d="M30,50 Q28,18 60,16 Q92,18 90,50 L90,78 L30,78 Z" fill="${H}"/><path d="M34,30 Q4,40 10,78 Q14,104 28,114 Q24,84 36,52 Z" fill="${H}"/>`;break;
-    case 'buns': back=`<circle cx="32" cy="24" r="14" fill="${H}"/><circle cx="88" cy="24" r="14" fill="${H}"/><path d="M30,50 Q28,18 60,16 Q92,18 90,50 L92,84 Q60,92 28,84 Z" fill="${H}"/>`;break;
-    case 'bob':  back=`<path d="M28,52 Q24,16 60,14 Q96,16 92,52 L96,88 Q86,96 76,90 L44,90 Q34,96 24,88 Z" fill="${H}"/>`;break;
-    default:     back=`<path d="M32,56 Q28,18 60,16 Q92,18 88,56 Z" fill="${H}"/>`;
-  }
-  // 体・衣装
-  let body=`<rect x="53" y="78" width="14" height="14" fill="${skinS}"/>
-    <path d="M18,124 Q20,96 46,90 L74,90 Q100,96 102,124 Z" fill="${m.cloth}"/>`;
-  if(f){
-    body+=`<path d="M46,90 L60,106 L74,90 Q60,96 46,90 Z" fill="#fff"/>
-      <path d="M18,124 Q22,104 36,96 L40,124 Z M102,124 Q98,104 84,96 L80,124 Z" fill="#fff" opacity=".55"/>
-      <path d="M60,102 L44,94 L46,110 Z M60,102 L76,94 L74,110 Z" fill="${m.hair2}"/>
-      <circle cx="60" cy="102" r="5.5" fill="#fff"/><circle cx="60" cy="102" r="3.5" fill="${m.eye}"/>`;
-  }else{
-    body+=`<path d="M14,124 Q14,100 34,92 L44,124 Z M106,124 Q106,100 86,92 L76,124 Z" fill="#fff" opacity=".9"/>
-      <path d="M46,90 L60,110 L74,90 L68,90 L60,100 L52,90 Z" fill="#fff"/>
-      <path d="M60,104 l3,6 6,1 -4.5,4 1.2,6 -5.7,-3 -5.7,3 1.2,-6 -4.5,-4 6,-1 Z" fill="${m.hair==='#2b2b2b'?'#ffcf4d':'#ffcf4d'}"/>`;
-  }
-  // 顔
-  const ey=f?62:63, ery=f?8:6.5, erx=f?6:5.5;
-  const eye=(x)=>`<ellipse cx="${x}" cy="${ey}" rx="${erx}" ry="${ery}" fill="url(#${id}e)"/>
-    <ellipse cx="${x}" cy="${ey+1}" rx="${erx*.45}" ry="${ery*.5}" fill="#1a0f26" opacity=".7"/>
-    <circle cx="${x-2}" cy="${ey-3}" r="2.2" fill="#fff"/><circle cx="${x+2}" cy="${ey+3}" r="1" fill="#fff"/>
-    <path d="M${x-erx-1.5},${ey-ery+2} Q${x},${ey-ery-3} ${x+erx+1.5},${ey-ery+1}" stroke="#2a1a3a" stroke-width="${f?2.8:2.2}" fill="none" stroke-linecap="round"/>
-    ${f?`<path d="M${x+(x<60?-1:1)*(erx+1)},${ey-ery+1} l${x<60?-3:3},-2" stroke="#2a1a3a" stroke-width="1.8" stroke-linecap="round"/>`:''}`;
-  const smileEye=(x)=>`<path d="M${x-6},${ey+1} Q${x},${ey-7} ${x+6},${ey+1}" stroke="#2a1a3a" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
-  const MOUTH={
-    smile:`<path d="M55,75 Q60,${f?81:80} 65,75 Q60,77 55,75 Z" fill="#d9475f"/>`,
-    open:`<path d="M54,74 Q60,74 66,74 Q65,83 60,83 Q55,83 54,74 Z" fill="#b8324a"/><path d="M56.5,80 Q60,77.5 63.5,80 Q60,83 56.5,80 Z" fill="#ff8fa3"/>`,
-    cat:`<path d="M54,75 Q57,79 60,75 Q63,79 66,75" stroke="#b8324a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
-    grin:`<path d="M53,74 Q60,76 67,74 Q66,81 60,81 Q54,81 53,74 Z" fill="#fff" stroke="#b8324a" stroke-width="1.4"/>`,
+  const id='a'+(uid++), L='#2a56a8', SK='#fdeb9c', W=2.4, f=m.g==='f';
+  const st=`stroke="${L}" stroke-width="${W}" stroke-linejoin="round" stroke-linecap="round"`;
+  const H=m.hair||'#3a2a22';
+  // 後ろ髪
+  const BACK={
+    longwave:`<path d="M30,58 Q22,22 60,18 Q96,20 94,56 Q92,74 100,90 Q106,104 98,118 L22,118 Q14,104 22,92 Q30,78 30,58 Z" fill="${H}" ${st}/>
+      <path d="M90,70 Q96,88 92,104 M28,74 Q22,90 28,106 M96,60 Q102,76 100,86" fill="none" ${st} stroke-width="1.6"/>`,
+    long:`<path d="M30,58 Q24,20 60,18 Q96,20 90,58 L94,118 L26,118 Z" fill="${H}" ${st}/>`,
+    bob:`<path d="M28,60 Q24,20 60,18 Q96,20 92,60 L94,86 Q88,92 80,88 L40,88 Q32,92 26,86 Z" fill="${H}" ${st}/>`,
+    pony:`<path d="M84,34 Q108,40 104,72 Q102,90 94,100 Q96,76 88,56 Z" fill="${H}" ${st}/><path d="M32,58 Q28,22 60,20 Q92,22 88,58 Z" fill="${H}" ${st}/>`,
+    buns:`<circle cx="36" cy="24" r="11" fill="${H}" ${st}/><circle cx="84" cy="24" r="11" fill="${H}" ${st}/><path d="M32,58 Q28,22 60,20 Q92,22 88,58 Z" fill="${H}" ${st}/>`,
+    short:`<path d="M33,58 Q30,22 60,20 Q90,22 87,58 Z" fill="${H}" ${st}/>`,
   };
-  const face=`<ellipse cx="60" cy="58" rx="27" ry="28" fill="${skin}"/>
-    ${m.eyes==='smile'?smileEye(49)+smileEye(71):eye(49)+eye(71)}
-    <path d="M42,${ey-ery-5} Q48,${ey-ery-8} 54,${ey-ery-6}" stroke="${m.hair2}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".8"/>
-    <path d="M66,${ey-ery-6} Q72,${ey-ery-8} 78,${ey-ery-5}" stroke="${m.hair2}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".8"/>
-    <ellipse cx="41" cy="72" rx="5" ry="2.6" fill="#ff8fb0" opacity=".55"/><ellipse cx="79" cy="72" rx="5" ry="2.6" fill="#ff8fb0" opacity=".55"/>
-    ${MOUTH[m.mouth]||MOUTH.smile}`;
+  const back=BACK[m.style]||BACK.short;
+  const body=`<path d="M24,124 Q24,92 60,90 Q96,92 96,124 Z" fill="${SK}" ${st}/>`;
+  const ears=`<path d="M35,58 Q27,56 28,66 Q29,74 36,72" fill="${SK}" ${st}/><path d="M85,58 Q93,56 92,66 Q91,74 84,72" fill="${SK}" ${st}/>`;
+  const face=`<ellipse cx="60" cy="60" rx="25" ry="29" fill="${SK}" ${st}/>`;
   // 前髪
-  let bang;
-  if(m.style==='spike') bang=`<path d="M30,60 Q24,22 60,18 Q98,20 90,60 L86,44 L80,52 L76,38 L68,48 L62,34 L54,48 L48,36 L42,52 L36,42 Z" fill="${H}"/>`;
-  else if(!f) bang=`<path d="M31,60 Q26,20 60,18 Q94,20 89,60 Q86,42 78,38 Q72,45 62,37 Q54,45 44,39 Q36,44 31,60 Z" fill="${H}"/>`;
-  else bang=`<path d="M31,64 Q26,18 60,16 Q94,18 89,64 Q87,46 80,40 L75,44 L70,36 Q62,46 56,36 L51,44 L46,38 Q38,46 31,64 Z" fill="${H}"/>
-      <path d="M31,64 Q30,78 34,86 Q36,72 38,60 Z M89,64 Q90,78 86,86 Q84,72 82,60 Z" fill="${H}"/>`;
-  const shine=`<path d="M44,28 Q60,22 76,28" stroke="#fff" stroke-opacity=".55" stroke-width="3" fill="none" stroke-linecap="round"/>`;
-  // アクセサリ
-  const A={
-    heart:`<path d="M60,14 c-4,-7 -14,-3 -10,5 l10,9 10,-9 c4,-8 -6,-12 -10,-5z" fill="#ff3d8b" stroke="#fff" stroke-width="1.5"/><path d="M38,22 Q60,6 82,22" stroke="#ffd34d" stroke-width="3" fill="none"/>`,
-    moon:`<path d="M84,18 a10,10 0 1,0 8,16 a8,8 0 1,1 -8,-16z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
-    star:`<path d="M86,14 l3.5,7 7.5,1 -5.5,5 1.4,7.5 -6.9,-3.6 -6.9,3.6 1.4,-7.5 -5.5,-5 7.5,-1z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
-    flower:`<g transform="translate(86,22)" fill="#fff">${[0,72,144,216,288].map(a=>`<ellipse rx="4" ry="7" transform="rotate(${a}) translate(0,-6)"/>`).join('')}<circle r="4" fill="#ffd34d"/></g>`,
-    sakura:`<g transform="translate(84,24)">${[0,72,144,216,288].map(a=>`<path d="M0,0 C-6,-6 -4,-12 0,-11 C4,-12 6,-6 0,0z" fill="#ffc2d9" stroke="#ff7fb0" stroke-width=".8" transform="rotate(${a})"/>`).join('')}<circle r="2.2" fill="#ff5c9a"/></g>`,
-    ribbon:`<path d="M60,18 L44,8 L44,28 Z M60,18 L76,8 L76,28 Z" fill="#ff4d6d" stroke="#fff" stroke-width="1.2"/><circle cx="60" cy="18" r="4" fill="#fff"/>`,
-    shield:`<path d="M88,14 l10,4 v8 q0,8 -10,12 q-10,-4 -10,-12 v-8z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
-    leaf:`<path d="M80,30 Q84,10 100,12 Q98,30 80,30z" fill="#7be08a" stroke="#fff" stroke-width="1.2"/>`,
-    bolt:`<path d="M92,8 L82,26 L90,26 L84,40 L98,20 L90,20 Z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
-    crown:`<path d="M44,22 L48,8 L54,18 L60,6 L66,18 L72,8 L76,22 Z" fill="#ffd34d" stroke="#fff" stroke-width="1.2"/>`,
+  const BANG={
+    longwave:`<path d="M74,23 Q52,20 40,33 Q31,44 33,60 Q37,46 47,39 Q60,32 74,23 Z" fill="${H}" ${st}/>
+      <path d="M74,23 Q89,27 88,50 Q87,66 92,82 Q83,72 82,56 Q81,36 74,23 Z" fill="${H}" ${st}/>
+      <path d="M60,26 Q48,30 42,40" fill="none" ${st} stroke-width="1.4"/>`,
+    long:`<path d="M34,52 Q34,24 60,22 Q86,24 86,52 Q76,38 60,36 Q44,38 34,52 Z" fill="${H}" ${st}/>`,
+    bob:`<path d="M34,50 Q34,22 60,22 Q86,22 86,50 Q86,44 76,44 L44,44 Q34,44 34,50 Z" fill="${H}" ${st}/>`,
+    pony:`<path d="M35,50 Q36,24 60,23 Q84,24 85,50 Q74,36 60,36 Q46,36 35,50 Z" fill="${H}" ${st}/>`,
+    buns:`<path d="M35,50 Q36,24 60,23 Q84,24 85,50 Q74,36 60,36 Q46,36 35,50 Z" fill="${H}" ${st}/>`,
+    short:`<path d="M35,52 Q34,24 60,22 Q86,24 85,52 Q80,40 70,38 Q58,42 46,38 Q38,42 35,52 Z" fill="${H}" ${st}/>`,
+    shortpart:`<path d="M35,52 Q34,24 60,22 Q86,24 85,52 Q80,38 66,34 Q52,34 40,42 Q36,46 35,52 Z" fill="${H}" ${st}/>`,
+    spike:`<path d="M35,52 Q32,26 46,22 L48,14 L56,21 L62,12 L68,21 L76,15 L76,24 Q88,28 85,52 Q80,40 70,38 Q58,42 46,38 Q38,42 35,52 Z" fill="${H}" ${st}/>`,
   };
-  const sp=`<g fill="#fff" opacity=".9"><path d="M16,40 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z"/><path d="M104,62 l1.5,3.5 3.5,1.5 -3.5,1.5 -1.5,3.5 -1.5,-3.5 -3.5,-1.5 3.5,-1.5z"/><circle cx="22" cy="92" r="1.8"/><circle cx="100" cy="36" r="1.4"/></g>`;
-  return `<svg viewBox="0 0 120 120" role="img" aria-label="${m.key}のイラスト">${bg}<g clip-path="url(#${id}c)">${back}${body}${face}${bang}${shine}${A[m.acc]||''}${sp}</g></svg>`;
+  const bang=BANG[m.style]||BANG.short;
+  // 目
+  const ey=62, EYE={
+    double:x=>`<circle cx="${x}" cy="${ey}" r="6" fill="#fff" ${st} stroke-width="2"/><circle cx="${x}" cy="${ey}" r="3.8" fill="#5b80d8"/><circle cx="${x}" cy="${ey}" r="2" fill="#1d2f6b"/>
+      <path d="M${x-7},${ey-5} Q${x},${ey-10} ${x+7},${ey-5}" fill="none" ${st} stroke-width="1.8"/>
+      <path d="M${x+(x<60?-5:5)},${ey-8} l${x<60?-2:2},-3 M${x+(x<60?-1:1)},${ey-9} l${x<60?-1:1},-3.5" fill="none" ${st} stroke-width="1.6"/>`,
+    single:x=>`<path d="M${x-5},${ey} Q${x},${ey-4} ${x+5},${ey}" fill="none" ${st} stroke-width="2"/><circle cx="${x}" cy="${ey+1}" r="2.2" fill="${L}"/>`,
+    smile:x=>`<path d="M${x-5},${ey+1} Q${x},${ey-5} ${x+5},${ey+1}" fill="none" ${st} stroke-width="2.2"/>`,
+  };
+  const eyeF=EYE[m.eyes]||EYE.single;
+  const brows=`<path d="M43,47 Q49,44 55,46" fill="none" ${st} stroke-width="1.8"/><path d="M65,46 Q71,44 77,47" fill="none" ${st} stroke-width="1.8"/>`;
+  const nose=`<path d="M61,64 L56,71 L61,72.5" fill="none" ${st} stroke-width="1.8"/>`;
+  const mouth=f?`<path d="M54,80 Q57,77.5 60,78.5 Q63,77.5 66,80 Q60,84 54,80 Z" fill="#f4a09c" stroke="#e48582" stroke-width="1"/>`
+               :`<path d="M54,79 Q60,83 66,79" fill="none" ${st} stroke-width="2"/>`;
+  const glasses=m.glasses?`<circle cx="49" cy="${ey}" r="8.5" fill="none" ${st} stroke-width="1.8"/><circle cx="71" cy="${ey}" r="8.5" fill="none" ${st} stroke-width="1.8"/><path d="M57.5,${ey} H62.5 M40.5,${ey-1} L36,${ey-3} M79.5,${ey-1} L84,${ey-3}" ${st} stroke-width="1.8"/>`:'';
+  const beard=m.beard?`<path d="M40,74 Q44,90 60,91 Q76,90 80,74 Q74,86 60,86 Q46,86 40,74 Z" fill="${H}" opacity=".85" ${st} stroke-width="1.6"/>`:'';
+  return `<svg viewBox="0 0 120 120" role="img" aria-label="${m.key}のイラスト"><defs><clipPath id="${id}c"><circle cx="60" cy="60" r="58"/></clipPath></defs>
+    <g clip-path="url(#${id}c)"><rect width="120" height="120" fill="${m.bg||'#f3e9d8'}"/>${back}${body}${ears}${face}${bang}${brows}${eyeF(49)}${eyeF(71)}${glasses}${nose}${beard}${mouth}</g></svg>`;
 }
 
 /* ===================== 共通 ===================== */
@@ -468,8 +446,8 @@ function mem(m){return `<div class="mem">${avatar(m)}<div class="nm">${esc(m.nam
     const rest=MEMBERS.filter(m=>!used.has(m.key));
     if(rest.length) h+=`<div class="grp" style="margin-top:22px">ほかのメンバー</div><div class="grid">${rest.map(mem).join('')}</div>`;
   }else{
-    h+=`<div class="grp">高校の7人</div><div class="grid">${MEMBERS.filter(m=>m.g==='f').map(mem).join('')}</div>`;
-    h+=`<div class="grp">だんなさんたち</div><div class="grid">${MEMBERS.filter(m=>m.g==='m').map(mem).join('')}</div>`;
+    h+=`<div class="grp">ガールズ</div><div class="grid">${MEMBERS.filter(m=>m.g==='f').map(mem).join('')}</div>`;
+    h+=`<div class="grp">ボーイズ</div><div class="grid">${MEMBERS.filter(m=>m.g==='m').map(mem).join('')}</div>`;
   }
   $('#memberList').innerHTML=h;
 })();
