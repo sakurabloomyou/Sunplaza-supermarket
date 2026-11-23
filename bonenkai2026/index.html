@@ -444,8 +444,13 @@ window.addEventListener('storage',()=>{ if(!LIVE) refresh(); });
 
 /* ===================== 幹事パネル（URL に ?admin を付けると表示） ===================== */
 let pin='';
-function getParams(){ return new Promise(res=>{ if(LIVE&&google.script.url) google.script.url.getLocation(l=>res(l.parameter||{})); else res(Object.fromEntries(new URLSearchParams(location.search))); }); }
-getParams().then(p=>{ if('admin' in p) $('#admin').hidden=false; });
+function getParams(){ return new Promise(res=>{
+  if(LIVE&&google.script.url) google.script.url.getLocation(l=>res(Object.assign({},l.parameters||{},l.parameter||{},(l.hash||'').indexOf('admin')>=0?{admin:'1'}:{})));
+  else res(Object.assign(Object.fromEntries(new URLSearchParams(location.search)),location.hash.indexOf('admin')>=0?{admin:'1'}:{})); }); }
+function showAdmin(){ const a=$('#admin'); a.hidden=false; a.scrollIntoView({behavior:'smooth'}); setTimeout(()=>$('#pin').focus(),400); }
+getParams().then(p=>{ if(p.admin!==undefined) showAdmin(); });
+// 予備：ページ最下部の「幹事」の文字を5回タップでも幹事パネルを表示
+(()=>{ let n=0,t; document.querySelector('footer').addEventListener('click',()=>{ n++; clearTimeout(t); t=setTimeout(()=>n=0,1500); if(n>=5){ n=0; showAdmin(); } }); })();
 async function adminLoad(){
   try{ const s=await api('adminGetState',pin); $('#adminLogin').hidden=true; $('#adminBody').hidden=false; adminRender(s); }
   catch(e){ toast(e.message); }

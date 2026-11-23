@@ -98,7 +98,8 @@ function aSheet_() { return sheet_(SHEET_A, ['timestamp', 'player', 'no', 'guess
 
 function checkPin_(pin) {
   var p = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
-  if (!p || String(pin) !== String(p)) throw new Error('PINが違います');
+  if (!p) throw new Error('PINが未設定です（Apps Script で setAdminPin を実行してください）');
+  if (String(pin) !== String(p)) throw new Error('PINが違います');
 }
 
 function rows_(sh) {
