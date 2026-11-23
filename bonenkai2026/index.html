@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ガールズ忘年会2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Yuji+Syuku&display=swap" rel="stylesheet">
 <style>
 :root{
   --aka:#c7372d; --aka-d:#a92a22; --shiro:#fffaf3; --ink:#3b2320; --sub:#86655e; --rule:#ead9d1; --pale:#f6ebe6;
@@ -37,22 +37,8 @@ section{padding:8px 0 48px}
 
 /* ---- ヘッダー ---- */
 .top{text-align:center;padding:28px 0 0}
-/* 暖簾 */
-.noren{display:inline-block;position:relative;padding-top:12px;margin:0 0 12px}
-.rod{position:absolute;top:0;left:-22px;right:-22px;height:12px;border-radius:6px;background:linear-gradient(#9a6a45,#6b4428 60%,#553520);box-shadow:0 3px 0 rgba(0,0,0,.25)}
-.rod::before,.rod::after{content:"";position:absolute;top:-3px;width:18px;height:18px;border-radius:50%;background:#4a2e1a}
-.rod::before{left:-8px} .rod::after{right:-8px}
-.banner{position:relative;display:block;background:var(--shiro);color:var(--aka);font-weight:500;font-size:clamp(16px,4.8vw,21px);padding:12px 0 8px;letter-spacing:.14em;
-  background-image:linear-gradient(transparent calc(100% - 3px),rgba(199,55,45,.25) calc(100% - 3px))}
-.banner::before{content:"";position:absolute;top:-6px;left:0;right:0;height:8px;
-  background:repeating-linear-gradient(90deg,transparent 0 6%,var(--shiro) 6% 16%,transparent 16% 22%)}
-.big-tiles{display:flex;justify-content:center;gap:7px;margin:0}
-.big-tiles span{display:grid;place-items:center;width:clamp(78px,24vw,120px);height:clamp(118px,36vw,176px);color:var(--aka);font-size:clamp(54px,17vw,88px);font-weight:500;line-height:1;
-  background:linear-gradient(90deg,rgba(0,0,0,.06),transparent 22%,transparent 78%,rgba(0,0,0,.07)),
-    linear-gradient(transparent calc(100% - 14px),var(--aka) calc(100% - 14px),var(--aka) calc(100% - 10px),transparent calc(100% - 10px)),var(--shiro);
-  border-radius:0 0 3px 3px;box-shadow:0 5px 0 rgba(0,0,0,.18);transform-origin:top center;animation:sway 3.6s ease-in-out infinite alternate}
-.big-tiles span:nth-child(2){animation-delay:-1.2s} .big-tiles span:nth-child(3){animation-delay:-2.4s}
-@keyframes sway{from{transform:skewX(1.4deg)}to{transform:skewX(-1.4deg)}}
+.noren{width:min(100%,400px);margin:0 auto 4px}
+.noren svg{width:100%;height:auto;display:block;overflow:visible}
 .with{font-size:clamp(24px,7.4vw,36px);font-weight:500;margin:6px 0 14px;letter-spacing:.1em}
 .with small{font-size:.6em}
 .hero-info{font-size:17px;line-height:1.7;margin:0 0 6px}
@@ -206,11 +192,98 @@ footer .ground{margin-bottom:18px}
 <div id="demoBar" class="demo" hidden>デモ表示中（サンプルデータ・このブラウザ内だけで動作）— 本番は Apps Script で公開したURLを使います</div>
 
 <header class="top"><div class="wrap">
-  <div class="noren">
-    <div class="rod" aria-hidden="true"></div>
-    <div class="banner">2026 ガールズ</div>
-    <h1 class="big-tiles" aria-label="2026 ガールズ忘年会 with ボーイズ"><span>忘</span><span>年</span><span>会</span></h1>
-  </div>
+  <h1 class="noren" aria-label="2026 ガールズ忘年会 with ボーイズ">
+  <svg viewBox="0 0 372 300" aria-hidden="true">
+    <defs>
+      <!-- 木の竿 -->
+      <linearGradient id="nrRod" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2e1b0e"/><stop offset=".25" stop-color="#7a4f2c"/><stop offset=".45" stop-color="#9a6a3e"/>
+        <stop offset=".7" stop-color="#5a381d"/><stop offset="1" stop-color="#25150a"/>
+      </linearGradient>
+      <filter id="nrGrain" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".012 .9" numOctaves="3" seed="7"/>
+        <feColorMatrix values="0 0 0 0 .12  0 0 0 0 .06  0 0 0 0 .02  0 0 0 -1.6 1.15"/>
+      </filter>
+      <radialGradient id="nrEnd" cx=".45" cy=".45" r=".6">
+        <stop offset="0" stop-color="#b98a5a"/><stop offset=".35" stop-color="#9a6b40"/><stop offset=".55" stop-color="#a87a4c"/>
+        <stop offset=".75" stop-color="#83562f"/><stop offset="1" stop-color="#4a2c14"/>
+      </radialGradient>
+      <!-- 布のシワ（ゆがみ）と影 -->
+      <filter id="nrCloth" x="-6%" y="-6%" width="112%" height="118%">
+        <feTurbulence type="fractalNoise" baseFrequency=".011 .03" numOctaves="2" seed="4" result="w"/>
+        <feDisplacementMap in="SourceGraphic" in2="w" scale="6" xChannelSelector="R" yChannelSelector="G" result="d"/>
+        <feDropShadow in="d" dx="3" dy="6" stdDeviation="3.5" flood-color="#3a0b06" flood-opacity=".45"/>
+      </filter>
+      <!-- 麻の織り目 -->
+      <filter id="nrWeave" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".9 .7" numOctaves="2" seed="11"/>
+        <feColorMatrix values="0 0 0 0 .35  0 0 0 0 .28  0 0 0 0 .2  0 0 0 -.9 .62"/>
+      </filter>
+      <filter id="nrSlub" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".05 .6" numOctaves="2" seed="2"/>
+        <feColorMatrix values="0 0 0 0 .4  0 0 0 0 .32  0 0 0 0 .22  0 0 0 -1.2 .7"/>
+      </filter>
+      <!-- 布のたるみ（縦の陰影） -->
+      <linearGradient id="nrFold" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#000" stop-opacity=".16"/><stop offset=".12" stop-color="#000" stop-opacity=".02"/>
+        <stop offset=".3" stop-color="#000" stop-opacity=".07"/><stop offset=".46" stop-color="#fff" stop-opacity=".18"/>
+        <stop offset=".62" stop-color="#000" stop-opacity=".03"/><stop offset=".8" stop-color="#000" stop-opacity=".08"/>
+        <stop offset=".92" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".18"/>
+      </linearGradient>
+      <linearGradient id="nrTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2a1208" stop-opacity=".45"/><stop offset=".1" stop-color="#2a1208" stop-opacity=".1"/><stop offset=".2" stop-color="#000" stop-opacity="0"/>
+        <stop offset=".93" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".12"/>
+      </linearGradient>
+      <linearGradient id="nrLoop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#a8987c"/><stop offset=".18" stop-color="#d8ccb4"/><stop offset=".42" stop-color="#f1e8d6"/>
+        <stop offset=".7" stop-color="#ddd1ba"/><stop offset="1" stop-color="#e6dcc8"/>
+      </linearGradient>
+      <linearGradient id="nrLoopSide" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#000" stop-opacity=".22"/><stop offset=".25" stop-color="#000" stop-opacity="0"/>
+        <stop offset=".75" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".25"/>
+      </linearGradient>
+      <clipPath id="nrShape"><path d="M14,22 H358 V272 H250 V78 H244 V272 H128 V78 H122 V272 H14 Z"/></clipPath>
+    </defs>
+
+    <!-- 布 -->
+    <g filter="url(#nrCloth)">
+      <g clip-path="url(#nrShape)">
+        <rect x="0" y="0" width="372" height="300" fill="#e9dfcb"/>
+        <rect x="0" y="0" width="372" height="300" filter="url(#nrSlub)" opacity=".45"/>
+        <g font-family="'Yuji Syuku',serif" text-anchor="middle" fill="#2b2320">
+          <text x="186" y="60" font-size="22" fill="#a8342a" letter-spacing="3">2026 ガールズ</text>
+          <text x="68" y="206" font-size="80">忘</text>
+          <text x="186" y="206" font-size="80">年</text>
+          <text x="304" y="206" font-size="80">会</text>
+        </g>
+        <rect x="14" y="22" width="108" height="250" fill="url(#nrFold)"/>
+        <rect x="128" y="22" width="116" height="250" fill="url(#nrFold)"/>
+        <rect x="250" y="22" width="108" height="250" fill="url(#nrFold)"/>
+        <rect x="0" y="22" width="372" height="250" fill="url(#nrTop)"/>
+        <rect x="0" y="0" width="372" height="300" filter="url(#nrWeave)" opacity=".55"/>
+        <path d="M14,74 H358" stroke="#8d7c62" stroke-width="1" stroke-dasharray="3 2.5" opacity=".55"/>
+        <path d="M14,262 H122 M128,262 H244 M250,262 H358" stroke="#8d7c62" stroke-width="1" stroke-dasharray="3 2.5" opacity=".55"/>
+      </g>
+    </g>
+
+    <!-- 竿 -->
+    <rect x="2" y="7" width="368" height="21" rx="10.5" fill="url(#nrRod)"/>
+    <rect x="2" y="7" width="368" height="21" rx="10.5" filter="url(#nrGrain)" opacity=".85"/>
+    <path d="M10,12.5 H362" stroke="#d9ab78" stroke-opacity=".35" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="4" cy="17.5" rx="5" ry="10.5" fill="url(#nrEnd)" stroke="#3a220f" stroke-width=".6"/>
+    <ellipse cx="368" cy="17.5" rx="5" ry="10.5" fill="url(#nrEnd)" stroke="#3a220f" stroke-width=".6"/>
+
+    <!-- 乳（竿にかかる輪） -->
+    <g filter="url(#nrCloth)">
+      <path d="M20,28 V9 Q20,3 31,3 Q42,3 42,9 V28 Z" fill="url(#nrLoop)"/><path d="M20,28 V9 Q20,3 31,3 Q42,3 42,9 V28 Z" fill="url(#nrLoopSide)"/>
+      <path d="M77,28 V9 Q77,3 88,3 Q99,3 99,9 V28 Z" fill="url(#nrLoop)"/><path d="M77,28 V9 Q77,3 88,3 Q99,3 99,9 V28 Z" fill="url(#nrLoopSide)"/>
+      <path d="M134,28 V9 Q134,3 145,3 Q156,3 156,9 V28 Z" fill="url(#nrLoop)"/><path d="M134,28 V9 Q134,3 145,3 Q156,3 156,9 V28 Z" fill="url(#nrLoopSide)"/>
+      <path d="M218,28 V9 Q218,3 229,3 Q240,3 240,9 V28 Z" fill="url(#nrLoop)"/><path d="M218,28 V9 Q218,3 229,3 Q240,3 240,9 V28 Z" fill="url(#nrLoopSide)"/>
+      <path d="M275,28 V9 Q275,3 286,3 Q297,3 297,9 V28 Z" fill="url(#nrLoop)"/><path d="M275,28 V9 Q275,3 286,3 Q297,3 297,9 V28 Z" fill="url(#nrLoopSide)"/>
+      <path d="M332,28 V9 Q332,3 343,3 Q354,3 354,9 V28 Z" fill="url(#nrLoop)"/><path d="M332,28 V9 Q332,3 343,3 Q354,3 354,9 V28 Z" fill="url(#nrLoopSide)"/>
+    </g>
+  </svg>
+  </h1>
   <p class="with">with ボーイズ</p>
   <p class="hero-info"><b>12月30日（水）18:00〜</b><br>蘭香園<br><span style="font-size:14px">ダイワロイネットホテル和歌山 モンティグレ 3F</span></p>
   <p class="days" id="days"></p>
