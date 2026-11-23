@@ -125,9 +125,12 @@ function getState(player) {
   var as = rows_(aSheet_());
   var mine = {};
   var answeredCount = {};
+  var votes = {}; // 問題No → { 予想した名前: 票数 }
   as.forEach(function (a) {
     answeredCount[a[2]] = (answeredCount[a[2]] || 0) + 1;
     if (a[1] === player) mine[a[2]] = a[3];
+    votes[a[2]] = votes[a[2]] || {};
+    votes[a[2]][a[3]] = (votes[a[2]][a[3]] || 0) + 1;
   });
   var questions = qs.map(function (q) {
     var revealed = q[3] === 'revealed';
@@ -138,7 +141,10 @@ function getState(player) {
       owner: revealed ? q[1] : null,
       isMine: q[1] === player,
       myGuess: mine[q[0]] || null,
-      answered: answeredCount[q[0]] || 0
+      answered: answeredCount[q[0]] || 0,
+      // みんなの予想と正解数は、正解発表後だけ返す
+      votes: revealed ? (votes[q[0]] || {}) : null,
+      correct: revealed ? ((votes[q[0]] || {})[q[1]] || 0) : null
     };
   });
   return { members: MEMBERS, questions: questions, ranking: ranking_(qs, as) };
