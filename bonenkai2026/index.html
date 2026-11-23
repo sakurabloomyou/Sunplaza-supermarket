@@ -37,10 +37,22 @@ section{padding:8px 0 48px}
 
 /* ---- ヘッダー ---- */
 .top{text-align:center;padding:28px 0 0}
-.banner{display:inline-block;background:var(--shiro);color:var(--aka);font-weight:500;font-size:clamp(17px,5vw,22px);padding:4px 20px 2px;border-radius:8px 8px 0 0;letter-spacing:.12em}
-.big-tiles{display:flex;justify-content:center;gap:8px;margin:0 0 10px}
-.big-tiles span{display:grid;place-items:center;width:clamp(78px,24vw,120px);height:clamp(88px,27vw,136px);background:var(--shiro);color:var(--aka);
-  border-radius:0 0 10px 10px;font-size:clamp(54px,17vw,88px);font-weight:500;line-height:1;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+/* 暖簾 */
+.noren{display:inline-block;position:relative;padding-top:12px;margin:0 0 12px}
+.rod{position:absolute;top:0;left:-22px;right:-22px;height:12px;border-radius:6px;background:linear-gradient(#9a6a45,#6b4428 60%,#553520);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.rod::before,.rod::after{content:"";position:absolute;top:-3px;width:18px;height:18px;border-radius:50%;background:#4a2e1a}
+.rod::before{left:-8px} .rod::after{right:-8px}
+.banner{position:relative;display:block;background:var(--shiro);color:var(--aka);font-weight:500;font-size:clamp(16px,4.8vw,21px);padding:12px 0 8px;letter-spacing:.14em;
+  background-image:linear-gradient(transparent calc(100% - 3px),rgba(199,55,45,.25) calc(100% - 3px))}
+.banner::before{content:"";position:absolute;top:-6px;left:0;right:0;height:8px;
+  background:repeating-linear-gradient(90deg,transparent 0 6%,var(--shiro) 6% 16%,transparent 16% 22%)}
+.big-tiles{display:flex;justify-content:center;gap:7px;margin:0}
+.big-tiles span{display:grid;place-items:center;width:clamp(78px,24vw,120px);height:clamp(118px,36vw,176px);color:var(--aka);font-size:clamp(54px,17vw,88px);font-weight:500;line-height:1;
+  background:linear-gradient(90deg,rgba(0,0,0,.06),transparent 22%,transparent 78%,rgba(0,0,0,.07)),
+    linear-gradient(transparent calc(100% - 14px),var(--aka) calc(100% - 14px),var(--aka) calc(100% - 10px),transparent calc(100% - 10px)),var(--shiro);
+  border-radius:0 0 3px 3px;box-shadow:0 5px 0 rgba(0,0,0,.18);transform-origin:top center;animation:sway 3.6s ease-in-out infinite alternate}
+.big-tiles span:nth-child(2){animation-delay:-1.2s} .big-tiles span:nth-child(3){animation-delay:-2.4s}
+@keyframes sway{from{transform:skewX(1.4deg)}to{transform:skewX(-1.4deg)}}
 .with{font-size:clamp(24px,7.4vw,36px);font-weight:500;margin:6px 0 14px;letter-spacing:.1em}
 .with small{font-size:.6em}
 .hero-info{font-size:17px;line-height:1.7;margin:0 0 6px}
@@ -194,8 +206,11 @@ footer .ground{margin-bottom:18px}
 <div id="demoBar" class="demo" hidden>デモ表示中（サンプルデータ・このブラウザ内だけで動作）— 本番は Apps Script で公開したURLを使います</div>
 
 <header class="top"><div class="wrap">
-  <div class="banner">2026 ガールズ</div>
-  <h1 class="big-tiles" aria-label="2026 ガールズ忘年会 with ボーイズ"><span>忘</span><span>年</span><span>会</span></h1>
+  <div class="noren">
+    <div class="rod" aria-hidden="true"></div>
+    <div class="banner">2026 ガールズ</div>
+    <h1 class="big-tiles" aria-label="2026 ガールズ忘年会 with ボーイズ"><span>忘</span><span>年</span><span>会</span></h1>
+  </div>
   <p class="with">with ボーイズ</p>
   <p class="hero-info"><b>12月30日（水）18:00〜</b><br>蘭香園<br><span style="font-size:14px">ダイワロイネットホテル和歌山 モンティグレ 3F</span></p>
   <p class="days" id="days"></p>
