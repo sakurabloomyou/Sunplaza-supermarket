@@ -36,6 +36,7 @@ function setupForm() {
   form.setDescription(
     '12/30の忘年会で「この大ニュースは誰でしょう？」クイズを出題します。\n' +
     '名前は伏せて出題するので、正直に・ちょっと盛って書いてください！\n' +
+    '【回答締切】12月27日（日）23:59\n' +
     '※回答は幹事以外には当日まで見えません。'
   );
   form.setCollectEmail(false);
@@ -51,9 +52,24 @@ function setupForm() {
     .setHelpText('司会がネタ振りに使います。LPには表示されません。')
     .setRequired(false);
   form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+  form.setCustomClosedFormMessage('回答の受付は12月27日で締め切りました。当日のクイズをお楽しみに！');
+
+  // 締切：12/28 0:00（日本時間）に自動で回答受付を終了
+  PropertiesService.getScriptProperties().setProperty('FORM_ID', form.getId());
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'closeForm') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('closeForm').timeBased().at(new Date('2026-12-28T00:00:00+09:00')).create();
+
   Logger.log('回答用URL: ' + form.getPublishedUrl());
   Logger.log('編集用URL: ' + form.getEditUrl());
   return form.getPublishedUrl();
+}
+
+/** 回答受付を終了（締切トリガーから自動実行。手動実行でも可） */
+function closeForm() {
+  var id = PropertiesService.getScriptProperties().getProperty('FORM_ID');
+  if (id) FormApp.openById(id).setAcceptingResponses(false);
 }
 
 /** 幹事用PINを設定します（エディタで PIN を書き換えて1回実行）。 */
