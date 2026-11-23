@@ -27,30 +27,36 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+/* ---------- アンケートの文言 ---------- */
+var FORM_TITLE = '【ガールズ忘年会2026】事前アンケート';
+var FORM_DESC =
+  '12/30のガールズ忘年会 with ボーイズで「この大ニュース、誰の？」クイズを出題します。\n' +
+  '名前は伏せて出題するので、正直に・ちょっと盛って書いてください！\n' +
+  '【回答締切】12月27日（日）23:59\n' +
+  '※回答は幹事以外には当日まで見えません。';
+var Q_NAME = 'あなたのお名前';
+var Q_NEWS = '2026個人的大ニュース';
+var Q_NEWS_HELP =
+  '例：推しのライブに初参戦した／料理で砂糖と塩をまちがえた　など。1〜2文で、ちょっと盛ってOK！\n' +
+  '※「夫が」「子どもが」など、すぐ本人とわかる書き方はちょっとぼかしてね';
+var Q_EPI = '当日聞かれたら話したいエピソード（任意）';
+var Q_EPI_HELP = '正解発表のあと、司会がネタ振りに使います。LPには表示されません。';
+// 以前の質問名（すでに集まった回答の列名）も読めるようにする
+var Q_NEWS_ALIASES = [Q_NEWS, '2026年の個人的大ニュース'];
+
 /* ---------- 初期設定（エディタから1回だけ実行） ---------- */
 
 /** 事前アンケート用 Googleフォームを作成し、このスプレッドシートに回答を連携します。 */
 function setupForm() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var form = FormApp.create('【忘年会2026】事前アンケート');
-  form.setDescription(
-    '12/30の忘年会で「この大ニュースは誰でしょう？」クイズを出題します。\n' +
-    '名前は伏せて出題するので、正直に・ちょっと盛って書いてください！\n' +
-    '【回答締切】12月27日（日）23:59\n' +
-    '※回答は幹事以外には当日まで見えません。'
-  );
+  var form = FormApp.create(FORM_TITLE);
+  form.setDescription(FORM_DESC);
   form.setCollectEmail(false);
   form.setLimitOneResponsePerUser(false);
   form.setAllowResponseEdits(true);
-  form.addListItem().setTitle('あなたのお名前').setChoiceValues(MEMBERS).setRequired(true);
-  form.addParagraphTextItem()
-    .setTitle('2026年の個人的大ニュース')
-    .setHelpText('例：人生初のフルマラソンを完走した／ついに家を買った　など。1〜2文で。')
-    .setRequired(true);
-  form.addParagraphTextItem()
-    .setTitle('当日聞かれたら話したいエピソード（任意）')
-    .setHelpText('司会がネタ振りに使います。LPには表示されません。')
-    .setRequired(false);
+  form.addListItem().setTitle(Q_NAME).setChoiceValues(MEMBERS).setRequired(true);
+  form.addParagraphTextItem().setTitle(Q_NEWS).setHelpText(Q_NEWS_HELP).setRequired(true);
+  form.addParagraphTextItem().setTitle(Q_EPI).setHelpText(Q_EPI_HELP).setRequired(false);
   form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
   form.setCustomClosedFormMessage('回答の受付は12月27日で締め切りました。当日のクイズをお楽しみに！');
 
@@ -64,6 +70,26 @@ function setupForm() {
   Logger.log('回答用URL: ' + form.getPublishedUrl());
   Logger.log('編集用URL: ' + form.getEditUrl());
   return form.getPublishedUrl();
+}
+
+/**
+ * すでに作ったフォームの文言だけを最新にします（URLは変わりません。回答も消えません）。
+ * エディタで updateForm を選んで1回実行してください。
+ */
+function updateForm() {
+  var id = PropertiesService.getScriptProperties().getProperty('FORM_ID');
+  if (!id) throw new Error('フォームIDが見つかりません。Googleフォームの編集画面で直接直してください');
+  var form = FormApp.openById(id);
+  form.setTitle(FORM_TITLE);
+  form.setDescription(FORM_DESC);
+  var done = [];
+  form.getItems().forEach(function (it) {
+    var t = it.getTitle();
+    if (Q_NEWS_ALIASES.indexOf(t) >= 0) { it.asParagraphTextItem().setTitle(Q_NEWS).setHelpText(Q_NEWS_HELP); done.push('大ニュース'); }
+    else if (t === Q_EPI) { it.asParagraphTextItem().setHelpText(Q_EPI_HELP); done.push('エピソード'); }
+  });
+  Logger.log('更新しました：タイトル・説明文・' + done.join('・'));
+  return done;
 }
 
 /** 回答受付を終了（締切トリガーから自動実行。手動実行でも可） */
@@ -108,11 +134,16 @@ function rows_(sh) {
   return v.filter(function (r) { return r[0] !== ''; });
 }
 
+function newsCol_(header) {
+  for (var k = 0; k < Q_NEWS_ALIASES.length; k++) { var i = header.indexOf(Q_NEWS_ALIASES[k]); if (i >= 0) return i; }
+  return -1;
+}
+
 function findResponseSheet_() {
   var sheets = ss_().getSheets();
   for (var i = 0; i < sheets.length; i++) {
     var h = sheets[i].getRange(1, 1, 1, Math.max(1, sheets[i].getLastColumn())).getValues()[0];
-    if (h.indexOf('あなたのお名前') >= 0 && h.indexOf('2026年の個人的大ニュース') >= 0) return sheets[i];
+    if (h.indexOf(Q_NAME) >= 0 && newsCol_(h) >= 0) return sheets[i];
   }
   throw new Error('フォームの回答シートが見つかりません（setupForm を実行しましたか？）');
 }
@@ -188,7 +219,7 @@ function adminBuildQuestions(pin) {
   var rs = findResponseSheet_();
   var v = rs.getDataRange().getValues();
   var h = v.shift();
-  var iName = h.indexOf('あなたのお名前'), iNews = h.indexOf('2026年の個人的大ニュース');
+  var iName = h.indexOf(Q_NAME), iNews = newsCol_(h);
   var latest = {}; // 同じ人が複数回答した場合は最新を採用
   v.forEach(function (r) { if (r[iName]) latest[r[iName]] = r[iNews]; });
   var list = Object.keys(latest).map(function (k) { return [k, latest[k]]; });
@@ -232,7 +263,7 @@ function adminGetState(pin) {
   try {
     var rs = findResponseSheet_();
     var v = rs.getDataRange().getValues(); var h = v.shift();
-    var iName = h.indexOf('あなたのお名前'), iEpi = h.indexOf('当日聞かれたら話したいエピソード（任意）');
+    var iName = h.indexOf(Q_NAME), iEpi = h.indexOf(Q_EPI);
     v.forEach(function (r) { if (iEpi >= 0) epi[r[iName]] = r[iEpi]; });
   } catch (e) { /* 回答シート未作成 */ }
   return {
