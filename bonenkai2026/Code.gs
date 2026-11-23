@@ -139,13 +139,32 @@ function newsCol_(header) {
   return -1;
 }
 
+/**
+ * フォームの回答シートを探す。
+ * フォームを作り直すと古い回答シートも残るので、
+ * ① いまのフォーム（FORM_ID）につながっているシートを優先、
+ * ② わからなければ、いちばん新しい回答が入っているシートを使う。
+ */
 function findResponseSheet_() {
-  var sheets = ss_().getSheets();
-  for (var i = 0; i < sheets.length; i++) {
-    var h = sheets[i].getRange(1, 1, 1, Math.max(1, sheets[i].getLastColumn())).getValues()[0];
-    if (h.indexOf(Q_NAME) >= 0 && newsCol_(h) >= 0) return sheets[i];
+  var formId = PropertiesService.getScriptProperties().getProperty('FORM_ID');
+  var cands = ss_().getSheets().filter(function (sh) {
+    var h = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0];
+    return h.indexOf(Q_NAME) >= 0 && newsCol_(h) >= 0;
+  });
+  if (!cands.length) throw new Error('フォームの回答シートが見つかりません（setupForm を実行しましたか？）');
+  if (formId) {
+    for (var i = 0; i < cands.length; i++) {
+      var url = '';
+      try { url = cands[i].getFormUrl() || ''; } catch (e) {}
+      if (url.indexOf(formId) >= 0) return cands[i];
+    }
   }
-  throw new Error('フォームの回答シートが見つかりません（setupForm を実行しましたか？）');
+  var best = cands[0], bestT = -1;
+  cands.forEach(function (sh) {
+    var v = sh.getDataRange().getValues();
+    for (var r = 1; r < v.length; r++) { var t = new Date(v[r][0]).getTime(); if (t > bestT) { bestT = t; best = sh; } }
+  });
+  return best;
 }
 
 /* ---------- 公開API（クライアントから google.script.run で呼ぶ） ---------- */
